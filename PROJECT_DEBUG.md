@@ -1223,6 +1223,7 @@ Son tamamlanmış doğrulama (v61):
 
 ## 10. Açık durumlar ve mantıklı sonraki adımlar
 
+- Canlı test şimdi `yeni.avcieticaret.com/v1/`. Geliştirme bitince kullanıcı isteğiyle `avcieticaret.com` köküne taşınır; o zamana kadar kök alana geçilmez.
 - Görsel kimlik kuralı (v70) geçerli; tam sayfa redesign yok.
 - Hero hareketi (v71) ve ikas IA blokları (v72) kullanıcı onayı bekliyor.
 - Paket kimlikleri merkezileştirildi; pazarlama metinleri sayfa bağlamına göre ayrı kalıyor. Yeni paket eklenirse her iki görünümün içerik kapsamı birlikte gözden geçirilmelidir.
