@@ -7,7 +7,6 @@ NODE_BIN="/opt/node-v22.23.1-linux-x64/bin"
 export PATH="${NODE_BIN}:${PATH}"
 export NEXT_PUBLIC_BASE_PATH="/v1"
 export NEXT_PUBLIC_SITE_ORIGIN="https://yeni.avcieticaret.com"
-export NODE_ENV="production"
 export WRANGLER_LOG_PATH="${APP_DIR}/.wrangler/wrangler.log"
 
 cd "${APP_DIR}"
@@ -15,9 +14,11 @@ if ! command -v npm >/dev/null 2>&1; then
   echo "npm not found on PATH" >&2
   exit 1
 fi
-npm ci
+# NODE_ENV=production before npm ci skips vite/vinext (devDependencies).
+npm ci --include=dev
+export NODE_ENV="production"
 
-npx --yes vinext build
+npx vinext build
 systemctl restart avci-yeni-v1.service
 systemctl is-active avci-yeni-v1.service
 curl -sI -o /dev/null -w "local_v1:%{http_code}\n" --max-time 10 http://127.0.0.1:4120/v1 || true
