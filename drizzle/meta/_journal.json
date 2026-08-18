@@ -1,0 +1,181 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1786443441324,
+      "tag": "0000_glorious_scorpion",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1786445543516,
+      "tag": "0001_fast_bishop",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1786445800058,
+      "tag": "0002_majestic_frank_castle",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1786453161852,
+      "tag": "0003_daily_lord_tyger",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1786453754321,
+      "tag": "0004_light_mach_iv",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1786455996651,
+      "tag": "0005_glorious_switch",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1786456289724,
+      "tag": "0006_mysterious_la_nuit",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1786479761267,
+      "tag": "0007_normal_skullbuster",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1786480180091,
+      "tag": "0008_mixed_wallop",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1786480324304,
+      "tag": "0009_fat_krista_starr",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1786480537787,
+      "tag": "0010_remarkable_spacker_dave",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "6",
+      "when": 1786769132517,
+      "tag": "0011_friendly_hammerhead",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "6",
+      "when": 1786770856193,
+      "tag": "0012_new_diamondback",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "6",
+      "when": 1786773100000,
+      "tag": "0013_customers",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "6",
+      "when": 1786772133132,
+      "tag": "0014_tiny_crystal",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "6",
+      "when": 1786775200000,
+      "tag": "0015_packages",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "6",
+      "when": 1786776000000,
+      "tag": "0016_modules",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "6",
+      "when": 1786776800000,
+      "tag": "0017_software_orders",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "6",
+      "when": 1786777600000,
+      "tag": "0018_support_tickets",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "6",
+      "when": 1786778400000,
+      "tag": "0019_software_invoices",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "6",
+      "when": 1786780000000,
+      "tag": "0020_vitrine_signals",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "6",
+      "when": 1786782000000,
+      "tag": "0021_vitrine_toasts",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "6",
+      "when": 1786784000000,
+      "tag": "0022_site_settings",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "6",
+      "when": 1786786000000,
+      "tag": "0023_site_assets",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "6",
+      "when": 1786880000000,
+      "tag": "0024_customer_domains",
+      "breakpoints": true
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 120" role="img" aria-label="adana360">
+  <g transform="translate(18,22)">
+    <path d="M38 8c-24 8-38 28-38 52s14 44 38 52" fill="none" stroke="#8a8f98" stroke-width="12" stroke-linecap="round"/>
+    <path d="M42 10c22 8 34 26 34 50s-12 42-34 50" fill="none" stroke="#1e90ff" stroke-width="10" stroke-linecap="round"/>
+    <rect x="2" y="6" width="8" height="8" fill="#8a8f98"/>
+    <rect x="12" y="2" width="8" height="8" fill="#1e90ff"/>
+    <rect x="8" y="16" width="7" height="7" fill="#8a8f98"/>
+  </g>
+  <text x="118" y="74" font-family="Segoe UI, Arial, Helvetica, sans-serif" font-size="42" font-weight="700" letter-spacing="-1">
+    <tspan fill="#d0d4db">adana</tspan><tspan fill="#1e90ff">360</tspan>
+  </text>
+</svg>

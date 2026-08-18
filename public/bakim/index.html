@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Avcı E-Ticaret | Yakında — Önizleme</title>
+  <meta name="description" content="Avcı E-Ticaret yeni nesil ticaret altyapısını hazırlıyor. İletişim: 0850 308 68 37" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="theme-color" content="#050505" />
+  <link rel="icon" href="./logos/avci-mark.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* Sadece /bakim önizlemesi — ana proje CSS’ine dokunmaz */
+    :root {
+      --bg: #050505;
+      --bg-elevated: #0c0c0c;
+      --ink: #f4f4f4;
+      --muted: #9b9b9b;
+      --line: rgba(255, 255, 255, 0.1);
+      --logo-red: #e10600;
+      --logo-red-deep: #b80500;
+      --logo-red-glow: rgba(225, 6, 0, 0.28);
+      --logo-red-soft: rgba(225, 6, 0, 0.14);
+      --adana: #1e90ff;
+      --hatay: #00a0c0;
+      --dijivio: #2bb7ff;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      color: var(--ink);
+      font-family: Manrope, "Segoe UI", sans-serif;
+      line-height: 1.55;
+      background:
+        radial-gradient(ellipse 70% 45% at 78% -5%, var(--logo-red-glow), transparent 55%),
+        radial-gradient(ellipse 50% 40% at 8% 100%, rgba(225, 6, 0, 0.12), transparent 50%),
+        linear-gradient(180deg, #0a0a0a 0%, var(--bg) 40%, #030303 100%);
+      background-attachment: fixed;
+    }
+
+    .preview-banner {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 16px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 18px;
+      border-bottom: 1px solid rgba(225, 6, 0, 0.35);
+      background: rgba(12, 12, 12, 0.92);
+      backdrop-filter: blur(12px);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: #d0d0d0;
+    }
+
+    .preview-banner strong {
+      color: var(--logo-red);
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .preview-banner a {
+      color: #fff;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    .wrap {
+      width: min(1040px, calc(100% - 40px));
+      margin: 0 auto;
+      min-height: calc(100vh - 44px);
+      display: grid;
+      align-content: center;
+      gap: 44px;
+      padding: 56px 0 64px;
+    }
+
+    .brand {
+      display: grid;
+      justify-items: start;
+      gap: 20px;
+      animation: rise 0.8s ease both;
+    }
+
+    .brand-logo {
+      width: min(420px, 90vw);
+      height: auto;
+      display: block;
+      filter: drop-shadow(0 8px 28px rgba(225, 6, 0, 0.18));
+    }
+
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 6px;
+      color: var(--logo-red);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    .kicker i {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--logo-red);
+      box-shadow: 0 0 0 0 rgba(225, 6, 0, 0.5);
+      animation: pulse 2.2s infinite;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 14ch;
+      font-size: clamp(2.5rem, 6.5vw, 4.8rem);
+      line-height: 0.98;
+      letter-spacing: -0.055em;
+      font-weight: 800;
+      text-wrap: balance;
+    }
+
+    h1 em {
+      font-style: normal;
+      color: var(--logo-red);
+      text-shadow: 0 0 40px rgba(225, 6, 0, 0.35);
+    }
+
+    .lead {
+      margin: 0;
+      max-width: 38rem;
+      color: var(--muted);
+      font-size: clamp(1.02rem, 1.35vw, 1.22rem);
+      font-weight: 500;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 4px;
+      animation: rise 0.9s ease 0.08s both;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 50px;
+      padding: 0 22px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 700;
+      transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn:hover { transform: translateY(-2px); }
+    .btn-primary {
+      color: #fff;
+      background: linear-gradient(180deg, var(--logo-red) 0%, var(--logo-red-deep) 100%);
+      box-shadow: 0 10px 28px rgba(225, 6, 0, 0.28);
+    }
+    .btn-primary:hover {
+      box-shadow: 0 14px 34px rgba(225, 6, 0, 0.38);
+    }
+    .btn-ghost {
+      color: #fff;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.03);
+    }
+    .btn-ghost:hover {
+      border-color: rgba(225, 6, 0, 0.45);
+      background: var(--logo-red-soft);
+    }
+
+    .panel {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 14px;
+      animation: rise 1s ease 0.12s both;
+    }
+
+    .card {
+      padding: 26px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background:
+        linear-gradient(160deg, rgba(225, 6, 0, 0.06), transparent 42%),
+        var(--bg-elevated);
+    }
+
+    .card h2 {
+      margin: 0 0 10px;
+      font-size: 1.02rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .card p, .card li {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.96rem;
+      font-weight: 500;
+    }
+
+    .card ul {
+      margin: 16px 0 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 10px;
+    }
+
+    .card li {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .card li::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      margin-top: 8px;
+      border-radius: 50%;
+      background: var(--logo-red);
+      flex: 0 0 auto;
+      box-shadow: 0 0 10px rgba(225, 6, 0, 0.55);
+    }
+
+    .contact {
+      border-color: rgba(225, 6, 0, 0.28);
+      background:
+        linear-gradient(145deg, rgba(225, 6, 0, 0.12), transparent 50%),
+        var(--bg-elevated);
+    }
+
+    .contact strong {
+      display: block;
+      margin-top: 4px;
+      color: #fff;
+      font-size: 1.32rem;
+      letter-spacing: -0.03em;
+      font-weight: 800;
+    }
+
+    .contact a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .contact a:hover { color: var(--logo-red); }
+
+    .label {
+      display: block;
+      margin-bottom: 2px;
+      color: #7a7a7a;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .ecosystem {
+      display: grid;
+      gap: 14px;
+      animation: rise 1.05s ease 0.16s both;
+    }
+
+    .ecosystem > p {
+      margin: 0;
+      color: #7f7f7f;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    .ecosystem-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .ecosystem-grid a {
+      min-height: 112px;
+      display: grid;
+      place-items: center;
+      padding: 20px 16px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.025);
+      text-decoration: none;
+      transition: border-color 0.2s ease, transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .ecosystem-grid a:hover {
+      transform: translateY(-3px);
+    }
+
+    .ecosystem-grid a[data-brand="adana"]:hover {
+      border-color: rgba(30, 144, 255, 0.5);
+      background: rgba(30, 144, 255, 0.08);
+      box-shadow: 0 12px 28px rgba(30, 144, 255, 0.12);
+    }
+    .ecosystem-grid a[data-brand="hatay"]:hover {
+      border-color: rgba(0, 160, 192, 0.5);
+      background: rgba(0, 160, 192, 0.08);
+      box-shadow: 0 12px 28px rgba(0, 160, 192, 0.12);
+    }
+    .ecosystem-grid a[data-brand="dijivio"]:hover {
+      border-color: rgba(43, 183, 255, 0.45);
+      background: rgba(106, 27, 255, 0.08);
+      box-shadow: 0 12px 28px rgba(106, 27, 255, 0.12);
+    }
+
+    .ecosystem-grid img {
+      width: min(200px, 100%);
+      height: auto;
+      display: block;
+    }
+
+    footer {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 10px;
+      padding-top: 14px;
+      border-top: 1px solid var(--line);
+      color: #5f5f5f;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    footer a { color: #9a9a9a; text-decoration: none; }
+    footer a:hover { color: var(--logo-red); }
+
+    @keyframes pulse {
+      70% { box-shadow: 0 0 0 12px rgba(225, 6, 0, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(225, 6, 0, 0); }
+    }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 860px) {
+      .panel, .ecosystem-grid { grid-template-columns: 1fr; }
+      .brand-logo { width: min(320px, 88vw); }
+      .wrap { gap: 36px; padding: 40px 0 48px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="preview-banner" role="status">
+    <span><strong>Önizleme</strong> — Ana proje değişmedi. Beğenirsen canlıya alırız.</span>
+    <a href="/">Ana siteye dön</a>
+  </div>
+
+  <main class="wrap">
+    <header class="brand">
+      <img class="brand-logo" src="./logos/avci-logo.svg" width="420" height="80" alt="avci e-ticaret.com" />
+      <div class="kicker"><i aria-hidden="true"></i> Site yenileniyor</div>
+      <h1>Yeni nesil e-ticaret altyapısı <em>çok yakında.</em></h1>
+      <p class="lead">
+        Avcı E-Ticaret; mağaza, katalog, sipariş, ödeme ve operasyon süreçlerini tek merkezde toplayan
+        yeni platform deneyimini hazırlıyor. Şimdilik bizimle doğrudan iletişime geçebilirsiniz.
+      </p>
+      <div class="actions">
+        <a class="btn btn-primary" href="tel:+908503086837">0850 308 68 37</a>
+        <a class="btn btn-ghost" href="mailto:info@avcieticaret.com">info@avcieticaret.com</a>
+      </div>
+    </header>
+
+    <section class="panel" aria-label="Durum ve iletişim">
+      <article class="card">
+        <h2>Ne oluyor?</h2>
+        <p>Canlı site, daha hızlı ve daha net bir ticaret deneyimi için yenileniyor. Mevcut müşteri ve proje destekleri kesintisiz devam eder.</p>
+        <ul>
+          <li>Mağaza ve katalog yönetimi</li>
+          <li>Sipariş, ödeme ve teslimat akışları</li>
+          <li>Pazaryeri ve entegrasyon bağlantıları</li>
+        </ul>
+      </article>
+      <article class="card contact">
+        <h2>İrtibat</h2>
+        <p>Hızlı destek ve teklif için arayın veya yazın.</p>
+        <p style="margin-top:18px">
+          <span class="label">Telefon</span>
+          <strong><a href="tel:+908503086837">0850 308 68 37</a></strong>
+        </p>
+        <p style="margin-top:16px">
+          <span class="label">E-posta</span>
+          <strong style="font-size:1.05rem"><a href="mailto:info@avcieticaret.com">info@avcieticaret.com</a></strong>
+        </p>
+      </article>
+    </section>
+
+    <section class="ecosystem" aria-label="Diğer sitelerimiz">
+      <p>Diğer markalarımız</p>
+      <div class="ecosystem-grid">
+        <a href="https://adana360.com" target="_blank" rel="noopener noreferrer" data-brand="adana" aria-label="Adana360">
+          <img src="./logos/adana360.svg" alt="adana360" />
+        </a>
+        <a href="https://hatay360.com" target="_blank" rel="noopener noreferrer" data-brand="hatay" aria-label="Hatay360">
+          <img src="./logos/hatay360.svg" alt="Hatay360.com" />
+        </a>
+        <a href="https://dijivio.com" target="_blank" rel="noopener noreferrer" data-brand="dijivio" aria-label="Dijivio">
+          <img src="./logos/dijivio.svg" alt="DIJIVIO Digital Creativity Agency" />
+        </a>
+      </div>
+    </section>
+
+    <footer>
+      <span>© Avcı E-Ticaret · sadece önizleme</span>
+      <span>
+        <a href="https://adana360.com" target="_blank" rel="noopener noreferrer">adana360.com</a>
+        ·
+        <a href="https://hatay360.com" target="_blank" rel="noopener noreferrer">hatay360.com</a>
+        ·
+        <a href="https://dijivio.com" target="_blank" rel="noopener noreferrer">dijivio.com</a>
+      </span>
+    </footer>
+  </main>
+</body>
+</html>

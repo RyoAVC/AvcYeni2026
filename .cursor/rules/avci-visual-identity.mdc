@@ -1,0 +1,57 @@
+---
+description: Avcı görsel kimlik sabittir; referans siteler yalnız IA/özellik kapsamı içindir. Tam sayfa redesign yasak.
+alwaysApply: true
+---
+
+# Avcı görsel kimlik ve referans sınırları
+
+## 1) Görsel kimlik SABİTTİR
+
+Kaynak: `app/globals.css`
+
+Sabit olanlar:
+- Renk paleti: `--ink`, `--mint`, `--cyan`, `--lime` (ve mevcut token’lar)
+- Fluid tipografi: `clamp()` ölçeği (`--hero-title`, `--page-title`, vb.)
+- Animasyon dili: mevcut keyframe’ler (`dashboardFloat`, `auroraDrift`, `headingShine`, `breathe`, vb.)
+
+YASAK:
+- Paleti, tipografi karakterini veya animasyon dilini “iyileştirme / modernleştirme” adı altında değiştirmek
+- Jenerik SaaS (mavi-beyaz kurumsal) görünüme kaydırmak
+- Yeni hex renk / yeni font karakteri / yeni stil sistemi icat etmek
+- Yeni bileşende mevcut değişken ve keyframe’leri kullanmamak
+
+Emin değilsen yeni stil eklemeden önce kullanıcıya sor.
+
+## 2) Referans siteler — SADECE içerik / yapı / özellik
+
+Bu siteler görsel stil referansı DEĞİLDİR. Sadece şu sorular için bak:
+- Hangi bölümler/özellikler olmalı?
+- Bilgi mimarisi (IA) nasıl?
+- Hangi işlevsel modüller eksik? (paket karşılaştırma, entegrasyon listesi, SSS, fiyat tablosu vb.)
+
+Referanslar: ideasoft.com.tr, bizimhesap.com/ozellikler/e-ticaret, ticimax.com, enhencer.com/tr, bilgieticaret.com, tsoft.com.tr, eticaret.com, qukasoft.com, hipotenus.com.tr
+
+ASLA kopyalama: renk, font, kart, buton, animasyon, genel kurumsal SaaS görünümü.
+
+Doğru soru: “Hipotenüs/Ticimax’te olan X bizde var mı?” Eksikse **bizim** `globals.css` diliyle ekle.
+
+## 3) Değişiklik öncesi checklist
+
+- [ ] Renk: `globals.css` değişkeni mi, yeni hex mi? (Yeni hex YASAK)
+- [ ] Animasyon: mevcut keyframe mi? Yeni gerekiyorsa mevcut timing/easing ile tutarlı mı?
+- [ ] Tipografi: `clamp()` fluid mi? (Sabit px YASAK)
+- [ ] Sonuç “özel/premium” mı kalıyor, yoksa jenerik SaaS şablonuna mı kayıyor? Kaydırıyorsa DURDUR, sor.
+
+## 4) Ürün konumu — mağaza değil, sağlayıcı
+
+Avcı kıyafet / mobilya satmaz. Avcı e-ticaret altyapısı, web sitesi ve modül yazılımı verir.
+
+- Ana sayfa sipariş/stok/POS sahneleri: müşteriye satılan yazılımın vitrini
+- `/yonetim`: Avcı’nın kendi işi (teklif, lisans, modül, yazılım müşterisi)
+- Yasak: yönetim panelini mağaza kasası / stok / sipariş kuyruğu gibi kurmak
+
+## 5) Küçük adımlar
+
+- Tek seferlik tüm sayfa redesign YAPMA.
+- Tek bölüm/bileşen değiştir → göster → onay al → devam et.
+- Onaysız üzerine yazma; mümkünse yedek/geri dönüş yolu bırak.

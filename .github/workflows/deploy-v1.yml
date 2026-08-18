@@ -1,0 +1,42 @@
+name: Canli v1
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.V1_DEPLOY_KEY }}
+
+      - name: Sunucuyu tan
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          ssh-keyscan -H 186.240.158.199 >> ~/.ssh/known_hosts
+
+      - name: Dosyalari kopyala
+        run: |
+          rsync -az --delete \
+            --exclude node_modules \
+            --exclude .git \
+            --exclude yedekler \
+            --exclude .wrangler \
+            --exclude .sites-runtime \
+            --exclude dist \
+            --exclude .vinext \
+            --exclude .next \
+            --exclude .cursor \
+            --exclude .codex \
+            --exclude "*.rar" \
+            --exclude "*.zip" \
+            ./ root@186.240.158.199:/home/avccom/yeni/v1/app/
+
+      - name: Derle ve servisi ac
+        run: ssh root@186.240.158.199 "bash /home/avccom/yeni/v1/app/scripts/deploy-v1.sh"

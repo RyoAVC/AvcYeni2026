@@ -1,0 +1,30 @@
+---
+description: Avcı ne iş yapar — mağaza değil, e-ticaret altyapısı sağlayıcısı. Her turda hatırla.
+alwaysApply: true
+---
+
+# Avcı şirket mantığı
+
+Avcı (AVC E-Ticaret) bir mağaza değildir. Kıyafet, mobilya veya kendi vitrininde ürün satmaz.
+
+Avcı; Hipotenüs / Ticimax / ikas / T-Soft gibi bir **sağlayıcıdır**.
+Sattığı şey: e-ticaret altyapısı, web sitesi, yazılım ve modüller.
+
+## İki katman — karıştırma
+
+1. **Müşterinin mağazası** (ana sayfadaki sipariş/stok/POS sahneleri):
+   Müşteriye verilen yazılımın vitrini. Temsilidir.
+2. **Avcı’nın kendi işi** (`/yonetim`):
+   Teklif, lisans, modül, yazılım müşterisi.
+   Mağaza siparişi / stok / kasa burada kurulmaz.
+
+## Karar vermeden önce sor
+
+“Bunu bir butik mi kullanır, yoksa altyapı satan Avcı mı?”
+Butik ise: müşteri yazılımının vitrini.
+Avcı ise: sağlayıcı paneli / tanıtım / lisans / modül.
+
+## Kullanıcıya karşı
+
+Kullanıcı yeni geliştirici. Sabırlı ol, sade Türkçe anlat, tek adım at, onay bekle.
+Mantığı unutursan dur; mağaza gibi devam etme.

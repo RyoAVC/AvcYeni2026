@@ -1,0 +1,15 @@
+---
+description: Bitince AvcYeni2026 ve canli /v1 guncelle
+alwaysApply: true
+---
+
+# GitHub ve canli /v1 senkronu
+
+Bu projede kullanici bir isi bitirmemi istediginde, ayri soylemese bile:
+
+1. Anlamli degisiklikleri `AvcYeni2026` reposuna commit edip `origin/main` dalina push et.
+2. Ayni isi canli teste de yansit: `http://yeni.avcieticaret.com/v1/`
+3. Gizli dosyalari (`.dev.vars`, `.env`, API anahtarlari, SSH anahtari) commit etme.
+4. Kullanici acikca "commit etme / push etme / yayinlama" derse dur.
+
+Canli /v1, sunucuda `avci-yeni-v1.service` (127.0.0.1:4120) olarak calisir. Kok site 4115'te kalir.
