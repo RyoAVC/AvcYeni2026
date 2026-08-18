@@ -1,6 +1,6 @@
 # AVC E-Ticaret — Kalıcı Proje Hafızası ve Debug/Devir Kaydı
 
-Son güncelleme: 18 Ağustos 2026
+Son güncelleme: 19 Ağustos 2026
 
 Bu dosya projenin tek yetkili debug/devir kaydıdır. Yeni bir Codex/ChatGPT oturumu önce bu dosyayı okumalı, mevcut kaynakları korumalı ve yalnızca aktif iş için gerekli dosyalara hedefli bakmalıdır. Gizli anahtar, parola, token ve gerçek müşteri verisi bu dosyaya yazılmaz.
 
@@ -16,7 +16,7 @@ Yeni oturum için kısa talimat:
 
 1. `PROJECT_DEBUG.md` dosyasını tamamen oku.
 2. Projeyi sıfırdan oluşturma; mevcut dosyaları resetleme, geri alma veya topluca silme.
-3. Bu klasör Git deposu değildir.
+3. Git deposu: `https://github.com/RyoAVC/AvcYeni2026` (`origin/main`). Gizli dosyalar commit edilmez.
 4. Windows PowerShell ortamında npm komutlarında `npm.cmd` kullan.
 5. Bağımlılıklar yoksa `npm.cmd ci` çalıştır.
 6. `.openai/hosting.json` bulunduğu için Sites çalışma kurallarını uygula.
@@ -1145,6 +1145,11 @@ Dürüst sınır:
 - Yazılı cevap daha hızlı: Gemini önce ve kısa zaman aşımı ile çalışır; dolu kota bekletmesi TTS’te öne alınmaz.
 - Değişen kaynaklar: `app/avcai-mascot.tsx`, `app/avcai-llm.mjs`, `app/globals.css`, `tests/avcai-answer.test.mjs`, `PROJECT_DEBUG.md`.
 
+### v145 — Canlı /v1 test ve AvcYeni2026; hedef ana site
+- 19 Ağustos 2026: `yeni.avcieticaret.com/v1/` canlı test olarak açıldı; GitHub `RyoAVC/AvcYeni2026` push ile bu adresi günceller.
+- Kullanıcı kararı: `/v1` geçici. Geliştirme bitince proje `avcieticaret.com` ana yerine taşınır. Kullanıcı açıkça demeden kök alana taşınmaz.
+- Yerel önizleme değişmedi: `http://127.0.0.1:4115/`.
+
 ### v144 — Gündüz katalog menüsü ve teklif header
 
 - Katalog header menüsü gündüzde 9px açık gri olmaktan çıktı; ana sayfadaki gibi okunaklı mürekkep rengi, `clamp()` punto ve beyaz hap zemin kullanır.
@@ -1233,13 +1238,13 @@ Son tamamlanmış doğrulama (v61):
 
 ## 11. Git, deploy ve dış sistem durumu
 
-- Bu klasör Git deposu değildir.
-- `.github/workflows` yoktur.
-- Git remote yoktur.
-- `package.json` içinde deploy/publish komutu yoktur.
-- Vercel, Netlify, GitHub Pages veya otomatik Cloudflare deploy akışı yoktur.
+- Git remote: `https://github.com/RyoAVC/AvcYeni2026.git` (`main`).
+- `main` push, GitHub Action ile canlı teste gider: `http://yeni.avcieticaret.com/v1/` (`avci-yeni-v1.service`, 127.0.0.1:4120).
+- `/v1` geçici canlı test. Kalıcı hedef: `avcieticaret.com` kökü. Taşıma yalnız kullanıcı açıkça isteyince yapılır.
+- `yeni.avcieticaret.com/` kökü şu an eski vitrin; bu proje orayı ezmez.
+- Yerel: yalnız `http://127.0.0.1:4115/`.
 - `.openai/hosting.json` yalnızca `d1: "DB"` ve `r2: null` bildirir; site `project_id` içermez.
-- Git commit/push, deploy, dış servise veri gönderme veya gerçek lisans platformunda değişiklik yapılmadı.
+- Gizli dosyalar (`.dev.vars`, API anahtarları, SSH anahtarı) commit edilmez.
 
 ## 12. Bu dosyanın bakım kuralı
 

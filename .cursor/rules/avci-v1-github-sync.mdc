@@ -1,15 +1,26 @@
 ---
-description: Bitince AvcYeni2026 ve canli /v1 guncelle
+description: Canli test /v1 gecicidir; hedef avcieticaret.com
 alwaysApply: true
 ---
 
-# GitHub ve canli /v1 senkronu
+# GitHub, /v1 ve ana site
 
-Bu projede kullanici bir isi bitirmemi istediginde, ayri soylemese bile:
+## Simdilik (canli test)
+
+Kullanici bir isi bitirmemi istediginde, ayri soylemese bile:
 
 1. Anlamli degisiklikleri `AvcYeni2026` reposuna commit edip `origin/main` dalina push et.
-2. Ayni isi canli teste de yansit: `http://yeni.avcieticaret.com/v1/`
+2. Ayni isi canli teste yansit: `http://yeni.avcieticaret.com/v1/`
 3. Gizli dosyalari (`.dev.vars`, `.env`, API anahtarlari, SSH anahtari) commit etme.
 4. Kullanici acikca "commit etme / push etme / yayinlama" derse dur.
 
-Canli /v1, sunucuda `avci-yeni-v1.service` (127.0.0.1:4120) olarak calisir. Kok site 4115'te kalir.
+Yerel onizleme: `http://127.0.0.1:4115/` (basePath yok).
+Canli /v1: sunucuda `avci-yeni-v1.service` (127.0.0.1:4120). Kok `yeni.avcieticaret.com/` su an eski vitrin; /v1 bu proje.
+
+## Kalici hedef — unutma
+
+`/v1` surekli adres degil. Gelistirme bitince proje **avcieticaret.com** ana yerine tasinacak.
+
+- Kullanici "tasin", "ana yere al", "v1 bitti" demeden kok alana tasima.
+- Tasima ayri bir is: `/v1` basePath kalkar, yayin `https://avcieticaret.com/` olur.
+- O gune kadar canli test /v1'de kalir; yerel 4115 degismez.
