@@ -1,6 +1,6 @@
 "use client";
 
-import { withBasePath } from "../base-path";
+import { withBasePath } from "./base-path";
 import { FormEvent, useState } from "react";
 
 type LookupStatus = { type: "idle" | "loading" | "error" | "miss" | "found"; message: string };
