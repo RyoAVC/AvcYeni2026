@@ -56,7 +56,7 @@ export default function DomainHostingPage() {
       <a className="skip-link" href="#alan-adi-sorgu">Alan adı sorgusuna geç</a>
       <header className="catalog-header">
         <SiteBrand />
-        <nav aria-label="Sayfa menüsü"><Link href="/hizmetler">Hizmetler</Link><Link className="active" href="/alan-adi-hosting">Alan Adı & Hosting</Link><Link href="/destek">Destek</Link><Link href="/musteri-merkezi">Müşteri Merkezi</Link></nav>
+        <nav aria-label="Sayfa menüsü"><Link href="/hizmetler">Hizmetler</Link><Link className="active" href="/alan-adi-hosting">Alan Adı & Hosting</Link><Link href="/eposta-teslim">E-posta</Link><Link href="/ortam-ayrimi">Ortam</Link></nav>
         <HeaderCtaCluster><Link className="header-cta" href="/teklif?cozum=hosting">Altyapı görüşmesi</Link></HeaderCtaCluster>
       </header>
 
@@ -98,7 +98,7 @@ export default function DomainHostingPage() {
 
       <aside className="scope-note"><strong>Güvenlik ve devir</strong><p>Parolaları e-postayla paylaşmayın. Mümkün olduğunda kişiye özel kullanıcı, sınırlı yetki ve çok faktörlü doğrulama kullanın. Hizmet sona erdiğinde müşteri varlıklarına ait erişim, DNS kayıtları ve gerekli teknik belgeler sözleşmedeki devir kapsamına göre teslim edilir.</p></aside>
 
-      <section className="decision-cta"><span className="kicker">ALTYAPI ENVANTERİ</span><h2>Alan adı, hosting ve yenileme sorumluluklarını netleştirelim.</h2><p>Mevcut sağlayıcılarınızı ve bitiş tarihlerinizi paylaşın; gerekli teknik kapsamı ve sorumlu tarafları birlikte çıkaralım.</p><div><Link className="button button-primary" href="/teklif?cozum=hosting">Altyapı görüşmesi isteyin</Link><Link className="button button-ghost" href="/destek">Yenileme desteği alın</Link></div></section>
+      <section className="decision-cta"><span className="kicker">ALTYAPI ENVANTERİ</span><h2>Alan adı, hosting ve yenileme sorumluluklarını netleştirelim.</h2><p>Mevcut sağlayıcılarınızı ve bitiş tarihlerinizi paylaşın; gerekli teknik kapsamı ve sorumlu tarafları birlikte çıkaralım.</p><div><Link className="button button-primary" href="/teklif?cozum=hosting">Altyapı görüşmesi isteyin</Link><Link className="button button-ghost" href="/eposta-teslim">E-posta teslimini inceleyin</Link></div></section>
     </main>
   );
 }

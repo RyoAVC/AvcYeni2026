@@ -27,6 +27,8 @@ const MORE = [
   { href: "/veri-sahipligi", label: "Veri Sahipliği" },
   { href: "/olay-bildirim", label: "Olay Bildirimi" },
   { href: "/api-guvenlik", label: "API Güvenliği" },
+  { href: "/ortam-ayrimi", label: "Ortam Ayrımı" },
+  { href: "/eposta-teslim", label: "E-posta Teslim" },
   { href: "/veri-gecisi", label: "Veri Geçişi" },
   { href: "/teslim-egitim", label: "Teslim & Eğitim" },
   { href: "/hizmetler", label: "Hizmetler" },

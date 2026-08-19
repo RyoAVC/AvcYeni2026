@@ -38,6 +38,8 @@ const questions = [
   { question: "Ayrılırken verilerim kilitlenir mi?", answer: "Hayır. Mağaza kaydı size aittir. Çıkış formatı ve süresi sözleşmede yazılır. Kart tokusu ödeme kuruluşunda, pazaryeri hesabı orada kalır. Ayrıntı veri sahipliği sayfasındadır." },
   { question: "Güvenlik olayında kime yazılır?", answer: "Sözleşmedeki destek kanalına; konu güvenlik olayı olarak seçilir. Parola, API anahtarı ve kart mesaja yazılmaz. Sabit müdahale saati, sözleşmede yoksa vaat edilmez. Ayrıntı olay bildirimi sayfasındadır." },
   { question: "API anahtarı sitede görünür mü?", answer: "Hayır. Anahtar vitrine, Tofy’ye veya e-postaya konmaz. Webhook imza ile doğrulanır. Sızdıysa iptal edilir. Ayrıntı API güvenliği sayfasındadır." },
+  { question: "Test ortamı canlıyı etkiler mi?", answer: "Etkilememeli. Canlı ve deneme kapısı, anahtar ve müşteri verisi ayrılır. Test siparişi gerçek tahsilatı tetiklemez. Ayrıntı ortam ayrımı sayfasındadır." },
+  { question: "Sipariş e-postası Avcı kutusundan mı gider?", answer: "Marka maili sizin alan adınızdan gidecekse SPF/DKIM teklifte yazılır. Bülten işlemselden ayrıdır. Inbox garantisi yoktur. Ayrıntı e-posta teslim sayfasındadır." },
 ];
 
 const faqStructuredData = {
@@ -73,6 +75,8 @@ const guides = [
   { href: "/veri-sahipligi", title: "Veri sahipliği", text: "Mağaza verisi kimin, Avcı ne görür, ayrılırken dışa aktarım nasıl planlanır.", action: "Sahipliği görün" },
   { href: "/olay-bildirim", title: "Olay bildirimi", text: "Şüpheli erişim veya sızıntı şüphesi nasıl yazılır; sır e-postaya konmaz.", action: "Bildirimi görün" },
   { href: "/api-guvenlik", title: "API güvenliği", text: "Anahtar vitrinde durmaz; webhook imzası ve dar yetki teklifte yazılır.", action: "API kuralını görün" },
+  { href: "/ortam-ayrimi", title: "Ortam ayrımı", text: "Canlı ve test kapısı, anahtar ve veri kopyasının nasıl ayrıldığını görün.", action: "Ortamı görün" },
+  { href: "/eposta-teslim", title: "E-posta teslimi", text: "Sipariş maili kimin alan adından gider; bülten işlemselden nasıl ayrılır.", action: "E-postayı görün" },
   { href: "/yapay-zeka", title: "İsteğe bağlı AI", text: "Mağaza akışına eklenebilen içerik, destek ve karar modüllerini inceleyin.", action: "Modülleri görün" },
   { href: "/musteri-merkezi", title: "Müşteri merkezi", text: "Portalda görünen kayıtları ve güvenlik sınırlarını öğrenin.", action: "Kapsamı görün" },
   { href: "/destek", title: "Destek merkezi", text: "Talebinizi güvenli teşhis bilgisi ve doğru öncelikle iletin.", action: "Destek alın" },
