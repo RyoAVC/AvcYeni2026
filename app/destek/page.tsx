@@ -15,6 +15,7 @@ const supportTopics = [
   { number: "02", title: "Lisans ve yenileme", text: "Ürün, plan, durum, bitiş tarihi, fatura veya yenileme kapsamıyla ilgili kayıt kontrolü isteyin.", subject: "Lisans ve Yenileme Desteği", label: "Lisans desteği isteyin" },
   { number: "03", title: "Teknik sorun", text: "Çalışmayan işlevi, görüldüğü zamanı, etkilenen sayfayı ve tekrar adımlarını güvenli biçimde paylaşın.", subject: "Teknik Destek Talebi", label: "Teknik destek isteyin" },
   { number: "04", title: "Yeni talep", text: "Yeni modül, entegrasyon, rapor veya değişiklik isteğini mevcut destekten ayrı kapsamlandırın.", subject: "Yeni Geliştirme Talebi", label: "Yeni talebi anlatın" },
+  { number: "05", title: "Güvenlik olayı", text: "Şüpheli giriş, sızıntı şüphesi veya anahtar ifşası. Parola ve API sırrı mesaja yazılmaz. Kanal ve yasak liste olay bildirimi sayfasındadır.", subject: "Güvenlik Olayı Bildirimi", label: "Güvenlik olayını bildirin" },
 ];
 
 const priorities = [
@@ -53,13 +54,13 @@ export default async function SupportPage() {
       <a className="skip-link" href="#destek-konulari">Destek konularına geç</a>
       <header className="catalog-header">
         <SiteBrand />
-        <nav aria-label="Sayfa menüsü"><Link href="/hizmetler">Hizmetler</Link><Link href="/musteri-merkezi">Müşteri Merkezi</Link><Link className="active" href="/destek">Destek</Link><Link href="/kaynaklar">Kaynaklar</Link>{settings.customerLoginEnabled && <Link href="/musteri-girisi">Müşteri Girişi</Link>}</nav>
+        <nav aria-label="Sayfa menüsü"><Link href="/hizmetler">Hizmetler</Link><Link href="/guvenlik">Güvenlik</Link><Link href="/olay-bildirim">Olay</Link><Link className="active" href="/destek">Destek</Link><Link href="/kaynaklar">Kaynaklar</Link></nav>
         {settings.supportEnabled ? <a className="header-cta" href={supportMailto("Destek Talebi")}>Destek isteyin</a> : <HeaderCtaCluster><Link className="header-cta" href="/">Ana sayfa</Link></HeaderCtaCluster>}
       </header>
 
       <section className="catalog-hero support-hero">
         <div><span className="kicker kicker-light">DESTEK MERKEZİ</span><h1>Doğru bilgiyle<br /><em>daha hızlı inceleme.</em></h1></div>
-        <p>Portal erişimi, lisans, yenileme, teknik sorun ve yeni geliştirme taleplerini doğru konu ve güvenli teşhis bilgisiyle iletin.</p>
+        <p>Portal erişimi, lisans, yenileme, teknik sorun, yeni geliştirme ve güvenlik olayını doğru konu ve güvenli teşhis bilgisiyle iletin.</p>
       </section>
 
       <aside className="support-disclosure"><strong>Mevcut kanal</strong><p>{settings.supportEnabled ? "Müşteri portalında henüz ayrı ticket ekranı bulunmuyor. Destek kayıtları şu anda e-posta ve sözleşmede belirlenen iletişim kanalı üzerinden yürütülür; yanıt süresi ve öncelik hizmet sözleşmesine bağlıdır." : "Destek e-posta kanalı şu anda kapalı. Mevcut sözleşmeniz varsa yetkili iletişim kişinizden ilerleyin."}</p></aside>
@@ -91,7 +92,7 @@ export default async function SupportPage() {
 
       <aside className="scope-note"><strong>Destek sınırı</strong><p>Hata düzeltme, kullanım desteği, bakım, üçüncü taraf sağlayıcı incelemesi ve yeni geliştirme aynı hizmet değildir. Dahil kapsam ve hedef yanıt süresi geçerli sözleşmeye göre belirlenir.</p></aside>
 
-      <section className="decision-cta"><span className="kicker">DESTEK TALEBİ</span><h2>Konuyu ve iş etkisini güvenli biçimde iletin.</h2><p>Parola, lisans anahtarı veya erişim sırrı göndermeden gerekli bağlamı paylaşın.</p><div>{settings.supportEnabled ? <a className="button button-primary" href={supportMailto("Destek Talebi")}>Destek ekibine yazın</a> : <Link className="button button-primary" href="/teklif">Teklif isteyin</Link>}<Link className="button button-ghost" href="/musteri-merkezi">Müşteri merkezini inceleyin</Link></div></section>
+      <section className="decision-cta"><span className="kicker">DESTEK TALEBİ</span><h2>Konuyu ve iş etkisini güvenli biçimde iletin.</h2><p>Parola, lisans anahtarı veya erişim sırrı göndermeden gerekli bağlamı paylaşın.</p><div>{settings.supportEnabled ? <a className="button button-primary" href={supportMailto("Destek Talebi")}>Destek ekibine yazın</a> : <Link className="button button-primary" href="/teklif">Teklif isteyin</Link>}<Link className="button button-ghost" href="/olay-bildirim">Güvenlik olayı bildirimi</Link></div></section>
     </main>
   );
 }

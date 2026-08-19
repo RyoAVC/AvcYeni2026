@@ -62,7 +62,8 @@ export default function SecurityPage() {
           <Link href="/erisim-denetim">Erişim</Link>
           <Link className="active" href="/guvenlik">Güvenlik</Link>
           <Link href="/veri-sahipligi">Veri Sahipliği</Link>
-          <Link href="/gizlilik">Gizlilik</Link>
+          <Link href="/olay-bildirim">Olay</Link>
+          <Link href="/api-guvenlik">API</Link>
         </nav>
         <HeaderCtaCluster>
           <Link className="header-cta" href="/teklif?cozum=eticaret">Güvenlik kapsamı isteyin</Link>
@@ -138,11 +139,11 @@ export default function SecurityPage() {
           <Link className="button button-primary" href="/teklif?cozum=eticaret">
             Teklif formuna yazın
           </Link>
-          <Link className="button button-ghost" href="/erisim-denetim">
-            Erişim ve denetim
+          <Link className="button button-ghost" href="/olay-bildirim">
+            Olay bildirimi
           </Link>
-          <Link className="button button-ghost" href="/veri-sahipligi">
-            Veri sahipliği
+          <Link className="button button-ghost" href="/api-guvenlik">
+            API güvenliği
           </Link>
         </div>
       </section>

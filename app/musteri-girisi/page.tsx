@@ -54,7 +54,7 @@ export default async function CustomerLoginPage({ searchParams }: { searchParams
           )}
         </aside>
       </section>
-      <footer><span>Parolalar yalnızca lisans platformunda işlenir.</span><Link href="/gizlilik">Gizlilik</Link></footer>
+      <footer><span>Parolalar yalnızca lisans platformunda işlenir.</span><Link href="/gizlilik">Gizlilik</Link><Link href="/olay-bildirim">Olay bildirimi</Link></footer>
     </main>
   );
 }
