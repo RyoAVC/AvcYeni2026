@@ -62,10 +62,11 @@ async function handleSesPost(request) {
   if (!audio?.byteLength) return error("Ses şu an üretilemedi.", 503);
 
   const bytes = audio instanceof Uint8Array ? audio : new Uint8Array(audio);
+  const wav = bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46;
   return new Response(bytes, {
     status: 200,
     headers: {
-      "Content-Type": "audio/wav",
+      "Content-Type": wav ? "audio/wav" : "audio/mpeg",
       "Cache-Control": "no-store",
     },
   });

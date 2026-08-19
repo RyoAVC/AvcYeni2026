@@ -450,7 +450,9 @@ export function AvcaiMascot({ exitPopup }: { exitPopup?: TofyPopup } = {}) {
         /* HTMLAudio yedeği */
       }
     }
-    const url = URL.createObjectURL(new Blob([buffer], { type: "audio/wav" }));
+    const bytes = new Uint8Array(buffer);
+    const mime = bytes[0] === 0x52 && bytes[1] === 0x49 ? "audio/wav" : "audio/mpeg";
+    const url = URL.createObjectURL(new Blob([buffer], { type: mime }));
     const player = new Audio(url);
     player.volume = 1;
     try {

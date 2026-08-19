@@ -3,7 +3,7 @@ import { answerAvcai } from "./avcai-answer.mjs";
 import { cleanAvcaiPath, pageCue } from "./avcai-ui.mjs";
 
 const CHAT_MODELS = ["gemini-flash-latest", "gemini-3.1-flash-lite", "gemini-3-flash-preview"];
-const TTS_MODELS = ["gemini-2.5-flash-preview-tts", "gemini-3.1-flash-tts-preview"];
+const TTS_MODELS = ["gemini-3.1-flash-tts-preview", "gemini-2.5-flash-preview-tts"];
 let geminiTtsSkipUntil = 0;
 const GROQ_CHAT_URL = "https://api.groq.com/openai/v1/chat/completions";
 const GEMINI_ROOT = "https://generativelanguage.googleapis.com/v1beta/models";
@@ -437,6 +437,21 @@ async function groqSpeak(key, text) {
   }
 }
 
+async function publicSpeak(text) {
+  const clipped = String(text || "").slice(0, 180);
+  if (clipped.length < 8) return null;
+  try {
+    const response = await fetchTimed(
+      `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=tr&q=${encodeURIComponent(clipped)}`,
+      { headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/122.0.0.0 Safari/537.36" } },
+      8000,
+    );
+    return await readSpeechAudio(response);
+  } catch {
+    return null;
+  }
+}
+
 export async function speakAvcai(text, env) {
   const spoken = cleanAvcaiReply(text, 320);
   if (spoken.length < 8) return null;
@@ -452,6 +467,7 @@ export async function speakAvcai(text, env) {
           },
         },
       });
+      let quotaBlocked = true;
       for (const model of TTS_MODELS) {
         let response;
         try {
@@ -459,14 +475,13 @@ export async function speakAvcai(text, env) {
             method: "POST",
             headers: { "Content-Type": "application/json", "x-goog-api-key": gemini },
             body,
-          }, 4000);
+          }, 12000);
         } catch {
+          quotaBlocked = false;
           continue;
         }
-        if (response.status === 429) {
-          geminiTtsSkipUntil = Date.now() + 30 * 60 * 1000;
-          break;
-        }
+        if (response.status === 429) continue;
+        quotaBlocked = false;
         if (!response.ok) continue;
         const payload = await response.json().catch(() => null);
         let audio = null;
@@ -477,11 +492,14 @@ export async function speakAvcai(text, env) {
         }
         if (audio?.byteLength) return audio;
       }
+      if (quotaBlocked) geminiTtsSkipUntil = Date.now() + 10 * 60 * 1000;
     }
     const openaiAudio = await openaiSpeak(openaiKey(env), spoken);
     if (openaiAudio?.byteLength) return openaiAudio;
     const groqAudio = await groqSpeak(groqKey(env), spoken);
     if (groqAudio?.byteLength) return groqAudio;
+    const publicAudio = await publicSpeak(spoken);
+    if (publicAudio?.byteLength) return publicAudio;
   } catch {
     return null;
   }

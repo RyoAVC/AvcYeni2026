@@ -122,11 +122,12 @@ test("AvcAI local reply and mascot visibility stay honest without a paid API", a
   assert.match(mascotSource, /VoiceClip/);
 
   const llmSource = await readFile(new URL("../app/avcai-llm.mjs", import.meta.url), "utf8");
-  assert.match(llmSource, /TTS_MODELS = \["gemini-2.5-flash-preview-tts", "gemini-3.1-flash-tts-preview"\]/);
+  assert.match(llmSource, /TTS_MODELS = \["gemini-3.1-flash-tts-preview", "gemini-2.5-flash-preview-tts"\]/);
   assert.match(llmSource, /fetchTimed/);
-  assert.match(llmSource, /, 4000\)/);
+  assert.match(llmSource, /, 12000\)/);
   assert.match(llmSource, /voiceName: "Kore"/);
   assert.match(llmSource, /geminiTtsSkipUntil/);
+  assert.match(llmSource, /translate_tts/);
   assert.doesNotMatch(mascotSource, /Promise\.reject/);
 });
 

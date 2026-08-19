@@ -13,7 +13,11 @@ export function publicRequestOrigin(request: Request) {
 
 export function isSameRequestOrigin(request: Request, origin: string) {
   try {
-    return new URL(origin).origin === publicRequestOrigin(request);
+    const incoming = new URL(origin);
+    const expected = new URL(publicRequestOrigin(request));
+    if (incoming.origin === expected.origin) return true;
+    const web = (protocol: string) => protocol === "http:" || protocol === "https:";
+    return incoming.hostname === expected.hostname && web(incoming.protocol) && web(expected.protocol);
   } catch {
     return false;
   }
