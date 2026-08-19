@@ -11,37 +11,44 @@ const PRIMARY = [
   { href: "/teklif", label: "Demo" },
 ] as const;
 
-const MORE = [
-  { href: "/eticaret-altyapisi", label: "E-Ticaret" },
-  { href: "/yapay-zeka", label: "Yapay Zekâ" },
-  { href: "/entegrasyonlar", label: "Entegrasyonlar" },
-  { href: "/pazaryeri-kanallari", label: "Pazaryeri" },
-  { href: "/odeme-kargo", label: "Ödeme & Kargo" },
-  { href: "/iade-iptal", label: "İade & İptal" },
-  { href: "/kampanya-fiyat", label: "Kampanya" },
-  { href: "/stok-operasyon", label: "Stok" },
-  { href: "/vitrin-tasarim", label: "Vitrin" },
-  { href: "/seo-gorunurluk", label: "SEO" },
-  { href: "/ozel-yazilim", label: "Özel Modül" },
-  { href: "/guvenlik", label: "Güvenlik" },
-  { href: "/erisim-denetim", label: "Erişim" },
-  { href: "/veri-sahipligi", label: "Veri Sahipliği" },
-  { href: "/olay-bildirim", label: "Olay Bildirimi" },
-  { href: "/api-guvenlik", label: "API Güvenliği" },
-  { href: "/ortam-ayrimi", label: "Ortam Ayrımı" },
-  { href: "/eposta-teslim", label: "E-posta Teslim" },
-  { href: "/magaza-kvkk", label: "Mağaza KVKK" },
-  { href: "/oturum-politika", label: "Oturum" },
-  { href: "/kayit-saklama", label: "Kayıt Saklama" },
-  { href: "/veri-konumu", label: "Veri Konumu" },
-  { href: "/veri-gecisi", label: "Veri Geçişi" },
-  { href: "/teslim-egitim", label: "Teslim & Eğitim" },
-  { href: "/hizmetler", label: "Hizmetler" },
-  { href: "/cozum-senaryolari", label: "Çözüm Senaryoları" },
-  { href: "/kaynaklar", label: "Kaynaklar ve SSS" },
-  { href: "/musteri-merkezi", label: "Müşteri merkezi" },
-  { href: "/en", label: "English", hrefLang: "en" as const },
-];
+const GROUPS = [
+  {
+    title: "Hesap",
+    items: [
+      { href: "/musteri-merkezi", label: "Müşteri merkezi" },
+      { href: "/musteri-hesap", label: "Hesap ve şifre" },
+    ],
+  },
+  {
+    title: "Mağaza yazılımı",
+    items: [
+      { href: "/eticaret-altyapisi", label: "E-Ticaret" },
+      { href: "/vitrin-tasarim", label: "Vitrin" },
+      { href: "/odeme-kargo", label: "Ödeme & Kargo" },
+      { href: "/iade-iptal", label: "İade & İptal" },
+      { href: "/stok-operasyon", label: "Stok" },
+      { href: "/pazaryeri-kanallari", label: "Pazaryeri" },
+    ],
+  },
+  {
+    title: "Güvenlik",
+    items: [
+      { href: "/guvenlik", label: "Güvenlik" },
+      { href: "/erisim-denetim", label: "Erişim" },
+      { href: "/oturum-politika", label: "Oturum" },
+      { href: "/magaza-kvkk", label: "Mağaza KVKK" },
+    ],
+  },
+  {
+    title: "Rehber",
+    items: [
+      { href: "/kaynaklar", label: "Kaynaklar ve SSS" },
+      { href: "/hizmetler", label: "Hizmetler" },
+      { href: "/teslim-egitim", label: "Teslim & Eğitim" },
+      { href: "/en", label: "English", hrefLang: "en" as const },
+    ],
+  },
+] as const;
 
 function pathActive(pathname: string, href: string) {
   if (href === "/") return pathname === "/";
@@ -61,16 +68,26 @@ export function MobileBottomNav({ customerLoginEnabled = false }: { customerLogi
     function onKey(event: KeyboardEvent) {
       if (event.key === "Escape") setOpen(false);
     }
+    const html = document.documentElement;
+    const previousOverflow = html.style.overflow;
+    html.style.overflow = "hidden";
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    return () => {
+      html.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKey);
+    };
   }, [open]);
 
   if (pathname === "/yonetim" || pathname.startsWith("/yonetim/")) return null;
   if (pathname === "/en" || pathname.startsWith("/en/")) return null;
 
-  const extra = customerLoginEnabled
-    ? [...MORE.slice(0, -1), { href: "/musteri-girisi", label: "Müşteri girişi" }, MORE[MORE.length - 1]]
-    : MORE;
+  const groups = GROUPS.map((group) => {
+    if (group.title !== "Hesap" || !customerLoginEnabled) return group;
+    return {
+      ...group,
+      items: [{ href: "/musteri-girisi", label: "Müşteri girişi" }, ...group.items],
+    };
+  });
 
   return (
     <div className={open ? "mobile-bottom-nav is-open" : "mobile-bottom-nav"}>
@@ -84,15 +101,20 @@ export function MobileBottomNav({ customerLoginEnabled = false }: { customerLogi
       ) : null}
       {open ? (
         <nav className="mobile-bottom-nav-sheet" aria-label="Tüm sayfalar">
-          {extra.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              hrefLang={"hrefLang" in item ? item.hrefLang : undefined}
-              onClick={() => setOpen(false)}
-            >
-              {item.label}
-            </Link>
+          {groups.map((group) => (
+            <div className="mobile-bottom-nav-group" key={group.title}>
+              <p className="mobile-bottom-nav-label">{group.title}</p>
+              {group.items.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  hrefLang={"hrefLang" in item ? item.hrefLang : undefined}
+                  onClick={() => setOpen(false)}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
           ))}
           <a className="mobile-bottom-nav-cta" href="/#iletisim" onClick={() => setOpen(false)}>
             Demo isteyin

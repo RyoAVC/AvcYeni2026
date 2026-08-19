@@ -45,6 +45,7 @@ const questions = [
   { question: "Kayıtlar sonsuza kadar mı durur?", answer: "Hayır. Yedek ve panel günlüğü gün sayısı teklifte yazılır. Yasal muhasebe arşivi sizin işinizdir. Ayrıntı kayıt saklama sayfasındadır." },
   { question: "Veri yalnızca Türkiye’de mi durur?", answer: "Konum ve alt işleyen teklifte yazılır. Yazılmayan ‘asla yurt dışına çıkmaz’ demek değildir. Kart PSP’de, kargo kendi sistemindedir. Ayrıntı veri konumu sayfasındadır." },
   { question: "İadeyi Avcı mı onaylar?", answer: "Hayır. İptal ve iade mağaza panelindeki yetkili roldedir. Para ödeme kuruluşunda döner. /yonetim kasa değildir. Ayrıntı iade ve iptal sayfasındadır." },
+  { question: "Siteden üye olup şifre mi oluştururum?", answer: "Hayır. Yazılım müşterisi hesabı sözleşme sonrası açılır. Parola bu tanıtım sitesine yazılmaz. Mağaza ziyaretçi üyeliği ayrıdır. Ayrıntı hesap ve şifre sayfasındadır." },
 ];
 
 const faqStructuredData = {
@@ -87,6 +88,7 @@ const guides = [
   { href: "/kayit-saklama", title: "Kayıt saklama", text: "Yedek ve günlüğün kaç gün tutulduğunu; sınırsız arşiv vaadi olmadığını görün.", action: "Süreyi görün" },
   { href: "/veri-konumu", title: "Veri konumu", text: "Sunucu, yedek ve alt işleyenin teklifte nasıl yazıldığını görün.", action: "Konumu görün" },
   { href: "/iade-iptal", title: "İade ve iptal", text: "Mağaza iadesini kim basar; Avcı kasa ve koli taşımaz.", action: "İadeyi görün" },
+  { href: "/musteri-hesap", title: "Hesap ve şifre", text: "İlk giriş kim açar, şifre nerede yazılır; bu sitede parola kutusu yoktur.", action: "Hesabı görün" },
   { href: "/yapay-zeka", title: "İsteğe bağlı AI", text: "Mağaza akışına eklenebilen içerik, destek ve karar modüllerini inceleyin.", action: "Modülleri görün" },
   { href: "/musteri-merkezi", title: "Müşteri merkezi", text: "Portalda görünen kayıtları ve güvenlik sınırlarını öğrenin.", action: "Kapsamı görün" },
   { href: "/destek", title: "Destek merkezi", text: "Talebinizi güvenli teşhis bilgisi ve doğru öncelikle iletin.", action: "Destek alın" },

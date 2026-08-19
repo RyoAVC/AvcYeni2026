@@ -36,7 +36,7 @@ export async function SiteFooter() {
           <div><strong>Satış Modelleri</strong><Link href="/b2b-c2c">B2B & Bayi</Link><Link href="/pazaryeri-kanallari">Pazaryeri Kanalları</Link><Link href="/odeme-kargo">Ödeme & Kargo</Link><Link href="/iade-iptal">İade & İptal</Link><Link href="/e-ihracat">E-İhracat</Link><Link href="/seo-gorunurluk">Teknik SEO</Link></div>
           <div><strong>Planlama</strong><Link href="/paketler">Paketler</Link><Link href="/proje-sureci">Proje Süreci</Link><Link href="/ortam-ayrimi">Ortam Ayrımı</Link><Link href="/eposta-teslim">E-posta Teslim</Link><Link href="/alan-adi-hosting">Alan Adı & Hosting</Link><Link href="/hizmetler">Kurulum Hizmetleri</Link></div>
           <div><strong>Rehberler</strong><Link href="/kaynaklar">Kaynaklar</Link><Link href="/yazilimlar">Yazılım Ailesi</Link><Link href="/gizlilik">Gizlilik & KVKK</Link><Link href="/magaza-kvkk">Mağaza KVKK</Link><Link href="/destek">Destek</Link><Link href="/teklif">Demo ve Teklif</Link></div>
-          <div><strong>Destek & Kurumsal</strong><Link href="/musteri-merkezi">Müşteri Merkezi</Link><Link href="/oturum-politika">Oturum Politikası</Link><Link href="/kayit-saklama">Kayıt Saklama</Link><Link href="/veri-konumu">Veri Konumu</Link><Link href="/veri-sahipligi">Veri Sahipliği</Link><Link href="/guvenlik">Güvenlik</Link></div>
+          <div><strong>Destek & Kurumsal</strong><Link href="/musteri-merkezi">Müşteri Merkezi</Link><Link href="/musteri-hesap">Hesap ve Şifre</Link><Link href="/oturum-politika">Oturum Politikası</Link><Link href="/veri-sahipligi">Veri Sahipliği</Link><Link href="/guvenlik">Güvenlik</Link><Link href="/gizlilik">Gizlilik</Link></div>
         </nav>
       </div>
 

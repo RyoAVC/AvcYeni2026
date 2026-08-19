@@ -36,7 +36,7 @@ export default async function CustomerCenterPage() {
       <a className="skip-link" href="#portal-kapsami">Portal kapsamına geç</a>
       <header className="catalog-header">
         <SiteBrand />
-        <nav aria-label="Sayfa menüsü"><Link href="/yazilimlar">Yazılımlar</Link><Link href="/guvenlik">Güvenlik</Link><Link href="/erisim-denetim">Erişim</Link><Link className="active" href="/musteri-merkezi">Müşteri Merkezi</Link></nav>
+        <nav aria-label="Sayfa menüsü"><Link href="/yazilimlar">Yazılımlar</Link><Link href="/musteri-hesap">Hesap & Şifre</Link><Link href="/erisim-denetim">Erişim</Link><Link className="active" href="/musteri-merkezi">Müşteri Merkezi</Link></nav>
         {settings.customerLoginEnabled ? <HeaderCtaCluster><Link className="header-cta" href="/musteri-girisi">Müşteri girişi</Link></HeaderCtaCluster> : settings.supportEnabled ? <HeaderCtaCluster><Link className="header-cta" href="/destek">Destek</Link></HeaderCtaCluster> : <HeaderCtaCluster><Link className="header-cta" href="/teklif">Teklif</Link></HeaderCtaCluster>}
       </header>
 
@@ -67,7 +67,7 @@ export default async function CustomerCenterPage() {
 
       <aside className="scope-note"><strong>Gizlilik sınırı</strong><p>Müşteri portalı ham lisans anahtarını göstermez. Bu tanıtım sitesi müşteri parolası, lisans anahtarı veya ödeme bilgisi istemez ve saklamaz.</p></aside>
 
-      <section className="portal-actions"><div><span className="kicker kicker-light">HESABINIZA DEVAM EDİN</span><h2>Görünümü inceleyin<br />veya destek isteyin.</h2><p>Şifre bu sitede yazılmaz. Örnek görünüm için demoyu; hesap onayı, sözleşme veya yenileme için ilgili yönlendirmeyi seçin.</p></div><div>{settings.customerLoginEnabled && <Link className="button button-primary" href="/musteri-girisi">Müşteri girişine gidin</Link>}{settings.demoPortalEnabled && <Link className="button button-ghost" href="/demo-portal">Demo portalı inceleyin</Link>}<Link className="button button-ghost" href="/proje-sureci">Proje süreci</Link><Link className="button button-ghost" href="/alan-adi-hosting">Yenileme rehberi</Link>{settings.supportEnabled && <Link className="button button-ghost" href="/destek">Destek merkezine gidin</Link>}</div></section>
+      <section className="portal-actions"><div><span className="kicker kicker-light">HESABINIZA DEVAM EDİN</span><h2>Görünümü inceleyin<br />veya destek isteyin.</h2><p>Şifre bu sitede yazılmaz. Hesap açılışı ayrı sayfadadır. Örnek görünüm için demoyu kullanın.</p></div><div>{settings.customerLoginEnabled && <Link className="button button-primary" href="/musteri-girisi">Müşteri girişine gidin</Link>}<Link className="button button-ghost" href="/musteri-hesap">Hesap ve şifre</Link>{settings.demoPortalEnabled && <Link className="button button-ghost" href="/demo-portal">Demo portalı inceleyin</Link>}<Link className="button button-ghost" href="/proje-sureci">Proje süreci</Link>{settings.supportEnabled && <Link className="button button-ghost" href="/destek">Destek merkezine gidin</Link>}</div></section>
     </main>
   );
 }

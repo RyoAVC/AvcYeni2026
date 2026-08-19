@@ -26,7 +26,7 @@ export default async function CustomerLoginPage({ searchParams }: { searchParams
       <div className="customer-login-grid" aria-hidden="true" />
       <header><SiteBrand /><HeaderCtaCluster><Link href="/">Ana sayfaya dön</Link></HeaderCtaCluster></header>
       <section id="portal-girisi">
-        <div className="customer-login-copy"><span className="kicker kicker-light">MÜŞTERİ PORTALI</span><h1>Lisans ve faturalarınıza<br /><em>güvenli erişim.</em></h1><p>Bu tanıtım sitesi parola toplamaz. Demo yalnız örnek veri gösterir; yönetimdeki müşteri kaydı burada açılmaz. Ayrı lisans platformu bağlandıysa geçiş oraya gider, bağlanmadıysa hazırlanıyor uyarısı görünür.</p><ul><li><span>✓</span>Demo, sitedeki Start / Scale / Enterprise çerçevesini örnekler</li><li><span>✓</span>Yönetimdeki sipariş ve tahsil kaydı ayrı durur</li><li><span>✓</span>Parola, kart veya e-Fatura bu sitede işlenmez</li></ul><Link className="portal-scope-link" href="/musteri-merkezi">Portal kapsamını ve güvenlik sınırını inceleyin</Link></div>
+        <div className="customer-login-copy"><span className="kicker kicker-light">MÜŞTERİ PORTALI</span><h1>Lisans ve faturalarınıza<br /><em>güvenli erişim.</em></h1><p>Bu tanıtım sitesi parola toplamaz. İlk hesap sözleşme sonrası açılır; şifre bağlı lisans platformunda yazılır. Demo yalnız örnek veri gösterir. Mağaza üyeliği ayrıdır.</p><ul><li><span>✓</span>Hesap bu siteden ‘üye ol’ ile açılmaz</li><li><span>✓</span>Şifre unuttum burada form değildir</li><li><span>✓</span>Parola, kart veya e-Fatura bu sitede işlenmez</li></ul><Link className="portal-scope-link" href="/musteri-hesap">Hesap açılışı ve şifre yolunu inceleyin</Link><Link className="portal-scope-link" href="/musteri-merkezi">Portal kapsamını ve güvenlik sınırını inceleyin</Link></div>
         <aside className="customer-login-card">
           <span className="customer-lock" aria-hidden="true"></span>
           <small>GÜVENLİ GEÇİŞ</small>
@@ -34,8 +34,9 @@ export default async function CustomerLoginPage({ searchParams }: { searchParams
             <>
               <h2>Parola bu sitede yazılmaz</h2>
               <p>Devam etmek ayrı bir lisans platformuna gider, yalnızca adres bağlandıysa. Bağlı değilse hazırlanıyor uyarısı görünür. Demo örnek veridir.</p>
-              {preparing && <div className="portal-notice" role="status"><strong>Portal bağlantısı hazırlanıyor.</strong><span>Şimdilik destek ekibimizden erişim adresinizi isteyebilirsiniz.</span></div>}
+              {preparing && <div className="portal-notice" role="status"><strong>Portal bağlantısı hazırlanıyor.</strong><span>Şifre kutusu yoktur. Erişim adresini destekten isteyin; parolayı e-postaya yazmayın.</span></div>}
               {!preparing && <a className="button button-primary" href={withBasePath("/musteri-portali")}>Güvenli geçişe devam et</a>}
+              <Link className="demo-portal-link" href="/musteri-hesap#sifre">Şifremi unuttum — yol burada</Link>
               {settings.demoPortalEnabled && <Link className="demo-portal-link" href="/demo-portal">Demo portalını örnek verilerle inceleyin</Link>}
               {settings.supportEnabled && (
                 <div className="portal-help">
@@ -54,7 +55,7 @@ export default async function CustomerLoginPage({ searchParams }: { searchParams
           )}
         </aside>
       </section>
-      <footer><span>Parolalar yalnızca lisans platformunda işlenir.</span><Link href="/gizlilik">Gizlilik</Link><Link href="/olay-bildirim">Olay bildirimi</Link></footer>
+      <footer><span>Parolalar yalnızca lisans platformunda işlenir.</span><Link href="/musteri-hesap">Hesap ve şifre</Link><Link href="/gizlilik">Gizlilik</Link></footer>
     </main>
   );
 }

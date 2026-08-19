@@ -534,7 +534,9 @@ test("renders the finished platform landing page", async () => {
   assert.match(customerLoginHtml, /parola toplamaz/);
   assert.match(customerLoginHtml, /Portal bağlantısı hazırlanıyor/);
   assert.match(customerLoginHtml, /href="\/musteri-merkezi"/);
+  assert.match(customerLoginHtml, /href="\/musteri-hesap"/);
   assert.match(customerLoginHtml, /href="\/demo-portal"/);
+  assert.doesNotMatch(customerLoginHtml, /type="password"/);
 
   const demoPortalResponse = await worker.fetch(
     new Request("https://localhost/demo-portal", { headers: { accept: "text/html" } }),
@@ -846,6 +848,7 @@ test("renders the finished platform landing page", async () => {
   assert.match(sitemapXml, /https:\/\/avcieticaret\.com\/kayit-saklama<\/loc>/);
   assert.match(sitemapXml, /https:\/\/avcieticaret\.com\/veri-konumu<\/loc>/);
   assert.match(sitemapXml, /https:\/\/avcieticaret\.com\/iade-iptal<\/loc>/);
+  assert.match(sitemapXml, /https:\/\/avcieticaret\.com\/musteri-hesap<\/loc>/);
   assert.match(sitemapXml, /https:\/\/avcieticaret\.com\/gizlilik<\/loc>/);
 
   const notFoundResponse = await worker.fetch(
@@ -968,6 +971,7 @@ test("renders the finished platform landing page", async () => {
     "/kayit-saklama",
     "/veri-konumu",
     "/iade-iptal",
+    "/musteri-hesap",
     "/gizlilik",
   ];
   const internalLinks = new Set();

@@ -123,10 +123,10 @@ export const AVCAI_TOPICS = [
     id: "giris",
     title: "Müşteri girişi",
     keywords: ["müşteri girişi", "musteri girisi", "demo portal", "şifre", "sifre", "parola", "lisans platformu"],
-    href: "/musteri-merkezi",
-    label: "Müşteri merkezi",
+    href: "/musteri-hesap",
+    label: "Hesap ve şifre",
     answer:
-      "Tanıtım sitesi müşteri parolası toplamaz. Demo örnek veridir. Ayrı lisans platformu bağlandıysa oraya gidilir; yoksa hazırlanıyor uyarısı çıkar.",
+      "Tanıtım sitesi müşteri parolası toplamaz ve üye ol formu açmaz. İlk hesap sözleşme sonrası iletilir. Şifre bağlı lisans platformunda yazılır. Mağaza ziyaretçi üyeliği ayrıdır.",
   },
   {
     id: "destek",
