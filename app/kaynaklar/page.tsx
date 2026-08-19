@@ -24,6 +24,8 @@ const questions = [
   { question: "Müşteri portalında neleri görebilirim?", answer: "Bu sitedeki demo yalnız örnek Start / Scale / Enterprise satırıdır; yönetimdeki gerçek müşteri kaydı orada açılmaz. Ayrı lisans platformu bağlandıysa geçiş oraya gider ve ham lisans anahtarı gösterilmez. Parola bu tanıtım sitesinde yazılmaz." },
   { question: "Destek ve geliştirme aynı hizmet mi?", answer: "Hayır. Hata düzeltme, bakım, kullanım desteği, yeni modül geliştirme ve yönetilen operasyon farklı kapsamlardır. Hangi hizmetin dahil olduğu ve yanıt önceliği teklif veya hizmet sözleşmesinde ayrı tanımlanır." },
   { question: "Alan adı ve hosting yenilemesini kim takip eder?", answer: "Hesap sahibi, ödeme sorumlusu, teknik sorumlu ve yenileme tarihi teklif veya sözleşmede açıkça belirlenmelidir. AVC yalnızca kararlaştırılan hizmet kapsamındaki işlemleri yürütür; otomatik yenileme veya geçmiş bir hatırlatma, ticari onayın yerine geçmez." },
+  { question: "Altyapı güvenliği neleri kapsar?", answer: "Erişim yetkisi, yedek modeli, form verisi ve yayın yüzeyi teklifte yazılan kadardır. Ödeme kuruluşunun kart verisi yükümlülüğü, müşteri personelinin şifre hijyeni ve kapsam dışı sızma testi ayrı kalır. Ayrıntı güvenlik ve gizlilik sayfalarındadır." },
+  { question: "Özel modül ne zaman gerekir?", answer: "Katalog, sipariş ve ödeme hazır akışları yetiyorsa yeni yazılım açılmaz. Onay zinciri, sektörel kayıt veya pakette olmayan entegrasyon varsa özel modül çekirdeğin yanına yazılır; kabul ölçütü ve bakım ayrı kalemdir." },
   { question: "Bir proje ne zaman tamamlanmış sayılır?", answer: "Projenin tamamlanması, yalnızca geliştirme çalışmasının durmasına değil; onaylı kapsamın, kabul ölçütlerinin ve açık maddelerin yetkili kişilerce doğrulanmasına bağlıdır. Yeni veya kapsam dışı talepler ayrı değişiklik kaydıyla değerlendirilir." },
   { question: "Mobil uygulama mı, mobil uyumlu web sitesi mi gerekir?", answer: "Sık kullanılan görev, çevrimdışı çalışma, bildirim, kamera veya konum gibi cihaz yetenekleri gerekmiyorsa mobil uyumlu web veya PWA yeterli olabilir. Mağaza dağıtımı ve cihaz özellikleri gerçek bir kullanıcı ihtiyacına dayanıyorsa mobil uygulama ayrıca kapsamlandırılır." },
 ];
@@ -49,6 +51,8 @@ const guides = [
   { href: "/paketler", title: "Paket karşılaştırması", text: "Start, Scale ve Enterprise başlangıç noktalarını görün.", action: "Karşılaştırın" },
   { href: "/fiyatlandirma", title: "Fiyatlandırma yapısı", text: "Lisans, kurulum ve hizmet maliyetlerinin nasıl ayrıldığını görün.", action: "Kalemleri görün" },
   { href: "/entegrasyonlar", title: "Entegrasyon süreci", text: "Bağlantı kapsamının nasıl doğrulandığını öğrenin.", action: "Süreci görün" },
+  { href: "/ozel-yazilim", title: "Özel modül", text: "Hazır paketin yetmediği iş kuralını çekirdeğe nasıl eklediğimizi görün.", action: "Kapsamı görün" },
+  { href: "/guvenlik", title: "Altyapı güvenliği", text: "Erişim, yedek, KVKK ve yayın yüzeyinin teklifte nasıl ayrıldığını okuyun.", action: "Güvenliği görün" },
   { href: "/yapay-zeka", title: "İsteğe bağlı AI", text: "Mağaza akışına eklenebilen içerik, destek ve karar modüllerini inceleyin.", action: "Modülleri görün" },
   { href: "/musteri-merkezi", title: "Müşteri merkezi", text: "Portalda görünen kayıtları ve güvenlik sınırlarını öğrenin.", action: "Kapsamı görün" },
   { href: "/destek", title: "Destek merkezi", text: "Talebinizi güvenli teşhis bilgisi ve doğru öncelikle iletin.", action: "Destek alın" },

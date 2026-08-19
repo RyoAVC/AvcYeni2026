@@ -15,6 +15,8 @@ const MORE = [
   { href: "/eticaret-altyapisi", label: "E-Ticaret" },
   { href: "/yapay-zeka", label: "Yapay Zekâ" },
   { href: "/entegrasyonlar", label: "Entegrasyonlar" },
+  { href: "/ozel-yazilim", label: "Özel Modül" },
+  { href: "/guvenlik", label: "Güvenlik" },
   { href: "/hizmetler", label: "Hizmetler" },
   { href: "/cozum-senaryolari", label: "Çözüm Senaryoları" },
   { href: "/kaynaklar", label: "Kaynaklar ve SSS" },

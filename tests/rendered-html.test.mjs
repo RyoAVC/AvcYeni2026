@@ -825,6 +825,8 @@ test("renders the finished platform landing page", async () => {
   assert.match(sitemapXml, /https:\/\/avcieticaret\.com\/alan-adi-hosting<\/loc>/);
   assert.match(sitemapXml, /https:\/\/avcieticaret\.com\/proje-sureci<\/loc>/);
   assert.match(sitemapXml, /https:\/\/avcieticaret\.com\/teklif<\/loc>/);
+  assert.match(sitemapXml, /https:\/\/avcieticaret\.com\/guvenlik<\/loc>/);
+  assert.match(sitemapXml, /https:\/\/avcieticaret\.com\/ozel-yazilim<\/loc>/);
   assert.match(sitemapXml, /https:\/\/avcieticaret\.com\/gizlilik<\/loc>/);
 
   const notFoundResponse = await worker.fetch(
@@ -926,6 +928,8 @@ test("renders the finished platform landing page", async () => {
     "/musteri-girisi",
     "/demo-portal",
     "/musteri-merkezi",
+    "/guvenlik",
+    "/ozel-yazilim",
     "/gizlilik",
   ];
   const internalLinks = new Set();

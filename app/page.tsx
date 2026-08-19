@@ -95,7 +95,8 @@ const solutionRail = [
   { index: "01", title: "E-Ticaret Altyapısı", note: "Mağaza ve operasyon", href: "/eticaret-altyapisi" },
   { index: "02", title: "B2B & Bayi", note: "Kurumsal satış ağı", href: "/b2b-c2c" },
   { index: "03", title: "Entegrasyonlar", note: "Kanal ve servisler", href: "/entegrasyonlar" },
-  { index: "04", title: "Paketler", note: "Kapsam ve planlama", href: "/paketler" },
+  { index: "04", title: "Özel Modül", note: "Pakete ek yazılım", href: "/ozel-yazilim" },
+  { index: "05", title: "Güvenlik", note: "Erişim, yedek, KVKK", href: "/guvenlik" },
 ];
 
 const technologyEcosystem = [
@@ -271,6 +272,7 @@ export default async function Home() {
           <Link href="/yapay-zeka">Yapay Zekâ</Link>
           <Link href="/entegrasyonlar">Entegrasyonlar</Link>
           <Link href="/paketler">Paketler</Link>
+          <Link href="/guvenlik">Güvenlik</Link>
           <Link href="/hizmetler">Hizmetler</Link>
         </nav>
         <details className="mobile-nav">
@@ -281,6 +283,8 @@ export default async function Home() {
             <Link href="/yapay-zeka">Yapay Zekâ</Link>
             <Link href="/entegrasyonlar">Entegrasyonlar</Link>
             <Link href="/paketler">Paketler</Link>
+            <Link href="/ozel-yazilim">Özel Modül</Link>
+            <Link href="/guvenlik">Güvenlik</Link>
             <Link href="/cozum-senaryolari">Çözüm Senaryoları</Link>
             <Link href="/hizmetler">Hizmetler</Link>
             <a href="#surec">Çalışma modeli</a>

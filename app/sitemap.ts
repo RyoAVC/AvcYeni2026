@@ -155,6 +155,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     },
     {
+      url: `${baseUrl}/guvenlik`,
+      lastModified: new Date("2026-08-19"),
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/ozel-yazilim`,
+      lastModified: new Date("2026-08-19"),
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    {
       url: `${baseUrl}/gizlilik`,
       lastModified: new Date("2026-08-11"),
       changeFrequency: "yearly",

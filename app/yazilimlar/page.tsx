@@ -72,6 +72,16 @@ const solutions = [
     capabilities: ["İş akışı ve rol modelleme", "Rezervasyon veya kapasite", "Servis ve iş emri", "Teklif ve onay süreçleri", "Rapor ve kayıt izlenebilirliği", "Kuruma özel entegrasyon"],
     fit: "Genel amaçlı paketlerin karşılamadığı iş kuralları, onaylar veya sektörel veri yapıları olan kurumlar.",
   },
+  {
+    id: "ozel",
+    quote: "ozel",
+    detail: "/ozel-yazilim",
+    number: "07",
+    title: "Özel Modül Yazılımı",
+    lead: "Hazır paketin yetmediği kuralı, mevcut e-ticaret omurgasına eklenen bir modül olarak yazın.",
+    capabilities: ["İş kuralı ve onay modeli", "Çekirdeğe bağlı özel ekran", "Tek yönlü veya çift yönlü bağlantı", "Kabul ölçütü ve faz ayrımı", "Sürüm ve bakım kalemi", "Lisans ve destek hattı"],
+    fit: "Standart mağaza akışı yetmeyen; kendi onay, fiyat veya kayıt kuralını altyapıya bağlamak isteyen işletmeler.",
+  },
 ];
 
 export default function SoftwarePage() {
