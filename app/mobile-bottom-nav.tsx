@@ -18,6 +18,7 @@ const MORE = [
   { href: "/ozel-yazilim", label: "Özel Modül" },
   { href: "/guvenlik", label: "Güvenlik" },
   { href: "/veri-gecisi", label: "Veri Geçişi" },
+  { href: "/teslim-egitim", label: "Teslim & Eğitim" },
   { href: "/hizmetler", label: "Hizmetler" },
   { href: "/cozum-senaryolari", label: "Çözüm Senaryoları" },
   { href: "/kaynaklar", label: "Kaynaklar ve SSS" },

@@ -28,6 +28,7 @@ const questions = [
   { question: "Özel modül ne zaman gerekir?", answer: "Katalog, sipariş ve ödeme hazır akışları yetiyorsa yeni yazılım açılmaz. Onay zinciri, sektörel kayıt veya pakette olmayan entegrasyon varsa özel modül çekirdeğin yanına yazılır; kabul ölçütü ve bakım ayrı kalemdir." },
   { question: "Bir proje ne zaman tamamlanmış sayılır?", answer: "Projenin tamamlanması, yalnızca geliştirme çalışmasının durmasına değil; onaylı kapsamın, kabul ölçütlerinin ve açık maddelerin yetkili kişilerce doğrulanmasına bağlıdır. Yeni veya kapsam dışı talepler ayrı değişiklik kaydıyla değerlendirilir." },
   { question: "Mobil uygulama mı, mobil uyumlu web sitesi mi gerekir?", answer: "Sık kullanılan görev, çevrimdışı çalışma, bildirim, kamera veya konum gibi cihaz yetenekleri gerekmiyorsa mobil uyumlu web veya PWA yeterli olabilir. Mağaza dağıtımı ve cihaz özellikleri gerçek bir kullanıcı ihtiyacına dayanıyorsa mobil uygulama ayrıca kapsamlandırılır." },
+  { question: "Yayından sonra kim eğitilir?", answer: "Eğitim, teklifte yazılan oturum sayısı ve yetkili roller kadardır. Avcı günlük sipariş ve kargoyu sizin yerinize yürütmez. Yeni personel veya ek konu ayrı kalemdir. Ayrıntı teslim ve eğitim sayfasındadır." },
 ];
 
 const faqStructuredData = {
@@ -59,6 +60,7 @@ const guides = [
   { href: "/alan-adi-hosting", title: "Alan adı ve hosting", text: "Sahiplik, yenileme, güvenlik ve devir sorumluluklarını netleştirin.", action: "Rehberi görün" },
   { href: "/proje-sureci", title: "Proje süreci", text: "Aşamaları, değişiklik yönetimini, kabul ve ticari kayıtları inceleyin.", action: "Süreci görün" },
   { href: "/veri-gecisi", title: "Veri geçişi", text: "Mevcut katalog ve siparişin örnek veri, eşleme ve prova ile nasıl taşındığını görün.", action: "Geçişi görün" },
+  { href: "/teslim-egitim", title: "Teslim ve eğitim", text: "Yayın gününde ne teslim edilir, kim eğitilir, günlük satış kimin işidir.", action: "Teslimi görün" },
   { href: "/mobil-sektorel", title: "Mobil & sektörel", text: "Mobil uygulama ve kuruma özel iş akışı kararlarını netleştirin.", action: "Seçenekleri görün" },
 ];
 
