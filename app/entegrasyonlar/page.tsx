@@ -43,7 +43,7 @@ export default function IntegrationsPage() {
 
       <aside className="integration-disclaimer"><strong>Şeffaflık notu</strong><p>Bu sayfadaki marka adları bağlantı türlerini örneklemek için kullanılır; onaylı partnerlik veya her sürümle hazır uyumluluk iddiası değildir. Kesin kapsam, ilgili sağlayıcının güncel API ve erişim koşulları doğrulandıktan sonra belirlenir.</p></aside>
 
-      <section className="decision-cta"><span className="kicker">BAĞLANTI ANALİZİ</span><h2>Kullandığınız sistemleri birlikte haritalayalım.</h2><p>Hangi verinin, ne sıklıkla ve hangi yönde akması gerektiğini netleştirip uygulanabilir entegrasyon planını çıkaralım.</p><div><Link className="button button-primary" href="/teklif?cozum=entegrasyon">Entegrasyon görüşmesi isteyin</Link><Link className="button button-ghost" href="/eticaret-altyapisi">Ticaret çekirdeğini inceleyin</Link><Link className="button button-ghost" href="/yazilimlar">Yazılımları inceleyin</Link></div></section>
+      <section className="decision-cta"><span className="kicker">BAĞLANTI ANALİZİ</span><h2>Kullandığınız sistemleri birlikte haritalayalım.</h2><p>Hangi verinin, ne sıklıkla ve hangi yönde akması gerektiğini netleştirip uygulanabilir entegrasyon planını çıkaralım.</p><div><Link className="button button-primary" href="/teklif?cozum=entegrasyon">Entegrasyon görüşmesi isteyin</Link><Link className="button button-ghost" href="/pazaryeri-kanallari">Pazaryeri kanallarını inceleyin</Link><Link className="button button-ghost" href="/yazilimlar">Yazılımları inceleyin</Link></div></section>
     </main>
   );
 }

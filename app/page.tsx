@@ -93,8 +93,8 @@ const integrations = [
 
 const solutionRail = [
   { index: "01", title: "E-Ticaret Altyapısı", note: "Mağaza ve operasyon", href: "/eticaret-altyapisi" },
-  { index: "02", title: "B2B & Bayi", note: "Kurumsal satış ağı", href: "/b2b-c2c" },
-  { index: "03", title: "Entegrasyonlar", note: "Kanal ve servisler", href: "/entegrasyonlar" },
+  { index: "02", title: "Vitrin Tasarımı", note: "Müşteri mağaza yüzü", href: "/vitrin-tasarim" },
+  { index: "03", title: "Pazaryeri Kanalları", note: "Stok ve sipariş akışı", href: "/pazaryeri-kanallari" },
   { index: "04", title: "Özel Modül", note: "Pakete ek yazılım", href: "/ozel-yazilim" },
   { index: "05", title: "Güvenlik", note: "Erişim, yedek, KVKK", href: "/guvenlik" },
 ];
@@ -272,6 +272,7 @@ export default async function Home() {
           <Link href="/yapay-zeka">Yapay Zekâ</Link>
           <Link href="/entegrasyonlar">Entegrasyonlar</Link>
           <Link href="/paketler">Paketler</Link>
+          <Link href="/vitrin-tasarim">Vitrin</Link>
           <Link href="/guvenlik">Güvenlik</Link>
           <Link href="/hizmetler">Hizmetler</Link>
         </nav>

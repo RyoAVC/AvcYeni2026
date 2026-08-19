@@ -29,6 +29,9 @@ const questions = [
   { question: "Bir proje ne zaman tamamlanmış sayılır?", answer: "Projenin tamamlanması, yalnızca geliştirme çalışmasının durmasına değil; onaylı kapsamın, kabul ölçütlerinin ve açık maddelerin yetkili kişilerce doğrulanmasına bağlıdır. Yeni veya kapsam dışı talepler ayrı değişiklik kaydıyla değerlendirilir." },
   { question: "Mobil uygulama mı, mobil uyumlu web sitesi mi gerekir?", answer: "Sık kullanılan görev, çevrimdışı çalışma, bildirim, kamera veya konum gibi cihaz yetenekleri gerekmiyorsa mobil uyumlu web veya PWA yeterli olabilir. Mağaza dağıtımı ve cihaz özellikleri gerçek bir kullanıcı ihtiyacına dayanıyorsa mobil uygulama ayrıca kapsamlandırılır." },
   { question: "Yayından sonra kim eğitilir?", answer: "Eğitim, teklifte yazılan oturum sayısı ve yetkili roller kadardır. Avcı günlük sipariş ve kargoyu sizin yerinize yürütmez. Yeni personel veya ek konu ayrı kalemdir. Ayrıntı teslim ve eğitim sayfasındadır." },
+  { question: "Vitrin tasarımı Avcı sitesinin kopyası mı?", answer: "Hayır. Avcı’nın kendi görsel kimliği sabittir. Vitrin, müşteri markasının mağaza ekranıdır; logo, renk ve sayfa listesi teklifte yazılır. Fotoğraf ve metin müşteride kalır." },
+  { question: "Google’da ilk sırayı garanti ediyor musunuz?", answer: "Hayır. Teknik SEO iskeleti (adres, sitemap, şema, ölçüm) altyapı kapsamıdır. Sıralama; içerik, bağlantı ve arama kurallarına bağlıdır. Sabit sıra veya trafik rakamı vaat edilmez." },
+  { question: "Trendyol bağlantısı hazır mı?", answer: "Hayır. Kanal adı örneklemedir. Ürün, stok ve sipariş yönü; hesabınız, API sürümü ve ticari koşul doğrulandıktan sonra teklifte yazılır. Avcı pazaryerinde satıcı olmaz." },
 ];
 
 const faqStructuredData = {
@@ -52,6 +55,9 @@ const guides = [
   { href: "/paketler", title: "Paket karşılaştırması", text: "Start, Scale ve Enterprise başlangıç noktalarını görün.", action: "Karşılaştırın" },
   { href: "/fiyatlandirma", title: "Fiyatlandırma yapısı", text: "Lisans, kurulum ve hizmet maliyetlerinin nasıl ayrıldığını görün.", action: "Kalemleri görün" },
   { href: "/entegrasyonlar", title: "Entegrasyon süreci", text: "Bağlantı kapsamının nasıl doğrulandığını öğrenin.", action: "Süreci görün" },
+  { href: "/pazaryeri-kanallari", title: "Pazaryeri kanalları", text: "Kendi mağazanızın stok ve siparişini dış satış kanallarına nasıl bağladığınızı görün.", action: "Kanalları görün" },
+  { href: "/vitrin-tasarim", title: "Vitrin tasarımı", text: "Müşteri mağazasının sayfa iskeleti, marka yüzü ve mobil düzeninin nasıl ayrıldığını okuyun.", action: "Vitrini görün" },
+  { href: "/seo-gorunurluk", title: "Teknik SEO", text: "Taranabilir adres, şema ve ölçüm iskeletini sıralama vaadi olmadan görün.", action: "SEO’yu görün" },
   { href: "/ozel-yazilim", title: "Özel modül", text: "Hazır paketin yetmediği iş kuralını çekirdeğe nasıl eklediğimizi görün.", action: "Kapsamı görün" },
   { href: "/guvenlik", title: "Altyapı güvenliği", text: "Erişim, yedek, KVKK ve yayın yüzeyinin teklifte nasıl ayrıldığını okuyun.", action: "Güvenliği görün" },
   { href: "/yapay-zeka", title: "İsteğe bağlı AI", text: "Mağaza akışına eklenebilen içerik, destek ve karar modüllerini inceleyin.", action: "Modülleri görün" },
