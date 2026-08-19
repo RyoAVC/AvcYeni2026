@@ -202,11 +202,12 @@ export function HeroStage({
 
   useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const coarse = window.matchMedia("(hover: none), (pointer: coarse)").matches;
     if (reduce) return;
 
     const slideTimer = window.setInterval(() => {
       setIndex((current) => (current + 1) % SLIDES.length);
-    }, 3000);
+    }, coarse ? 8000 : 3000);
 
     const pulseTimer = window.setInterval(() => {
       setPulse((tick) => tick + 1);

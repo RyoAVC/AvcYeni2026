@@ -86,6 +86,7 @@ function VoiceClip({ url, caption, onPlay }: { url: string; caption: string; onP
   const [length, setLength] = useState(0);
   useEffect(() => {
     const audio = new Audio(url);
+    audio.setAttribute("playsinline", "true");
     audioRef.current = audio;
     const onMeta = () => setLength(audio.duration || 0);
     const onEnd = () => setOn(false);
@@ -101,7 +102,7 @@ function VoiceClip({ url, caption, onPlay }: { url: string; caption: string; onP
     <div className={on ? "avcai-voice-note is-playing" : "avcai-voice-note"}>
       <button
         type="button"
-        aria-label={on ? "Kaydı durdur" : "Sesli soruyu dinle"}
+        aria-label={on ? "Kaydı durdur" : caption ? `Sesli soruyu dinle: ${caption}` : "Sesli soruyu dinle"}
         onClick={() => {
           const audio = audioRef.current;
           if (!audio) return;
@@ -127,7 +128,7 @@ function VoiceClip({ url, caption, onPlay }: { url: string; caption: string; onP
         <i /><i /><i /><i /><i /><i /><i />
       </span>
       <strong>{formatClipTime(length)}</strong>
-      <p>{caption}</p>
+      <p className="avcai-voice-caption">{caption}</p>
     </div>
   );
 }
@@ -168,7 +169,7 @@ export function AvcaiMascot({ exitPopup }: { exitPopup?: TofyPopup } = {}) {
   const speakGen = useRef(0);
   const itemsRef = useRef<ChatItem[]>([]);
   const speakRef = useRef<(text: string) => Promise<void>>(async () => undefined);
-  const askRef = useRef<(text: string, extra?: { clip?: Blob }) => Promise<boolean | void>>(async () => undefined);
+  const askRef = useRef<(text: string, extra?: { clip?: Blob; voice?: boolean }) => Promise<boolean | void>>(async () => undefined);
   const lastMoveRef = useRef(Date.now());
   const idlePingRef = useRef(false);
   const exitSeenRef = useRef(false);
@@ -279,6 +280,7 @@ export function AvcaiMascot({ exitPopup }: { exitPopup?: TofyPopup } = {}) {
 
   useEffect(() => {
     if (!shouldShowAvcai(pathname)) return;
+    if (window.matchMedia("(hover: none), (pointer: coarse)").matches) return;
     function clearHoverTimer() {
       if (hoverTimerRef.current !== null) window.clearTimeout(hoverTimerRef.current);
       hoverTimerRef.current = null;
@@ -313,6 +315,7 @@ export function AvcaiMascot({ exitPopup }: { exitPopup?: TofyPopup } = {}) {
 
   useEffect(() => {
     if (open || !shouldShowAvcai(pathname)) return;
+    if (window.matchMedia("(hover: none), (pointer: coarse)").matches) return;
     const tick = window.setInterval(() => {
       if (document.visibilityState !== "visible" || openRef.current) return;
       if (!isMouseIdle(lastMoveRef.current)) return;
@@ -525,7 +528,7 @@ export function AvcaiMascot({ exitPopup }: { exitPopup?: TofyPopup } = {}) {
     }
   }
 
-  async function ask(raw: string, extra?: { clip?: Blob }) {
+  async function ask(raw: string, extra?: { clip?: Blob; voice?: boolean }) {
     const text = raw.trim().slice(0, 400);
     if (text.length < 2) return false;
     stopSound();
@@ -541,9 +544,11 @@ export function AvcaiMascot({ exitPopup }: { exitPopup?: TofyPopup } = {}) {
     setTalking(true);
     setError("");
     await unlockAudio();
-    const userItem: ChatItem = extra?.clip && extra.clip.size >= 400
+    const userItem: ChatItem = extra?.clip && extra.clip.size >= 80
       ? { role: "user", text, kind: "voice", audioUrl: URL.createObjectURL(extra.clip) }
-      : { role: "user", text };
+      : extra?.voice
+        ? { role: "user", text, kind: "voice" }
+        : { role: "user", text };
     const nextItems = [...itemsRef.current, userItem];
     itemsRef.current = nextItems;
     setItems(nextItems);
@@ -630,7 +635,7 @@ export function AvcaiMascot({ exitPopup }: { exitPopup?: TofyPopup } = {}) {
       recorder.onstop = () => {
         stream.getTracks().forEach((track) => track.stop());
         const blob = new Blob(parts, { type: recorder.mimeType || mime || "audio/webm" });
-        resolve(blob.size >= 400 ? blob : null);
+        resolve(blob.size >= 80 ? blob : null);
       };
       recorder.onerror = () => {
         stream.getTracks().forEach((track) => track.stop());
@@ -699,12 +704,12 @@ export function AvcaiMascot({ exitPopup }: { exitPopup?: TofyPopup } = {}) {
       /* already stopped */
     }
     const clipPromise = takeVoiceClip();
-    await new Promise((resolve) => window.setTimeout(resolve, 280));
+    await new Promise((resolve) => window.setTimeout(resolve, 450));
     const spoken = (speechTextRef.current || spokenNow).replace(/\s+/g, " ").trim();
     speechTextRef.current = "";
     setListening(false);
-    if (!submit) setDraft(spokenNow);
-    else setDraft("");
+    setDraft("");
+    draftRef.current = "";
     const clip = await clipPromise;
     finishingRef.current = false;
     if (!submit) return;
@@ -718,7 +723,7 @@ export function AvcaiMascot({ exitPopup }: { exitPopup?: TofyPopup } = {}) {
       setError("Seni duyamadım. Mikrofona basıp tekrar söyle.");
       return;
     }
-    await askRef.current(text, clip ? { clip } : undefined);
+    await askRef.current(text, clip ? { clip, voice: true } : { voice: true });
   }
 
   function stopListen(submitSpeech = false) {
@@ -934,7 +939,6 @@ export function AvcaiMascot({ exitPopup }: { exitPopup?: TofyPopup } = {}) {
           .replace(/\s+/g, " ")
           .trim();
         speechTextRef.current = full;
-        setDraft(full);
         if (!hasFinal) return;
         if (speechTimerRef.current !== null) window.clearTimeout(speechTimerRef.current);
         speechTimerRef.current = window.setTimeout(() => {
@@ -1007,9 +1011,14 @@ export function AvcaiMascot({ exitPopup }: { exitPopup?: TofyPopup } = {}) {
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (listeningRef.current) {
+      void finishListen(true);
+      return;
+    }
     const message = draft.trim();
     if (message.length < 2) return;
     setDraft("");
+    draftRef.current = "";
     void ask(message);
   }
 
@@ -1121,12 +1130,26 @@ export function AvcaiMascot({ exitPopup }: { exitPopup?: TofyPopup } = {}) {
           </button>
           <button type="button" className="avcai-close" aria-label="Sohbeti kapat" onClick={toggleOpen}>×</button>
         </div>
+        <button
+          type="button"
+          className={voiceOn ? "avcai-voice-setting is-on" : "avcai-voice-setting"}
+          aria-pressed={voiceOn}
+          onClick={toggleVoice}
+        >
+          {voiceOn ? "Yanıt sesi açık" : "Yanıt sesi kapalı"}
+        </button>
         <div className="avcai-log" ref={logRef} aria-live="polite">
           {items.map((item, index) => (
             <article key={`${item.role}-${index}`} className={item.role === "user" ? (item.kind === "voice" ? "is-user is-voice" : "is-user") : "is-avcai"}>
               <small>{item.role === "user" ? (item.kind === "voice" ? "Siz · Sesli soru" : "Siz") : "Tofy"}</small>
               {item.kind === "voice" && item.audioUrl ? (
                 <VoiceClip url={item.audioUrl} caption={item.text} onPlay={stopSound} />
+              ) : item.kind === "voice" ? (
+                <div className="avcai-voice-note">
+                  <span className="avcai-voice-bars" aria-hidden="true"><i /><i /><i /><i /><i /><i /><i /></span>
+                  <strong>Ses</strong>
+                  <p className="avcai-voice-caption">{item.text}</p>
+                </div>
               ) : (
                 <p>{item.text}</p>
               )}

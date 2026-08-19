@@ -110,6 +110,7 @@ test("AvcAI local reply and mascot visibility stay honest without a paid API", a
   assert.doesNotMatch(mascotSource, /playBrowserVoice/);
   assert.match(mascotSource, /avcai-tool-icon/);
   assert.match(mascotSource, /pointermove/);
+  assert.match(mascotSource, /\(hover: none\), \(pointer: coarse\)/);
   assert.match(mascotSource, /TOFY_IDLE_LINE/);
   assert.match(mascotSource, /mouseleave/);
   assert.match(mascotSource, /tofy-exit/);
@@ -120,6 +121,10 @@ test("AvcAI local reply and mascot visibility stay honest without a paid API", a
   assert.match(mascotSource, /startVoiceClip/);
   assert.match(mascotSource, /Sesli soru/);
   assert.match(mascotSource, /VoiceClip/);
+  assert.match(mascotSource, /avcai-voice-setting/);
+  assert.match(mascotSource, /avcai-voice-caption/);
+  assert.match(mascotSource, /listeningRef\.current\) \{\s*void finishListen\(true\)/);
+  assert.doesNotMatch(mascotSource, /setDraft\(full\)/);
 
   const llmSource = await readFile(new URL("../app/avcai-llm.mjs", import.meta.url), "utf8");
   assert.match(llmSource, /TTS_MODELS = \["gemini-3.1-flash-tts-preview", "gemini-2.5-flash-preview-tts"\]/);
