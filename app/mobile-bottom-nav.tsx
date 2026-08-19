@@ -23,6 +23,8 @@ const MORE = [
   { href: "/seo-gorunurluk", label: "SEO" },
   { href: "/ozel-yazilim", label: "Özel Modül" },
   { href: "/guvenlik", label: "Güvenlik" },
+  { href: "/erisim-denetim", label: "Erişim" },
+  { href: "/veri-sahipligi", label: "Veri Sahipliği" },
   { href: "/veri-gecisi", label: "Veri Geçişi" },
   { href: "/teslim-egitim", label: "Teslim & Eğitim" },
   { href: "/hizmetler", label: "Hizmetler" },

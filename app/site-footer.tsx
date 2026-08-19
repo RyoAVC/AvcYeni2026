@@ -36,7 +36,7 @@ export async function SiteFooter() {
           <div><strong>Satış Modelleri</strong><Link href="/b2b-c2c">B2B & Bayi</Link><Link href="/pazaryeri-kanallari">Pazaryeri Kanalları</Link><Link href="/odeme-kargo">Ödeme & Kargo</Link><Link href="/e-ihracat">E-İhracat</Link><Link href="/seo-gorunurluk">Teknik SEO</Link></div>
           <div><strong>Planlama</strong><Link href="/paketler">Paketler</Link><Link href="/proje-sureci">Proje Süreci</Link><Link href="/veri-gecisi">Veri Geçişi</Link><Link href="/teslim-egitim">Teslim & Eğitim</Link><Link href="/alan-adi-hosting">Alan Adı & Hosting</Link><Link href="/hizmetler">Kurulum Hizmetleri</Link></div>
           <div><strong>Rehberler</strong><Link href="/kaynaklar">Kaynaklar</Link><Link href="/yazilimlar">Yazılım Ailesi</Link><Link href="/fiyatlandirma">Fiyatlandırma</Link><Link href="/cozum-senaryolari">Çözüm Senaryoları</Link><Link href="/ozel-yazilim">Özel Modül</Link><Link href="/teklif">Demo ve Teklif</Link></div>
-          <div><strong>Destek & Kurumsal</strong><Link href="/musteri-merkezi">Müşteri Merkezi</Link>{settings.supportEnabled && <Link href="/destek">Destek Merkezi</Link>}{settings.customerLoginEnabled && <Link href="/musteri-girisi">Müşteri Girişi</Link>}<Link href="/guvenlik">Güvenlik</Link><Link href="/gizlilik">Gizlilik & KVKK</Link><a href={`mailto:${settings.contactEmail}`}>İletişim</a></div>
+          <div><strong>Destek & Kurumsal</strong><Link href="/musteri-merkezi">Müşteri Merkezi</Link>{settings.supportEnabled && <Link href="/destek">Destek Merkezi</Link>}<Link href="/erisim-denetim">Erişim & Denetim</Link><Link href="/veri-sahipligi">Veri Sahipliği</Link><Link href="/guvenlik">Güvenlik</Link><Link href="/gizlilik">Gizlilik & KVKK</Link></div>
         </nav>
       </div>
 

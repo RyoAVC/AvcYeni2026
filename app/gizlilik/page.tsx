@@ -39,6 +39,10 @@ const sections = [
     title: "Tofy soruları saklanır mı?",
     content: "Tofy sağdaki tanıtım asistanıdır. Sohbet kaydı veritabanına yazılmaz. Yapılandırmaya göre soru OpenAI veya Google hizmetine gidebilir; güncel web araştırması kullanılırsa kaynaklar gösterilir. Kesin fiyat, süre veya sözleşme vaadi içermez. Teklif formu ayrı bir başvurudur.",
   },
+  {
+    title: "Canlı mağaza verisi bu metnin konusu mu?",
+    content: "Bu gizlilik metni Avcı tanıtım sitesindeki form, çerez ve Tofy için geçerlidir. Müşteri mağazasındaki sipariş ve üye kaydı ayrı sözleşmeyle işlenir. Sahiplik, yedek ve ayrılıkta dışa aktarım veri sahipliği sayfasında anlatılır.",
+  },
 ];
 
 export const dynamic = "force-dynamic";

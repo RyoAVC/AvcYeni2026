@@ -34,6 +34,8 @@ const questions = [
   { question: "Trendyol bağlantısı hazır mı?", answer: "Hayır. Kanal adı örneklemedir. Ürün, stok ve sipariş yönü; hesabınız, API sürümü ve ticari koşul doğrulandıktan sonra teklifte yazılır. Avcı pazaryerinde satıcı olmaz." },
   { question: "Ödemeyi Avcı mı alır?", answer: "Hayır. Kart ve 3D Secure ödeme kuruluşunun işidir. Avcı siparişi tahsilat sonucuna bağlar. Kargo sözleşmesi ve kayıp koli tazmini kargo firmasındadır." },
   { question: "Stok Avcı deposunda mı tutulur?", answer: "Hayır. Avcı ürün stoklamaz. Satılabilir adet müşteri mağaza yazılımında durur. /yonetim paneli kasa veya depo değildir. Ana kayıt hangi sistemdeyse düşüm kuralı ona göre yazılır." },
+  { question: "Personelim aynı şifreyi mi kullanır?", answer: "Hayır. Katalog, sipariş, iade ve fiyat rolleri ayrılabilir. İki adımlı doğrulama teklifte yazılırsa açılır. Avcı tanıtım sitesi mağaza parolası istemez. Ayrıntı erişim ve denetim sayfasındadır." },
+  { question: "Ayrılırken verilerim kilitlenir mi?", answer: "Hayır. Mağaza kaydı size aittir. Çıkış formatı ve süresi sözleşmede yazılır. Kart tokusu ödeme kuruluşunda, pazaryeri hesabı orada kalır. Ayrıntı veri sahipliği sayfasındadır." },
 ];
 
 const faqStructuredData = {
@@ -65,6 +67,8 @@ const guides = [
   { href: "/seo-gorunurluk", title: "Teknik SEO", text: "Taranabilir adres, şema ve ölçüm iskeletini sıralama vaadi olmadan görün.", action: "SEO’yu görün" },
   { href: "/ozel-yazilim", title: "Özel modül", text: "Hazır paketin yetmediği iş kuralını çekirdeğe nasıl eklediğimizi görün.", action: "Kapsamı görün" },
   { href: "/guvenlik", title: "Altyapı güvenliği", text: "Erişim, yedek, KVKK ve yayın yüzeyinin teklifte nasıl ayrıldığını okuyun.", action: "Güvenliği görün" },
+  { href: "/erisim-denetim", title: "Erişim ve denetim", text: "Kim iade açar, kim fiyat değiştirir; rol, oturum ve işlem kaydı nasıl yazılır.", action: "Yetkiyi görün" },
+  { href: "/veri-sahipligi", title: "Veri sahipliği", text: "Mağaza verisi kimin, Avcı ne görür, ayrılırken dışa aktarım nasıl planlanır.", action: "Sahipliği görün" },
   { href: "/yapay-zeka", title: "İsteğe bağlı AI", text: "Mağaza akışına eklenebilen içerik, destek ve karar modüllerini inceleyin.", action: "Modülleri görün" },
   { href: "/musteri-merkezi", title: "Müşteri merkezi", text: "Portalda görünen kayıtları ve güvenlik sınırlarını öğrenin.", action: "Kapsamı görün" },
   { href: "/destek", title: "Destek merkezi", text: "Talebinizi güvenli teşhis bilgisi ve doğru öncelikle iletin.", action: "Destek alın" },

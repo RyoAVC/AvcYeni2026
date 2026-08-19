@@ -36,7 +36,7 @@ export default async function CustomerCenterPage() {
       <a className="skip-link" href="#portal-kapsami">Portal kapsamına geç</a>
       <header className="catalog-header">
         <SiteBrand />
-        <nav aria-label="Sayfa menüsü"><Link href="/yazilimlar">Yazılımlar</Link><Link href="/hizmetler">Hizmetler</Link><Link href="/kaynaklar">Kaynaklar</Link><Link className="active" href="/musteri-merkezi">Müşteri Merkezi</Link></nav>
+        <nav aria-label="Sayfa menüsü"><Link href="/yazilimlar">Yazılımlar</Link><Link href="/guvenlik">Güvenlik</Link><Link href="/erisim-denetim">Erişim</Link><Link className="active" href="/musteri-merkezi">Müşteri Merkezi</Link></nav>
         {settings.customerLoginEnabled ? <HeaderCtaCluster><Link className="header-cta" href="/musteri-girisi">Müşteri girişi</Link></HeaderCtaCluster> : settings.supportEnabled ? <HeaderCtaCluster><Link className="header-cta" href="/destek">Destek</Link></HeaderCtaCluster> : <HeaderCtaCluster><Link className="header-cta" href="/teklif">Teklif</Link></HeaderCtaCluster>}
       </header>
 
