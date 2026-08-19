@@ -53,10 +53,16 @@ async function handleSesPost(request) {
   } catch {
     env = {};
   }
-  const audio = await speakAvcai(text, env);
-  if (!audio) return error("Ses şu an kapalı. Ücretsiz Gemini anahtarı gerekir.", 503);
+  let audio = null;
+  try {
+    audio = await speakAvcai(text, env);
+  } catch {
+    audio = null;
+  }
+  if (!audio?.byteLength) return error("Ses şu an üretilemedi.", 503);
 
-  return new Response(audio, {
+  const bytes = audio instanceof Uint8Array ? audio : new Uint8Array(audio);
+  return new Response(bytes, {
     status: 200,
     headers: {
       "Content-Type": "audio/wav",

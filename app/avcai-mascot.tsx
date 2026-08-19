@@ -468,7 +468,6 @@ export function AvcaiMascot({ exitPopup }: { exitPopup?: TofyPopup } = {}) {
   }
 
   async function fetchVoiceChunk(chunk: string) {
-    let lastError: Error | null = null;
     for (let attempt = 0; attempt < 2; attempt += 1) {
       try {
         const response = await fetch(withBasePath("/api/avcai/ses"), {
@@ -477,16 +476,17 @@ export function AvcaiMascot({ exitPopup }: { exitPopup?: TofyPopup } = {}) {
           body: JSON.stringify({ text: chunk }),
         });
         const type = (response.headers.get("content-type") || "").toLowerCase();
-        if (!response.ok || !type.includes("audio")) throw new Error("Ses üretilemedi.");
+        if (!response.ok || !type.includes("audio")) {
+          if (attempt === 0) await new Promise((resolve) => window.setTimeout(resolve, 80));
+          continue;
+        }
         const buffer = await response.arrayBuffer();
         if (buffer.byteLength) return buffer;
-        throw new Error("Boş ses yanıtı.");
-      } catch (caught) {
-        lastError = caught instanceof Error ? caught : new Error("Ses üretilemedi.");
+      } catch {
         if (attempt === 0) await new Promise((resolve) => window.setTimeout(resolve, 80));
       }
     }
-    throw lastError || new Error("Ses üretilemedi.");
+    return new ArrayBuffer(0);
   }
 
   async function speak(text: string) {
@@ -502,18 +502,12 @@ export function AvcaiMascot({ exitPopup }: { exitPopup?: TofyPopup } = {}) {
       await unlockAudio();
       setStatus("speaking");
       setTalking(true);
-      let pending = fetchVoiceChunk(chunks[0]);
+      let pending: Promise<ArrayBuffer> = fetchVoiceChunk(chunks[0]);
       for (let index = 0; index < chunks.length; index += 1) {
         if (speakGen.current !== token || !voiceRef.current) break;
         const nextIndex = index + 1;
         const next = nextIndex < chunks.length ? fetchVoiceChunk(chunks[nextIndex]) : null;
-        let buffer: ArrayBuffer;
-        try {
-          buffer = await pending;
-        } catch {
-          pending = next || Promise.reject(new Error("Ses üretilemedi."));
-          continue;
-        }
+        const buffer = await pending;
         pending = next || Promise.resolve(new ArrayBuffer(0));
         if (speakGen.current !== token) break;
         if (buffer.byteLength) await playBuffer(buffer);

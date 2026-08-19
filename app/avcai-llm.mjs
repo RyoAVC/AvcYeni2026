@@ -3,9 +3,11 @@ import { answerAvcai } from "./avcai-answer.mjs";
 import { cleanAvcaiPath, pageCue } from "./avcai-ui.mjs";
 
 const CHAT_MODELS = ["gemini-flash-latest", "gemini-3.1-flash-lite", "gemini-3-flash-preview"];
-const TTS_MODELS = ["gemini-3.1-flash-tts-preview", "gemini-2.5-flash-preview-tts", "gemini-2.5-pro-preview-tts"];
+const TTS_MODELS = ["gemini-2.5-flash-preview-tts", "gemini-3.1-flash-tts-preview"];
 const GROQ_CHAT_URL = "https://api.groq.com/openai/v1/chat/completions";
 const GEMINI_ROOT = "https://generativelanguage.googleapis.com/v1beta/models";
+const OPENAI_SPEECH_URL = "https://api.openai.com/v1/audio/speech";
+const GROQ_SPEECH_URL = "https://api.groq.com/openai/v1/audio/speech";
 const OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses";
 const OPENAI_CHAT_MODELS = ["gpt-5.6", "gpt-5.5"];
 const SAME_SECTOR_COMPANY_NAMES = /\b(?:Hipotenüs|Ticimax|ikas|T-?Soft|IdeaSoft)\b/giu;
@@ -110,10 +112,14 @@ async function openaiCompanySearch(key, question, path, context, staff) {
 }
 
 async function fetchTimed(url, options, ms = 8000) {
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), ms);
+  let timer;
   try {
-    return await fetch(url, { ...options, signal: ctrl.signal });
+    return await Promise.race([
+      fetch(url, options),
+      new Promise((_, reject) => {
+        timer = setTimeout(() => reject(new Error("timeout")), ms);
+      }),
+    ]);
   } finally {
     clearTimeout(timer);
   }
@@ -364,12 +370,22 @@ function decodeInlineAudio(payload) {
     if (!data) continue;
     let bytes;
     try {
-      const binary = atob(data);
-      bytes = new Uint8Array(binary.length);
-      for (let index = 0; index < binary.length; index += 1) bytes[index] = binary.charCodeAt(index);
+      if (typeof Buffer !== "undefined") {
+        bytes = new Uint8Array(Buffer.from(data, "base64"));
+      }
     } catch {
-      continue;
+      bytes = undefined;
     }
+    if (!bytes?.byteLength) {
+      try {
+        const binary = atob(data);
+        bytes = new Uint8Array(binary.length);
+        for (let index = 0; index < binary.length; index += 1) bytes[index] = binary.charCodeAt(index);
+      } catch {
+        continue;
+      }
+    }
+    if (!bytes?.byteLength) continue;
     const mime = String(inline.mimeType || inline.mime_type || "");
     const rate = Number((mime.match(/rate=(\d+)/i) || [])[1]) || 24000;
     if (mime.includes("wav")) return bytes;
@@ -378,34 +394,95 @@ function decodeInlineAudio(payload) {
   return null;
 }
 
+async function readSpeechAudio(response) {
+  if (!response?.ok) return null;
+  const type = String(response.headers.get("content-type") || "").toLowerCase();
+  if (type.includes("json")) return null;
+  const audio = new Uint8Array(await response.arrayBuffer());
+  return audio.byteLength > 80 ? audio : null;
+}
+
+async function openaiSpeak(key, text) {
+  if (!key) return null;
+  try {
+    const response = await fetchTimed(OPENAI_SPEECH_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
+      body: JSON.stringify({
+        model: "tts-1",
+        voice: "nova",
+        input: text,
+        response_format: "wav",
+      }),
+    }, 10000);
+    return await readSpeechAudio(response);
+  } catch {
+    return null;
+  }
+}
+
+async function groqSpeak(key, text) {
+  if (!key) return null;
+  try {
+    const response = await fetchTimed(GROQ_SPEECH_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
+      body: JSON.stringify({
+        model: "playai-tts",
+        voice: "Celeste-PlayAI",
+        input: text,
+        response_format: "wav",
+      }),
+    }, 10000);
+    return await readSpeechAudio(response);
+  } catch {
+    return null;
+  }
+}
+
 export async function speakAvcai(text, env) {
-  const key = geminiKey(env);
   const spoken = cleanAvcaiReply(text, 320);
-  if (!key || spoken.length < 8) return null;
-  const body = JSON.stringify({
-    contents: [{ parts: [{ text: spoken }] }],
-    generationConfig: {
-      responseModalities: ["AUDIO"],
-      speechConfig: {
-        voiceConfig: { prebuiltVoiceConfig: { voiceName: "Kore" } },
-      },
-    },
-  });
-  for (const model of TTS_MODELS) {
-    let response;
-    try {
-      response = await fetchTimed(`${GEMINI_ROOT}/${model}:generateContent`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-goog-api-key": key },
-        body,
-      }, 4500);
-    } catch {
-      continue;
+  if (spoken.length < 8) return null;
+  try {
+    const gemini = geminiKey(env);
+    if (gemini) {
+      const body = JSON.stringify({
+        contents: [{ parts: [{ text: spoken }] }],
+        generationConfig: {
+          responseModalities: ["AUDIO"],
+          speechConfig: {
+            voiceConfig: { prebuiltVoiceConfig: { voiceName: "Kore" } },
+          },
+        },
+      });
+      for (const model of TTS_MODELS) {
+        let response;
+        try {
+          response = await fetchTimed(`${GEMINI_ROOT}/${model}:generateContent`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "x-goog-api-key": gemini },
+            body,
+          }, 4000);
+        } catch {
+          continue;
+        }
+        if (!response.ok) continue;
+        const payload = await response.json().catch(() => null);
+        let audio = null;
+        try {
+          audio = decodeInlineAudio(payload);
+        } catch {
+          audio = null;
+        }
+        if (audio?.byteLength) return audio;
+      }
     }
-    if (!response.ok) continue;
-    const payload = await response.json().catch(() => null);
-    const audio = decodeInlineAudio(payload);
-    if (audio?.byteLength) return audio;
+    const openaiAudio = await openaiSpeak(openaiKey(env), spoken);
+    if (openaiAudio?.byteLength) return openaiAudio;
+    const groqAudio = await groqSpeak(groqKey(env), spoken);
+    if (groqAudio?.byteLength) return groqAudio;
+  } catch {
+    return null;
   }
   return null;
 }
