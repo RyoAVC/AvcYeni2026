@@ -329,6 +329,38 @@ export default async function Home() {
         </nav>
       </section>
 
+      <section className="edge-section" id="guvenlik-ozet" aria-labelledby="guvenlik-ozet-baslik">
+        <div className="section-heading">
+          <div>
+            <span className="kicker">SAĞLAYICI GÜVENLİĞİ</span>
+            <h2 id="guvenlik-ozet-baslik">Kasa değil.<br />Erişim, yedek, KVKK.</h2>
+          </div>
+          <p>Avcı mağaza işletmez. Güvenlik; müşteri altyapısının yetki, yedek ve veri sınırının teklifte nasıl yazıldığını anlatır.</p>
+        </div>
+        <div className="edge-grid">
+          <article>
+            <span>01</span>
+            <h3>Yetki sınırı</h3>
+            <p>Yönetim paneli Avcı’nın kendi işidir. Mağaza rollerini ve oturumu karıştırmayız.</p>
+          </article>
+          <article>
+            <span>02</span>
+            <h3>Yedek modeli</h3>
+            <p>Sıklık ve geri dönüş, ölçülmemiş kesinti vaadi olmadan teklifte yazılır.</p>
+          </article>
+          <article>
+            <span>03</span>
+            <h3>Özel modül</h3>
+            <p>Paket yetmezse kural çekirdeğe eklenir; kabul ve bakım ayrı kalır.</p>
+          </article>
+        </div>
+        <p className="integration-note">
+          <Link href="/guvenlik">Güvenlik kapsamı</Link>
+          {" · "}
+          <Link href="/ozel-yazilim">Özel modül yazılımı</Link>
+        </p>
+      </section>
+
       <section className="start-path" id="basla" aria-labelledby="basla-baslik">
         <div className="visually-hidden" id="basla-baslik">Mağazaya giden üç adım</div>
         <div className="start-steps">
