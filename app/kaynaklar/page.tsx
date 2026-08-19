@@ -32,6 +32,8 @@ const questions = [
   { question: "Vitrin tasarımı Avcı sitesinin kopyası mı?", answer: "Hayır. Avcı’nın kendi görsel kimliği sabittir. Vitrin, müşteri markasının mağaza ekranıdır; logo, renk ve sayfa listesi teklifte yazılır. Fotoğraf ve metin müşteride kalır." },
   { question: "Google’da ilk sırayı garanti ediyor musunuz?", answer: "Hayır. Teknik SEO iskeleti (adres, sitemap, şema, ölçüm) altyapı kapsamıdır. Sıralama; içerik, bağlantı ve arama kurallarına bağlıdır. Sabit sıra veya trafik rakamı vaat edilmez." },
   { question: "Trendyol bağlantısı hazır mı?", answer: "Hayır. Kanal adı örneklemedir. Ürün, stok ve sipariş yönü; hesabınız, API sürümü ve ticari koşul doğrulandıktan sonra teklifte yazılır. Avcı pazaryerinde satıcı olmaz." },
+  { question: "Ödemeyi Avcı mı alır?", answer: "Hayır. Kart ve 3D Secure ödeme kuruluşunun işidir. Avcı siparişi tahsilat sonucuna bağlar. Kargo sözleşmesi ve kayıp koli tazmini kargo firmasındadır." },
+  { question: "Stok Avcı deposunda mı tutulur?", answer: "Hayır. Avcı ürün stoklamaz. Satılabilir adet müşteri mağaza yazılımında durur. /yonetim paneli kasa veya depo değildir. Ana kayıt hangi sistemdeyse düşüm kuralı ona göre yazılır." },
 ];
 
 const faqStructuredData = {
@@ -56,6 +58,9 @@ const guides = [
   { href: "/fiyatlandirma", title: "Fiyatlandırma yapısı", text: "Lisans, kurulum ve hizmet maliyetlerinin nasıl ayrıldığını görün.", action: "Kalemleri görün" },
   { href: "/entegrasyonlar", title: "Entegrasyon süreci", text: "Bağlantı kapsamının nasıl doğrulandığını öğrenin.", action: "Süreci görün" },
   { href: "/pazaryeri-kanallari", title: "Pazaryeri kanalları", text: "Kendi mağazanızın stok ve siparişini dış satış kanallarına nasıl bağladığınızı görün.", action: "Kanalları görün" },
+  { href: "/odeme-kargo", title: "Ödeme ve kargo", text: "Tahsilat ve gönderinin sağlayıcı hesabına nasıl bağlandığını, Avcı’nın kasa olmadığını okuyun.", action: "Bağlantıyı görün" },
+  { href: "/kampanya-fiyat", title: "Kampanya ve fiyat", text: "Kupon, kanal fiyatı ve çakışma kuralının teklifte nasıl yazıldığını görün.", action: "Kuralları görün" },
+  { href: "/stok-operasyon", title: "Stok operasyonu", text: "Satılabilir adet ve hazırlık durumunun mağaza yazılımında nasıl durduğunu görün.", action: "Stoku görün" },
   { href: "/vitrin-tasarim", title: "Vitrin tasarımı", text: "Müşteri mağazasının sayfa iskeleti, marka yüzü ve mobil düzeninin nasıl ayrıldığını okuyun.", action: "Vitrini görün" },
   { href: "/seo-gorunurluk", title: "Teknik SEO", text: "Taranabilir adres, şema ve ölçüm iskeletini sıralama vaadi olmadan görün.", action: "SEO’yu görün" },
   { href: "/ozel-yazilim", title: "Özel modül", text: "Hazır paketin yetmediği iş kuralını çekirdeğe nasıl eklediğimizi görün.", action: "Kapsamı görün" },

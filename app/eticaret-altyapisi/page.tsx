@@ -75,7 +75,7 @@ export default function CommerceInfrastructurePage() {
 
       <aside className="scope-note"><strong>Kapsam notu</strong><p>Bu sayfa AVC e-ticaret altyapısının çözüm mimarisini açıklar. Belirli bir ödeme, kargo, pazaryeri, ERP, mobil mağaza özelliği veya AI modülünün hazır ve otomatik olarak dahil olduğu anlamına gelmez. Kesin kapsam; teknik doğrulama, sağlayıcı koşulları, paket ve yazılı sözleşmeyle belirlenir.</p></aside>
 
-      <section className="decision-cta"><span className="kicker">MAĞAZA KAPSAMI</span><h2>Önce satış modelinizi ve operasyonunuzu netleştirelim.</h2><p>Katalog, sipariş, ödeme, teslimat, kanal ve entegrasyon ihtiyaçlarınızı birlikte çıkarıp doğru altyapı kapsamına dönüştürelim.</p><div><Link className="button button-primary" href="/teklif?cozum=eticaret">E-ticaret görüşmesi isteyin</Link><Link className="button button-ghost" href="/vitrin-tasarim">Vitrin tasarımını inceleyin</Link><Link className="button button-ghost" href="/paketler">Paketleri karşılaştırın</Link></div></section>
+      <section className="decision-cta"><span className="kicker">MAĞAZA KAPSAMI</span><h2>Önce satış modelinizi ve operasyonunuzu netleştirelim.</h2><p>Katalog, sipariş, ödeme, teslimat, kanal ve entegrasyon ihtiyaçlarınızı birlikte çıkarıp doğru altyapı kapsamına dönüştürelim.</p><div><Link className="button button-primary" href="/teklif?cozum=eticaret">E-ticaret görüşmesi isteyin</Link><Link className="button button-ghost" href="/odeme-kargo">Ödeme ve kargoyu inceleyin</Link><Link className="button button-ghost" href="/stok-operasyon">Stok operasyonunu inceleyin</Link></div></section>
     </main>
   );
 }

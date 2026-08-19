@@ -93,9 +93,9 @@ const integrations = [
 
 const solutionRail = [
   { index: "01", title: "E-Ticaret Altyapısı", note: "Mağaza ve operasyon", href: "/eticaret-altyapisi" },
-  { index: "02", title: "Vitrin Tasarımı", note: "Müşteri mağaza yüzü", href: "/vitrin-tasarim" },
-  { index: "03", title: "Pazaryeri Kanalları", note: "Stok ve sipariş akışı", href: "/pazaryeri-kanallari" },
-  { index: "04", title: "Özel Modül", note: "Pakete ek yazılım", href: "/ozel-yazilim" },
+  { index: "02", title: "Ödeme & Kargo", note: "Sağlayıcı bağlantısı", href: "/odeme-kargo" },
+  { index: "03", title: "Stok Operasyonu", note: "Kayıt, depo değil kasa değil", href: "/stok-operasyon" },
+  { index: "04", title: "Kampanya & Fiyat", note: "Kupon ve kanal kuralı", href: "/kampanya-fiyat" },
   { index: "05", title: "Güvenlik", note: "Erişim, yedek, KVKK", href: "/guvenlik" },
 ];
 

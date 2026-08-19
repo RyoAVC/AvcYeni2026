@@ -832,6 +832,9 @@ test("renders the finished platform landing page", async () => {
   assert.match(sitemapXml, /https:\/\/avcieticaret\.com\/vitrin-tasarim<\/loc>/);
   assert.match(sitemapXml, /https:\/\/avcieticaret\.com\/seo-gorunurluk<\/loc>/);
   assert.match(sitemapXml, /https:\/\/avcieticaret\.com\/pazaryeri-kanallari<\/loc>/);
+  assert.match(sitemapXml, /https:\/\/avcieticaret\.com\/odeme-kargo<\/loc>/);
+  assert.match(sitemapXml, /https:\/\/avcieticaret\.com\/kampanya-fiyat<\/loc>/);
+  assert.match(sitemapXml, /https:\/\/avcieticaret\.com\/stok-operasyon<\/loc>/);
   assert.match(sitemapXml, /https:\/\/avcieticaret\.com\/gizlilik<\/loc>/);
 
   const notFoundResponse = await worker.fetch(
@@ -940,6 +943,9 @@ test("renders the finished platform landing page", async () => {
     "/vitrin-tasarim",
     "/seo-gorunurluk",
     "/pazaryeri-kanallari",
+    "/odeme-kargo",
+    "/kampanya-fiyat",
+    "/stok-operasyon",
     "/gizlilik",
   ];
   const internalLinks = new Set();
