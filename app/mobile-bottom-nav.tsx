@@ -5,11 +5,19 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const PRIMARY = [
-  { href: "/", label: "Ana sayfa" },
-  { href: "/yazilimlar", label: "Yazılımlar" },
-  { href: "/paketler", label: "Paketler" },
-  { href: "/teklif", label: "Demo" },
+  { href: "/", label: "Ana", title: "Ana sayfa", icon: "home" },
+  { href: "/yazilimlar", label: "Yazılım", title: "Yazılımlar", icon: "layers" },
+  { href: "/paketler", label: "Paket", title: "Paketler", icon: "box" },
+  { href: "/teklif", label: "Demo", title: "Demo iste", icon: "spark" },
 ] as const;
+
+const ICONS = {
+  home: "M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1v-9.5Z",
+  layers: "M4 8l8-4 8 4-8 4-8-4Zm0 5 8 4 8-4M4 16l8 4 8-4",
+  box: "M4 8l8-4 8 4v10l-8 4-8-4V8Zm0 0 8 4 8-4M12 12v10",
+  spark: "M12 3v4M12 17v4M4.2 6.2l2.8 2.8M17 15l2.8 2.8M3 12h4M17 12h4M4.2 17.8 7 15M17 9l2.8-2.8",
+  menu: "M5 7h14M5 12h14M5 17h14",
+} as const;
 
 const GROUPS = [
   {
@@ -49,6 +57,20 @@ const GROUPS = [
     ],
   },
 ] as const;
+
+function NavGlyph({ name }: { name: keyof typeof ICONS }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d={ICONS[name]}
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
 
 function pathActive(pathname: string, href: string) {
   if (href === "/") return pathname === "/";
@@ -126,10 +148,13 @@ export function MobileBottomNav({ customerLoginEnabled = false }: { customerLogi
           <Link
             key={item.href}
             href={item.href}
+            title={item.title}
+            aria-current={pathActive(pathname, item.href) ? "page" : undefined}
             className={pathActive(pathname, item.href) ? "is-active" : undefined}
             onClick={() => setOpen(false)}
           >
-            {item.label}
+            <NavGlyph name={item.icon} />
+            <span>{item.label}</span>
           </Link>
         ))}
         <button
@@ -139,7 +164,8 @@ export function MobileBottomNav({ customerLoginEnabled = false }: { customerLogi
           aria-label={open ? "Menüyü kapat" : "Menüyü aç"}
           onClick={() => setOpen((value) => !value)}
         >
-          Menü
+          <NavGlyph name="menu" />
+          <span>Menü</span>
         </button>
       </nav>
     </div>

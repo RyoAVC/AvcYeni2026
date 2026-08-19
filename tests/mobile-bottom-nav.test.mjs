@@ -13,6 +13,9 @@ test("public pages get a centered mobile bottom menu instead of a clipped top dr
   assert.match(nav, /aria-label=\{open \? "Menüyü kapat" : "Menüyü aç"\}/);
   assert.match(nav, /mobile-bottom-nav-bar/);
   assert.match(nav, /href: "\/yazilimlar"/);
+  assert.match(nav, /label: "Yazılım"/);
+  assert.match(nav, /label: "Paket"/);
+  assert.match(css, /grid-template-columns:\s*repeat\(5,/);
   assert.match(nav, /href: "\/paketler"/);
   assert.match(nav, /href: "\/teklif"/);
   assert.match(nav, /\/yonetim/);
