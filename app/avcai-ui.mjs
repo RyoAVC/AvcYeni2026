@@ -1,5 +1,5 @@
-export const TOFY_LISTEN_PAUSE_MS = 2800;
-export const TOFY_LISTEN_MAX_MS = 18000;
+export const TOFY_LISTEN_PAUSE_MS = 900;
+export const TOFY_LISTEN_MAX_MS = 14000;
 
 export function shouldShowAvcai(pathname) {
   const path = typeof pathname === "string" ? pathname : "";

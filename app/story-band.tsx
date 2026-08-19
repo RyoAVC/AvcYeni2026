@@ -62,7 +62,7 @@ export function StoryBand() {
 
     const timer = window.setInterval(() => {
       setIndex((current) => (current + 1) % STORIES.length);
-    }, 6200);
+    }, 3200);
 
     return () => window.clearInterval(timer);
   }, []);

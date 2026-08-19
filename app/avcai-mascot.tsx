@@ -164,6 +164,7 @@ export function AvcaiMascot({ exitPopup }: { exitPopup?: TofyPopup } = {}) {
   const sourceRef = useRef<AudioBufferSourceNode | null>(null);
   const unlockedRef = useRef(false);
   const voiceRef = useRef(true);
+  const keepAliveRef = useRef<OscillatorNode | null>(null);
   const speakGen = useRef(0);
   const itemsRef = useRef<ChatItem[]>([]);
   const speakRef = useRef<(text: string) => Promise<void>>(async () => undefined);
@@ -286,7 +287,6 @@ export function AvcaiMascot({ exitPopup }: { exitPopup?: TofyPopup } = {}) {
       lastMoveRef.current = Date.now();
       idlePingRef.current = false;
       setResting(false);
-      void unlockAudio();
       if (event.pointerType === "touch" || openRef.current || window.matchMedia("(hover: none)").matches) return;
       const origin = event.target instanceof Element ? event.target : null;
       const target = origin?.closest("main section, main article, main [data-avcai-context]") || null;
@@ -374,6 +374,12 @@ export function AvcaiMascot({ exitPopup }: { exitPopup?: TofyPopup } = {}) {
       } catch {
         /* already stopped */
       }
+      try {
+        keepAliveRef.current?.stop();
+      } catch {
+        /* already stopped */
+      }
+      keepAliveRef.current = null;
       void ctxRef.current?.close();
       endRealtime(false);
     };
@@ -390,14 +396,15 @@ export function AvcaiMascot({ exitPopup }: { exitPopup?: TofyPopup } = {}) {
     try {
       const ctx = audioContext();
       if (ctx && ctx.state === "suspended") await ctx.resume();
-      if (ctx && !unlockedRef.current) {
+      if (ctx && !unlockedRef.current && !keepAliveRef.current) {
         const gain = ctx.createGain();
         gain.gain.value = 0.0001;
         const osc = ctx.createOscillator();
+        osc.frequency.value = 20;
         osc.connect(gain);
         gain.connect(ctx.destination);
         osc.start();
-        osc.stop(ctx.currentTime + 0.04);
+        keepAliveRef.current = osc;
       }
       unlockedRef.current = true;
     } catch {
@@ -446,7 +453,13 @@ export function AvcaiMascot({ exitPopup }: { exitPopup?: TofyPopup } = {}) {
     const url = URL.createObjectURL(new Blob([buffer], { type: "audio/wav" }));
     const player = new Audio(url);
     player.volume = 1;
-    await player.play();
+    try {
+      await player.play();
+    } catch {
+      const ctx = audioContext();
+      if (ctx && ctx.state === "suspended") await ctx.resume();
+      await player.play();
+    }
     await new Promise<void>((resolve, reject) => {
       player.onended = () => resolve();
       player.onerror = () => reject(new Error("Ses çalınamadı."));
@@ -470,14 +483,14 @@ export function AvcaiMascot({ exitPopup }: { exitPopup?: TofyPopup } = {}) {
         throw new Error("Boş ses yanıtı.");
       } catch (caught) {
         lastError = caught instanceof Error ? caught : new Error("Ses üretilemedi.");
-        if (attempt === 0) await new Promise((resolve) => window.setTimeout(resolve, 240));
+        if (attempt === 0) await new Promise((resolve) => window.setTimeout(resolve, 80));
       }
     }
     throw lastError || new Error("Ses üretilemedi.");
   }
 
   async function speak(text: string) {
-    const chunks = voiceChunks(tofySpeechText(text), 315);
+    const chunks = voiceChunks(tofySpeechText(text), 160);
     if (!voiceRef.current || !chunks.length) {
       setTalking(false);
       setStatus("idle");
@@ -489,11 +502,21 @@ export function AvcaiMascot({ exitPopup }: { exitPopup?: TofyPopup } = {}) {
       await unlockAudio();
       setStatus("speaking");
       setTalking(true);
-      for (const chunk of chunks) {
+      let pending = fetchVoiceChunk(chunks[0]);
+      for (let index = 0; index < chunks.length; index += 1) {
         if (speakGen.current !== token || !voiceRef.current) break;
-        const buffer = await fetchVoiceChunk(chunk);
+        const nextIndex = index + 1;
+        const next = nextIndex < chunks.length ? fetchVoiceChunk(chunks[nextIndex]) : null;
+        let buffer: ArrayBuffer;
+        try {
+          buffer = await pending;
+        } catch {
+          pending = next || Promise.reject(new Error("Ses üretilemedi."));
+          continue;
+        }
+        pending = next || Promise.resolve(new ArrayBuffer(0));
         if (speakGen.current !== token) break;
-        await playBuffer(buffer);
+        if (buffer.byteLength) await playBuffer(buffer);
       }
       if (speakGen.current === token) {
         setTalking(false);

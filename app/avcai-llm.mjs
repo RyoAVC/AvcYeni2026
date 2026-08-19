@@ -109,7 +109,7 @@ async function openaiCompanySearch(key, question, path, context, staff) {
   };
 }
 
-async function fetchTimed(url, options, ms = 4500) {
+async function fetchTimed(url, options, ms = 8000) {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), ms);
   try {
@@ -398,7 +398,7 @@ export async function speakAvcai(text, env) {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-goog-api-key": key },
         body,
-      }, 8000);
+      }, 4500);
     } catch {
       continue;
     }

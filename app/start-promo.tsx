@@ -79,7 +79,7 @@ export function StartPromo() {
 
     const timer = window.setInterval(() => {
       setIndex((current) => (current + 1) % SLIDES.length);
-    }, 5600);
+    }, 3000);
 
     return () => window.clearInterval(timer);
   }, []);

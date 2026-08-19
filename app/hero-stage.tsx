@@ -206,7 +206,7 @@ export function HeroStage({
 
     const slideTimer = window.setInterval(() => {
       setIndex((current) => (current + 1) % SLIDES.length);
-    }, 5600);
+    }, 3000);
 
     const pulseTimer = window.setInterval(() => {
       setPulse((tick) => tick + 1);

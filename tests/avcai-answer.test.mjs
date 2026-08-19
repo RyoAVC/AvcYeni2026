@@ -86,7 +86,7 @@ test("AvcAI local reply and mascot visibility stay honest without a paid API", a
   assert.equal(shouldShowAvcai("/yonetim"), false);
   assert.equal(shouldShowAvcai("/yonetim/giris"), false);
   assert.equal(shouldShowAvcai("/en"), false);
-  assert.equal(TOFY_LISTEN_PAUSE_MS, 2800);
+  assert.equal(TOFY_LISTEN_PAUSE_MS, 900);
   assert.equal(pageCue("/paketler").id, "paket");
   assert.match(pageCue("/teklif").nudge, /Formu/);
   assert.equal(voiceLine("İyiyim, buradayım. Paket mi?"), "İyiyim, buradayım. Paket mi?");
@@ -99,6 +99,8 @@ test("AvcAI local reply and mascot visibility stay honest without a paid API", a
   assert.match(mascotSource, /rec\.continuous = true/);
   assert.match(mascotSource, /TOFY_LISTEN_MAX_MS/);
   assert.match(mascotSource, /TOFY_LISTEN_PAUSE_MS/);
+  assert.match(mascotSource, /fetchVoiceChunk/);
+  assert.match(mascotSource, /keepAliveRef/);
   assert.match(mascotSource, /finishListen\(true\)/);
   assert.match(mascotSource, /Yanıt sesi açık/);
   assert.match(mascotSource, /readApiJson/);
@@ -122,6 +124,7 @@ test("AvcAI local reply and mascot visibility stay honest without a paid API", a
   const llmSource = await readFile(new URL("../app/avcai-llm.mjs", import.meta.url), "utf8");
   assert.match(llmSource, /TTS_MODELS = \["gemini-3.1-flash-tts-preview", "gemini-2.5-flash-preview-tts", "gemini-2.5-pro-preview-tts"\]/);
   assert.match(llmSource, /fetchTimed/);
+  assert.match(llmSource, /, 4500\)/);
   assert.match(llmSource, /voiceName: "Kore"/);
 });
 

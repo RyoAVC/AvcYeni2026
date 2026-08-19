@@ -85,7 +85,7 @@ export function CheeseDraft() {
     if (reduced || held || !activeView) return undefined;
     const timer = window.setInterval(() => {
       setStep((current) => (current + 1) % STEPS.length);
-    }, 9000);
+    }, 4800);
     return () => window.clearInterval(timer);
   }, [held, activeView]);
 
@@ -94,7 +94,7 @@ export function CheeseDraft() {
     if (reduced || !activeView) return undefined;
     const timer = window.setInterval(() => {
       setBanner((current) => (current + 1) % BANNERS.length);
-    }, 7000);
+    }, 3800);
     return () => window.clearInterval(timer);
   }, [activeView]);
 

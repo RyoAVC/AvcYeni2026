@@ -339,7 +339,7 @@ body:has(.cookie-notice) .live-toast { bottom: clamp(7.2rem, 22vw, 10rem); }
 }
 .start-promo-track {
   display: flex;
-  transition: transform .75s cubic-bezier(.2, .7, .2, 1);
+  transition: transform .32s cubic-bezier(.2, .7, .2, 1);
   will-change: transform;
 }
 .start-promo-slide {
@@ -681,7 +681,7 @@ body:has(.cookie-notice) .live-toast { bottom: clamp(7.2rem, 22vw, 10rem); }
 }
 .pos-banner-track {
   display: flex;
-  transition: transform .75s cubic-bezier(.2, .7, .2, 1);
+  transition: transform .32s cubic-bezier(.2, .7, .2, 1);
   will-change: transform;
 }
 .pos-slide {
@@ -869,7 +869,7 @@ body:has(.cookie-notice) .live-toast { bottom: clamp(7.2rem, 22vw, 10rem); }
 }
 .story-band-track {
   display: flex;
-  transition: transform .7s cubic-bezier(.2, .7, .2, 1);
+  transition: transform .32s cubic-bezier(.2, .7, .2, 1);
   will-change: transform;
 }
 .story-band-quote {
@@ -2967,7 +2967,7 @@ html[data-theme="day"] .admin-access-page .brand-logo-stack .brand-logo-img--day
   background: var(--mint);
   transform-origin: 8px 50%;
   transform: rotate(var(--point, -18deg));
-  transition: transform .75s cubic-bezier(.2, .7, .2, 1);
+  transition: transform .32s cubic-bezier(.2, .7, .2, 1);
   box-shadow: 0 0 18px rgba(130,247,188,.4);
 }
 .cheese-bot-arm i {
@@ -4022,7 +4022,7 @@ body:has(.cookie-notice) .avcai-mascot { bottom: clamp(8.5rem, 26vw, 12rem); }
 .hero-slider-track {
   display: flex;
   width: 100%;
-  transition: transform .75s cubic-bezier(.2, .7, .2, 1);
+  transition: transform .32s cubic-bezier(.2, .7, .2, 1);
   will-change: transform;
 }
 .hero-slide-slot {

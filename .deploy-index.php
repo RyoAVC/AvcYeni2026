@@ -1,11 +1,37 @@
 <?php
 declare(strict_types=1);
 
-$backend = 'http://127.0.0.1:4115';
-$uri = $_SERVER['REQUEST_URI'] ?? '/';
-if ($uri === '/v1' || str_starts_with($uri, '/v1/')) {
+function avciForwardUri(string $uri): array
+{
+    $backend = 'http://127.0.0.1:4115';
+    $qPos = strpos($uri, '?');
+    $path = $qPos === false ? $uri : substr($uri, 0, $qPos);
+    $query = $qPos === false ? '' : substr($uri, $qPos);
+
+    if ($path !== '/v1' && !str_starts_with($path, '/v1/')) {
+        return [$backend, $path . $query];
+    }
+
     $backend = 'http://127.0.0.1:4120';
+    $rest = $path === '/v1' ? '' : substr($path, 3);
+    $isFile = $rest !== '' && (bool) preg_match(
+        '/\.(css|js|mjs|map|png|jpe?g|gif|svg|webp|ico|woff2?|ttf|webmanifest|txt)$/i',
+        $rest
+    );
+    $isStaticDir = str_starts_with($rest, '/assets/')
+        || str_starts_with($rest, '/brand/')
+        || str_starts_with($rest, '/story/')
+        || str_starts_with($rest, '/bakim/');
+
+    // Vinext HTML lives at /v1, but built files are served from /assets (no prefix).
+    if ($isStaticDir || $isFile) {
+        return [$backend, $rest . $query];
+    }
+
+    return [$backend, $path . $query];
 }
+
+$uri = $_SERVER['REQUEST_URI'] ?? '/';
 if (str_starts_with($uri, '/.well-known/')) {
     http_response_code(404);
     header('Content-Type: text/plain; charset=utf-8');
@@ -18,7 +44,9 @@ if (!empty($_SERVER['REDIRECT_URL']) && strpos($uri, '/index.php') === 0) {
         $uri .= '?' . $_SERVER['QUERY_STRING'];
     }
 }
-$url = $backend . $uri;
+
+[$backend, $forwardUri] = avciForwardUri($uri);
+$url = $backend . $forwardUri;
 
 $headers = [];
 foreach (getallheaders() ?: [] as $name => $value) {

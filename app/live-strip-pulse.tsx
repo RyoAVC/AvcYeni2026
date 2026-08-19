@@ -40,10 +40,10 @@ export function LiveStripPulse({ items }: { items: LiveSignal[] }) {
       return;
     }
 
-    const numbers = window.setInterval(() => setTick((current) => current + 1), 2800);
+    const numbers = window.setInterval(() => setTick((current) => current + 1), 1600);
     const rotation = window.setInterval(
       () => setPosition((current) => (items.length > 0 ? (current + 1) % items.length : 0)),
-      4800,
+      2800,
     );
     return () => {
       window.clearInterval(numbers);
