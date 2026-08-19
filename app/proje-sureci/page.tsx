@@ -80,7 +80,7 @@ export default function ProjectProcessPage() {
 
       <aside className="scope-note"><strong>Fatura sınırı</strong><p>Portalda görünen fatura numarası, tutar, durum ve vade bilgisi finansal bir özettir. E-fatura veya resmî muhasebe belgesinin yerini aldığı varsayılmaz; geçerli belgenin paylaşım ve saklama yöntemi sözleşme ve mevzuata göre belirlenir.</p></aside>
 
-      <section className="decision-cta"><span className="kicker">SONRAKİ ADIM</span><h2>Yeni proje mi, mevcut kayıt mı?</h2><p>Yeni bir çalışma için kapsam görüşmesine başlayın; devam eden proje, sözleşme veya fatura sorusu için yetkili kanaldan destek isteyin.</p><div><Link className="button button-primary" href="/teklif?cozum=ozel">Proje görüşmesi isteyin</Link><Link className="button button-ghost" href="/musteri-merkezi">Müşteri merkezine gidin</Link><Link className="button button-ghost" href="/destek">Destek isteyin</Link></div></section>
+      <section className="decision-cta"><span className="kicker">SONRAKİ ADIM</span><h2>Yeni proje mi, mevcut kayıt mı?</h2><p>Yeni bir çalışma için kapsam görüşmesine başlayın; devam eden proje, sözleşme veya fatura sorusu için yetkili kanaldan destek isteyin.</p><div><Link className="button button-primary" href="/teklif?cozum=ozel">Proje görüşmesi isteyin</Link><Link className="button button-ghost" href="/veri-gecisi">Veri geçişini inceleyin</Link><Link className="button button-ghost" href="/musteri-merkezi">Müşteri merkezine gidin</Link></div></section>
     </main>
   );
 }
