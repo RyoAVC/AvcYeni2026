@@ -505,10 +505,9 @@ export function AvcaiMascot({ exitPopup }: { exitPopup?: TofyPopup } = {}) {
       let pending: Promise<ArrayBuffer> = fetchVoiceChunk(chunks[0]);
       for (let index = 0; index < chunks.length; index += 1) {
         if (speakGen.current !== token || !voiceRef.current) break;
-        const nextIndex = index + 1;
-        const next = nextIndex < chunks.length ? fetchVoiceChunk(chunks[nextIndex]) : null;
         const buffer = await pending;
-        pending = next || Promise.resolve(new ArrayBuffer(0));
+        const nextIndex = index + 1;
+        pending = nextIndex < chunks.length ? fetchVoiceChunk(chunks[nextIndex]) : Promise.resolve(new ArrayBuffer(0));
         if (speakGen.current !== token) break;
         if (buffer.byteLength) await playBuffer(buffer);
       }

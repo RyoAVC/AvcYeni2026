@@ -4,6 +4,7 @@ import { cleanAvcaiPath, pageCue } from "./avcai-ui.mjs";
 
 const CHAT_MODELS = ["gemini-flash-latest", "gemini-3.1-flash-lite", "gemini-3-flash-preview"];
 const TTS_MODELS = ["gemini-2.5-flash-preview-tts", "gemini-3.1-flash-tts-preview"];
+let geminiTtsSkipUntil = 0;
 const GROQ_CHAT_URL = "https://api.groq.com/openai/v1/chat/completions";
 const GEMINI_ROOT = "https://generativelanguage.googleapis.com/v1beta/models";
 const OPENAI_SPEECH_URL = "https://api.openai.com/v1/audio/speech";
@@ -112,14 +113,10 @@ async function openaiCompanySearch(key, question, path, context, staff) {
 }
 
 async function fetchTimed(url, options, ms = 8000) {
-  let timer;
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), ms);
   try {
-    return await Promise.race([
-      fetch(url, options),
-      new Promise((_, reject) => {
-        timer = setTimeout(() => reject(new Error("timeout")), ms);
-      }),
-    ]);
+    return await fetch(url, { ...options, signal: ctrl.signal });
   } finally {
     clearTimeout(timer);
   }
@@ -445,7 +442,7 @@ export async function speakAvcai(text, env) {
   if (spoken.length < 8) return null;
   try {
     const gemini = geminiKey(env);
-    if (gemini) {
+    if (gemini && Date.now() >= geminiTtsSkipUntil) {
       const body = JSON.stringify({
         contents: [{ parts: [{ text: spoken }] }],
         generationConfig: {
@@ -465,6 +462,10 @@ export async function speakAvcai(text, env) {
           }, 4000);
         } catch {
           continue;
+        }
+        if (response.status === 429) {
+          geminiTtsSkipUntil = Date.now() + 30 * 60 * 1000;
+          break;
         }
         if (!response.ok) continue;
         const payload = await response.json().catch(() => null);

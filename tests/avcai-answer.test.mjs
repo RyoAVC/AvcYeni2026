@@ -126,7 +126,7 @@ test("AvcAI local reply and mascot visibility stay honest without a paid API", a
   assert.match(llmSource, /fetchTimed/);
   assert.match(llmSource, /, 4000\)/);
   assert.match(llmSource, /voiceName: "Kore"/);
-  assert.match(llmSource, /audio\/speech/);
+  assert.match(llmSource, /geminiTtsSkipUntil/);
   assert.doesNotMatch(mascotSource, /Promise\.reject/);
 });
 
