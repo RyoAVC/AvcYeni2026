@@ -843,6 +843,9 @@ test("renders the finished platform landing page", async () => {
   assert.match(sitemapXml, /https:\/\/avcieticaret\.com\/eposta-teslim<\/loc>/);
   assert.match(sitemapXml, /https:\/\/avcieticaret\.com\/magaza-kvkk<\/loc>/);
   assert.match(sitemapXml, /https:\/\/avcieticaret\.com\/oturum-politika<\/loc>/);
+  assert.match(sitemapXml, /https:\/\/avcieticaret\.com\/kayit-saklama<\/loc>/);
+  assert.match(sitemapXml, /https:\/\/avcieticaret\.com\/veri-konumu<\/loc>/);
+  assert.match(sitemapXml, /https:\/\/avcieticaret\.com\/iade-iptal<\/loc>/);
   assert.match(sitemapXml, /https:\/\/avcieticaret\.com\/gizlilik<\/loc>/);
 
   const notFoundResponse = await worker.fetch(
@@ -962,6 +965,9 @@ test("renders the finished platform landing page", async () => {
     "/eposta-teslim",
     "/magaza-kvkk",
     "/oturum-politika",
+    "/kayit-saklama",
+    "/veri-konumu",
+    "/iade-iptal",
     "/gizlilik",
   ];
   const internalLinks = new Set();

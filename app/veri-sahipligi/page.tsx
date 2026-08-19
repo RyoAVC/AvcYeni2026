@@ -137,8 +137,11 @@ export default function DataOwnershipPage() {
           <Link className="button button-primary" href="/teklif?cozum=eticaret">
             Veri görüşmesi
           </Link>
-          <Link className="button button-ghost" href="/gizlilik">
-            Gizlilik metni
+          <Link className="button button-ghost" href="/kayit-saklama">
+            Kayıt saklama
+          </Link>
+          <Link className="button button-ghost" href="/veri-konumu">
+            Veri konumu
           </Link>
         </div>
       </section>

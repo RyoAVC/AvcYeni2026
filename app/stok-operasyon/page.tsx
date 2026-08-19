@@ -137,8 +137,8 @@ export default function StockOperationsPage() {
           <Link className="button button-primary" href="/teklif?cozum=eticaret">
             Stok görüşmesi
           </Link>
-          <Link className="button button-ghost" href="/pazaryeri-kanallari">
-            Pazaryeri kanalları
+          <Link className="button button-ghost" href="/iade-iptal">
+            İade ve iptal
           </Link>
         </div>
       </section>

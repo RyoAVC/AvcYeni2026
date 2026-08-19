@@ -137,8 +137,8 @@ export default function PaymentShippingPage() {
           <Link className="button button-primary" href="/teklif?cozum=entegrasyon">
             Ödeme ve kargo görüşmesi
           </Link>
-          <Link className="button button-ghost" href="/entegrasyonlar">
-            Tüm entegrasyonlar
+          <Link className="button button-ghost" href="/iade-iptal">
+            İade ve iptal
           </Link>
         </div>
       </section>
