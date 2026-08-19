@@ -139,11 +139,11 @@ export default function SecurityPage() {
           <Link className="button button-primary" href="/teklif?cozum=eticaret">
             Teklif formuna yazın
           </Link>
-          <Link className="button button-ghost" href="/ortam-ayrimi">
-            Ortam ayrımı
+          <Link className="button button-ghost" href="/magaza-kvkk">
+            Mağaza KVKK
           </Link>
-          <Link className="button button-ghost" href="/eposta-teslim">
-            E-posta teslimi
+          <Link className="button button-ghost" href="/oturum-politika">
+            Oturum politikası
           </Link>
         </div>
       </section>

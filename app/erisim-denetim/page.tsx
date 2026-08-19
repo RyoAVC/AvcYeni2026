@@ -137,8 +137,8 @@ export default function AccessAuditPage() {
           <Link className="button button-primary" href="/teklif?cozum=eticaret">
             Erişim görüşmesi
           </Link>
-          <Link className="button button-ghost" href="/veri-sahipligi">
-            Veri sahipliği
+          <Link className="button button-ghost" href="/oturum-politika">
+            Oturum politikası
           </Link>
         </div>
       </section>

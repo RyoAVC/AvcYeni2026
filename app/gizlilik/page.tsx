@@ -79,7 +79,7 @@ export default async function PrivacyPage() {
           <section className="legal-contact">
             <span className="kicker">TALEP VE SORULAR</span>
             <h2>Verilerinizle ilgili bize ulaşın.</h2>
-            <p>Kimliğinizi doğrulamamıza yardımcı olacak bilgilerle birlikte talebinizi aşağıdaki iletişim kanallarından iletebilirsiniz.</p>
+            <p>Kimliğinizi doğrulamamıza yardımcı olacak bilgilerle birlikte talebinizi aşağıdaki iletişim kanallarından iletebilirsiniz. Canlı mağaza ziyaretçisi verisi için <Link href="/magaza-kvkk">mağaza KVKK</Link> sayfasına bakın.</p>
             <div>
               <a href={`mailto:${settings.contactEmail}`}>{settings.contactEmail}</a>
               <a href={`tel:${settings.contactPhoneHref}`}>{settings.contactPhone}</a>

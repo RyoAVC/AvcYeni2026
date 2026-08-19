@@ -40,6 +40,8 @@ const questions = [
   { question: "API anahtarı sitede görünür mü?", answer: "Hayır. Anahtar vitrine, Tofy’ye veya e-postaya konmaz. Webhook imza ile doğrulanır. Sızdıysa iptal edilir. Ayrıntı API güvenliği sayfasındadır." },
   { question: "Test ortamı canlıyı etkiler mi?", answer: "Etkilememeli. Canlı ve deneme kapısı, anahtar ve müşteri verisi ayrılır. Test siparişi gerçek tahsilatı tetiklemez. Ayrıntı ortam ayrımı sayfasındadır." },
   { question: "Sipariş e-postası Avcı kutusundan mı gider?", answer: "Marka maili sizin alan adınızdan gidecekse SPF/DKIM teklifte yazılır. Bülten işlemselden ayrıdır. Inbox garantisi yoktur. Ayrıntı e-posta teslim sayfasındadır." },
+  { question: "Mağaza üyesi Avcı’nın KVKK’sına mı girer?", answer: "Hayır. Avcı tanıtım sitesi ayrıdır. Vitrin ziyaretçisinde kural olarak veri sorumlusu sizsiniz; Avcı işleyen olabilir. Aydınlatma metni vitrinde durur. Ayrıntı mağaza KVKK sayfasındadır." },
+  { question: "Panel açık unutulursa ne olur?", answer: "Oturum süresi ve boşta kilit teklifte yazılır. Paylaşılan tek şifre güvenlik açığıdır. Ayrılan personelin hesabını siz kapatırsınız. Ayrıntı oturum politikası sayfasındadır." },
 ];
 
 const faqStructuredData = {
@@ -77,6 +79,8 @@ const guides = [
   { href: "/api-guvenlik", title: "API güvenliği", text: "Anahtar vitrinde durmaz; webhook imzası ve dar yetki teklifte yazılır.", action: "API kuralını görün" },
   { href: "/ortam-ayrimi", title: "Ortam ayrımı", text: "Canlı ve test kapısı, anahtar ve veri kopyasının nasıl ayrıldığını görün.", action: "Ortamı görün" },
   { href: "/eposta-teslim", title: "E-posta teslimi", text: "Sipariş maili kimin alan adından gider; bülten işlemselden nasıl ayrılır.", action: "E-postayı görün" },
+  { href: "/magaza-kvkk", title: "Mağaza KVKK", text: "Vitrin üyesi ve çerez verisinde kim sorumlu; Avcı gizlilik metni bunun kopyası değildir.", action: "KVKK’yı görün" },
+  { href: "/oturum-politika", title: "Oturum politikası", text: "Panel süresi, boşta kilit ve personel çıkışının nasıl yazıldığını görün.", action: "Oturumu görün" },
   { href: "/yapay-zeka", title: "İsteğe bağlı AI", text: "Mağaza akışına eklenebilen içerik, destek ve karar modüllerini inceleyin.", action: "Modülleri görün" },
   { href: "/musteri-merkezi", title: "Müşteri merkezi", text: "Portalda görünen kayıtları ve güvenlik sınırlarını öğrenin.", action: "Kapsamı görün" },
   { href: "/destek", title: "Destek merkezi", text: "Talebinizi güvenli teşhis bilgisi ve doğru öncelikle iletin.", action: "Destek alın" },
