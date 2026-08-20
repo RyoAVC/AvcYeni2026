@@ -514,18 +514,23 @@ export default async function Home() {
       <section className="ai-section" id="yapay-zeka">
         <div className="ai-visual" aria-hidden="true">
           <div className="ai-console">
-            <div className="ai-console-bar"><span>TOFY / OPERASYON KATMANI</span><i /><i /><i /></div>
+            <div className="ai-console-bar"><span>Avcı Commerce · Tofy modülü</span><i /><i /><i /></div>
             <div className="ai-console-stage">
-              <div className="ai-orbit orbit-a"><i /></div>
-              <div className="ai-orbit orbit-b"><i /></div>
-              <div className="ai-core"><small>TOFY</small><strong>AVCI<br />E-TİCARET</strong><span>AKTİF MODÜL</span></div>
-              <div className="ai-node node-one"><small>01</small><strong>İÇERİK</strong><span>Ürün & SEO</span></div>
-              <div className="ai-node node-two"><small>02</small><strong>SATIŞ</strong><span>Öneri akışı</span></div>
-              <div className="ai-node node-three"><small>03</small><strong>DESTEK</strong><span>Akıllı yanıt</span></div>
-              <div className="ai-node node-four"><small>04</small><strong>RAPOR</strong><span>Doğal dil</span></div>
-              <div className="ai-signal signal-one" /><div className="ai-signal signal-two" />
+              <div className="ai-core">
+                <div>
+                  <small>TOFY</small>
+                  <strong>Avcı E-Ticaret</strong>
+                </div>
+                <span>İsteğe bağlı modül</span>
+              </div>
+              <div className="ai-node-grid">
+                <div className="ai-node"><small>01</small><strong>İçerik</strong><span>Ürün ve SEO metni</span></div>
+                <div className="ai-node"><small>02</small><strong>Satış</strong><span>Öneri ve arama</span></div>
+                <div className="ai-node"><small>03</small><strong>Destek</strong><span>Yanıt taslağı</span></div>
+                <div className="ai-node"><small>04</small><strong>Rapor</strong><span>Doğal dil özeti</span></div>
+              </div>
             </div>
-            <div className="ai-console-footer"><span><i /> İhtiyaca göre etkin</span><small>Mağaza çekirdeğine bağlı çalışır</small></div>
+            <div className="ai-console-footer"><span><i /> İhtiyaca göre açılır</span><small>Mağaza çekirdeğinin yerini almaz</small></div>
           </div>
         </div>
         <div className="ai-content">

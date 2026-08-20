@@ -1,6 +1,6 @@
 # AVC E-Ticaret — Kalıcı Proje Hafızası ve Debug/Devir Kaydı
 
-Son güncelleme: 19 Ağustos 2026
+Son güncelleme: 20 Ağustos 2026
 
 Bu dosya projenin tek yetkili debug/devir kaydıdır. Yeni bir Codex/ChatGPT oturumu önce bu dosyayı okumalı, mevcut kaynakları korumalı ve yalnızca aktif iş için gerekli dosyalara hedefli bakmalıdır. Gizli anahtar, parola, token ve gerçek müşteri verisi bu dosyaya yazılmaz.
 
@@ -1149,6 +1149,13 @@ Dürüst sınır:
 - 19 Ağustos 2026: `yeni.avcieticaret.com/v1/` canlı test olarak açıldı; GitHub `RyoAVC/AvcYeni2026` push ile bu adresi günceller.
 - Kullanıcı kararı: `/v1` geçici. Geliştirme bitince proje `avcieticaret.com` ana yerine taşınır. Kullanıcı açıkça demeden kök alana taşınmaz.
 - Yerel önizleme değişmedi: `http://127.0.0.1:4115/`.
+
+### v146 — Tofy görseli radar yerine ürün paneli
+
+- Ana sayfa `#yapay-zeka` içindeki dönen halka, diyagonal sinyal çizgisi ve parlayan daire kaldırıldı. Tofy artık hero’daki Avcı Commerce penceresine yakın, düz bir modül paneli: üst şerit, Tofy başlığı, dört kart (içerik, satış, destek, rapor).
+- AI’ın isteğe bağlı modül olduğu ve mağaza çekirdeğinin yerini almadığı metin korundu. Yeni renk veya yeni keyframe eklenmedi.
+- Değişen kaynaklar: `app/page.tsx`, `app/globals.css`, `PROJECT_DEBUG.md`.
+- Doğrulama: kullanıcı tarayıcıda `#yapay-zeka` görünümünü onaylayacak. Deploy yapılmadı.
 
 ### v144 — Gündüz katalog menüsü ve teklif header
 
