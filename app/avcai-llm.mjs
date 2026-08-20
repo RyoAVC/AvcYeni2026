@@ -42,15 +42,16 @@ export function buildAvcaiSystemPrompt(path = "/", context = "", staff = false) 
   const cue = pageCue(path);
   return [
     "Adın Tofy. Seni Avcı E-Ticaret geliştirdi. Kendini tanıtman gerekirse yalnızca 'Ben Tofy’yim, beni Avcı E-Ticaret geliştirdi' de; adında veya tanıtımında AI deme.",
-    "Avcı E-Ticaret’in sıcak, dikkatli ve çözüm odaklı asistanısın.",
+    "Avcı E-Ticaret’in zeki, sıcak ve yetişkin asistanısın. Bir yaşındaki çocuk gibi 'bilmiyorum', 'bağlam lazım' diye kesme.",
     "Doğal ve akıcı Türkçe konuş. Kullanıcının cümlesini tekrar etme; 'tabii ki', 'size yardımcı olabilirim' gibi kalıp girişlere yaslanma. Doğrudan konuya gir.",
-    "Gündelik lafa kısa ve samimi karşılık ver, sonra zorlamadan asıl ihtiyaca dön. Robot, hayvan veya çağrı merkezi rolü yapma.",
+    "Gündelik sohbet, genel kültür, dil, kısa açıklama, şaka ve günlük lafa normal zeki bir insan gibi cevap ver. Her cümleyi Avcı satışına çevirme; ürün sorulunca satış asistanı ol.",
+    "Mahir Avcı, Avcı E-Ticaret’in kurucusudur. 'Mahir Avcı kim' diye sorulursa bunu açık söyle; bilmiyorum deme.",
     "Kurallar:",
     "- Avcı mağaza değildir; e-ticaret altyapısı, web sitesi ve modül satar.",
     "- Peynir, kıyafet, mobilya satılmaz. Peynir örneği demo mağazadır.",
     "- Kesin fiyat, komisyon, teslim günü, SLA, satış sonucu veya sahte referans uydurma.",
     "- Aynı sektördeki başka şirketlerden isim vererek örnek verme veya kıyaslama yapma. Gerekirse yalnızca 'X Firma' de.",
-    "- Bilmediğin noktada boş konuşma. Bildiğin kısmı söyle, sonra cevabı netleştirecek tek bir kısa soru sor veya doğru sayfaya yönlendir.",
+    "- Dar ticari detayı bilmiyorsan uydurma; genel sohbette donuk kesilme. Bildiğin kadarını net söyle, gerekirse tek kısa soru sor.",
     "- Önceki konuşmayı sürdür; her mesajda Avcı’yı baştan tanıtma. Gerekirse iki ihtiyacı aynı cevapta ilişkilendir.",
     "- Cevap çoğunlukla 2-4 cümle olsun. Cümle uzunluklarını çeşitlendir; liste gibi değil, insan gibi konuş.",
     "- İletişim/teklif: telefon-adres dökme. Form gittiyse fark et. Mesai beklemeden yaz desin. 7/24 dönüş vaat etme.",
@@ -65,7 +66,7 @@ export function buildAvcaiSystemPrompt(path = "/", context = "", staff = false) 
 
 export function isCompanyResearchQuestion(value) {
   const text = String(value ?? "").toLocaleLowerCase("tr-TR");
-  return /avcı|avci/.test(text) && /hakkında|hakkinda|geçmiş|gecmis|tarihçe|tarihce|kurul|kimdir|firma bilg/.test(text);
+  return /avcı|avci|mahir/.test(text) && /hakkında|hakkinda|geçmiş|gecmis|tarihçe|tarihce|kurul|kimdir|kim|firma bilg|kurucu/.test(text);
 }
 
 function safeSourceUrl(value) {
@@ -87,7 +88,7 @@ async function openaiCompanySearch(key, question, path, context, staff) {
       instructions: [
         buildAvcaiSystemPrompt(path, context, staff),
         "Avcı E-Ticaret hakkında güncel web araştırması yap. Önce avcieticaret.com üzerindeki birincil bilgileri, sonra güvenilir dış kaynakları kullan.",
-        "Yalnız doğrulayabildiğin kısa şirket özetini ver. Kuruluş tarihi, kurucu, müşteri veya başarı uydurma. Kaynaklarda aynı sektörden şirket adları geçse bile cevapta bunları anma.",
+        "Mahir Avcı, Avcı E-Ticaret’in kurucusudur; bunu söyleyebilirsin. Kuruluş yılı, müşteri listesi veya başarı rakamı uydurma. Kaynaklarda aynı sektörden şirket adları geçse bile cevapta bunları anma.",
       ].join("\n"),
       input: question,
     }),
@@ -164,8 +165,8 @@ async function geminiChat(key, message, history, path, context, staff) {
     systemInstruction: { parts: [{ text: buildAvcaiSystemPrompt(path, context, staff) }] },
     contents,
     generationConfig: {
-      temperature: 0.45,
-      maxOutputTokens: 1024,
+      temperature: 0.72,
+      maxOutputTokens: 1400,
       thinkingConfig: { thinkingBudget: 0 },
     },
   });
@@ -201,8 +202,8 @@ async function groqChat(key, message, history, path, context, staff) {
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
     body: JSON.stringify({
       model: "llama-3.1-8b-instant",
-      temperature: 0.3,
-      max_tokens: 520,
+      temperature: 0.65,
+      max_tokens: 700,
       messages,
     }),
   });
@@ -265,9 +266,9 @@ export async function replyAvcai(question, env, history = [], path = "/", contex
   const safePath = cleanAvcaiPath(path);
   const safeContext = String(context ?? "").replace(/\s+/g, " ").trim().slice(0, 120);
   const local = answerAvcai(question, { history, path: safePath, context: safeContext });
+  const openai = openaiKey(env);
   const gemini = geminiKey(env);
   const groq = groqKey(env);
-  const openai = openaiKey(env);
   const voice = true;
   if (openai && isCompanyResearchQuestion(question)) {
     try {
@@ -287,13 +288,30 @@ export async function replyAvcai(question, env, history = [], path = "/", contex
       // Kayıtlı, doğrulanabilir yerel cevap aşağıda her zaman yedek kalır.
     }
   }
+  if (openai) {
+    try {
+      const generated = await openaiChat(openai, question, history, safePath, safeContext, staff, env);
+      if (generated) {
+        return {
+          ...local,
+          reply: generated.text,
+          source: "openai",
+          provider: "openai",
+          model: generated.model,
+          voice,
+        };
+      }
+    } catch {
+      // Gemini, Groq veya yerel kayıt yedek kalır.
+    }
+  }
   if (gemini || groq) {
     try {
       const text = await withTimeout(
         gemini
           ? geminiChat(gemini, question, history, safePath, safeContext, staff)
           : groqChat(groq, question, history, safePath, safeContext, staff),
-        5500,
+        8000,
       );
       if (text) {
         return {
@@ -406,8 +424,9 @@ async function openaiSpeak(key, text) {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
       body: JSON.stringify({
-        model: "tts-1",
+        model: "tts-1-hd",
         voice: "nova",
+        speed: 1.02,
         input: text,
         response_format: "wav",
       }),
@@ -463,7 +482,7 @@ export async function speakAvcai(text, env) {
         generationConfig: {
           responseModalities: ["AUDIO"],
           speechConfig: {
-            voiceConfig: { prebuiltVoiceConfig: { voiceName: "Kore" } },
+            voiceConfig: { prebuiltVoiceConfig: { voiceName: "Aoede" } },
           },
         },
       });
