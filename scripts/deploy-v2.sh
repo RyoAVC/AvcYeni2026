@@ -39,13 +39,11 @@ cp "${APP_DIR}/.deploy-avci-yeni-v2.service" "${SERVICE_FILE}"
 systemctl daemon-reload
 systemctl enable avci-yeni-v2.service
 
-cp "${APP_DIR}/hosting/yeni-index.php" "${ROOT_DIR}/index.php"
-cp "${APP_DIR}/hosting/yeni.htaccess" "${ROOT_DIR}/.htaccess"
-grep -q '127.0.0.1:4121' "${ROOT_DIR}/index.php"
-php -r "if (function_exists('opcache_reset')) { opcache_reset(); }" 2>/dev/null || true
-if command -v /usr/local/lsws/bin/lswsctrl >/dev/null 2>&1; then
-  /usr/local/lsws/bin/lswsctrl restart || true
-fi
+cp "${APP_DIR}/.deploy-avci-yeni-v2.service" "${SERVICE_FILE}"
+systemctl daemon-reload
+systemctl enable avci-yeni-v2.service
+
+bash "${APP_DIR}/scripts/sync-yeni-proxy.sh" "${APP_DIR}"
 
 chown -R avccom:avccom "${APP_DIR}" "${ROOT_DIR}/index.php" "${ROOT_DIR}/.htaccess" 2>/dev/null || true
 

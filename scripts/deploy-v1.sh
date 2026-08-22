@@ -20,8 +20,7 @@ npm ci --include=dev
 export NODE_ENV="production"
 
 npx vinext build
-cp "${APP_DIR}/hosting/yeni-index.php" "${ROOT_DIR}/index.php"
-cp "${APP_DIR}/hosting/yeni.htaccess" "${ROOT_DIR}/.htaccess"
+bash "${APP_DIR}/scripts/sync-yeni-proxy.sh" "${APP_DIR}"
 systemctl restart avci-yeni-v1.service
 systemctl is-active avci-yeni-v1.service
 curl -sI -o /dev/null -w "local_v1:%{http_code}\n" --max-time 10 http://127.0.0.1:4120/v1 || true
