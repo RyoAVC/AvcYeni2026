@@ -21,27 +21,17 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-const licenses = PACKAGE_SCOPE_DETAILS.map((item) => [
-  "AVC E-Ticaret",
-  packageScopeTitle(item.id),
-  "Örnek görünüm",
-  `${item.salePrice} örnek band`,
-]);
-
-const invoices = PACKAGE_SCOPE_DETAILS.map((item) => [
-  `${packageScopeTitle(item.id)} örnek band`,
-  "Lisans çerçevesi",
-  "Taslak görünüm",
-  item.salePrice,
-]);
-
-const scalePackage = PACKAGE_SCOPE_DETAILS.find((item) => item.id === "scale") ?? PACKAGE_SCOPE_DETAILS[1];
+const licenseInvoiceRows = PACKAGE_SCOPE_DETAILS.map((item) => ({
+  packageName: packageScopeTitle(item.id),
+  amount: item.salePrice,
+  status: item.id === "scale" ? "Aktif · ödendi" : "Taslak görünüm",
+  date: item.id === "scale" ? "örnek · 12.01.2026" : item.id === "start" ? "örnek · 03.11.2025" : "örnek · 18.02.2026",
+}));
 
 const financialHighlights = [
   { label: "Aktif paket", value: packageScopeTitle("scale"), note: "örnek çerçeve" },
-  { label: "Örnek band", value: scalePackage.salePrice, note: "teklifte netleşir" },
   { label: "Açık bakiye", value: "0 TL", note: "salt demo · tahsilat yok" },
-  { label: "Son kayıt", value: "Ödendi", note: "örnek · e-Fatura değil" },
+  { label: "Son ödeme", value: "Ödendi", note: "örnek · e-Fatura değil" },
 ] as const;
 
 const navItems: DemoPortalNavItem[] = [
@@ -50,7 +40,7 @@ const navItems: DemoPortalNavItem[] = [
   { id: "operasyon", label: "Operasyon" },
   { id: "altyapi", label: "Altyapı" },
   { id: "tofy", label: "Tofy" },
-  { id: "lisanslar", label: "Lisanslar" },
+  { id: "lisanslar", label: "Faturalar & Lisanslar" },
   { id: "erisim", label: "Erişimler" },
   { id: "destek", label: "Destek" },
   { id: "teslim", label: "Teslim" },
@@ -323,7 +313,7 @@ export default async function DemoPortalPage() {
                   </article>
                   <article>
                     <small>Lisanslar</small>
-                    <strong>{licenses.length}</strong>
+                    <strong>{licenseInvoiceRows.length}</strong>
                     <span>örnek kayıt</span>
                   </article>
                   <article>
@@ -486,17 +476,17 @@ export default async function DemoPortalPage() {
                 </article>
               </DemoPortalPanel>
 
-              <DemoPortalPanel className="demo-portal-data cp-data" id="lisanslar">
-                <div className="cp-finance-summary" aria-label="Örnek finansal özet">
+              <DemoPortalPanel className="cp-billing-panel" id="lisanslar">
+                <div className="cp-finance-summary" aria-label="Faturalar ve lisanslar özeti">
                   <div className="cp-finance-head">
-                    <span className="kicker">FİNANSAL ÖZET</span>
-                    <h2>Lisans ve tahsil görünümü</h2>
+                    <span className="kicker">FATURALAR & LİSANSLAR</span>
+                    <h2>Faturalar & Lisanslar</h2>
                     <p>
-                      Tutarlar örnek banddır; kart çekimi, e-Fatura veya indirme bu demoda yoktur. Güncel kapsam{" "}
-                      <Link href="/paketler">paket sayfasında</Link> özetlenir.
+                      Lisans ve tahsil bilgisi tek listede. Tutarlar örnek banddır; kart çekimi, e-Fatura veya indirme bu
+                      demoda yoktur. Güncel kapsam <Link href="/paketler">paket sayfasında</Link> özetlenir.
                     </p>
                   </div>
-                  <ul className="cp-finance-grid">
+                  <ul className="cp-finance-grid cp-finance-grid-3">
                     {financialHighlights.map((item) => (
                       <li key={item.label}>
                         <small>{item.label}</small>
@@ -507,68 +497,29 @@ export default async function DemoPortalPage() {
                   </ul>
                 </div>
 
-                <div>
-                  <span className="kicker">LİSANS GÖRÜNÜMÜ</span>
-                  <h2>Örnek lisanslar</h2>
+                <div className="cp-billing-table">
                   <p className="demo-portal-note">
                     Start, Scale ve Enterprise — <Link href="/paketler">paket sayfasındaki</Link> örnek bantla aynı kaynak.
+                    Tahsilat veya e-Fatura değildir.
                   </p>
                   <div className="demo-table-wrap">
                     <table>
-                      <caption className="visually-hidden">Demo hesaba ait örnek lisans kayıtları</caption>
+                      <caption className="visually-hidden">Demo hesaba ait fatura ve lisans kayıtları</caption>
                       <thead>
                         <tr>
-                          <th scope="col">Ürün</th>
-                          <th scope="col">Plan</th>
+                          <th scope="col">Paket</th>
+                          <th scope="col">Tutar</th>
                           <th scope="col">Durum</th>
-                          <th scope="col">Not</th>
+                          <th scope="col">Tarih</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {licenses.map((row) => (
-                          <tr key={row[1]}>
-                            {row.map((cell, index) =>
-                              index === 0 ? (
-                                <th scope="row" key={`${row[1]}-${index}`}>
-                                  {cell}
-                                </th>
-                              ) : (
-                                <td key={`${row[1]}-${index}`}>{cell}</td>
-                              ),
-                            )}
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-                <div>
-                  <span className="kicker">FİNANSAL ÖZET</span>
-                  <h2>Örnek fatura kalemleri</h2>
-                  <p className="demo-portal-note">Tutarlar örnek banddır; tahsilat veya e-Fatura değildir.</p>
-                  <div className="demo-table-wrap">
-                    <table>
-                      <caption className="visually-hidden">Demo hesaba ait örnek fatura kalemleri</caption>
-                      <thead>
-                        <tr>
-                          <th scope="col">Kayıt</th>
-                          <th scope="col">Kapsam</th>
-                          <th scope="col">Durum</th>
-                          <th scope="col">Not</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {invoices.map((row) => (
-                          <tr key={row[0]}>
-                            {row.map((cell, index) =>
-                              index === 0 ? (
-                                <th scope="row" key={`${row[0]}-${index}`}>
-                                  {cell}
-                                </th>
-                              ) : (
-                                <td key={`${row[0]}-${index}`}>{cell}</td>
-                              ),
-                            )}
+                        {licenseInvoiceRows.map((row) => (
+                          <tr key={row.packageName}>
+                            <th scope="row">{row.packageName}</th>
+                            <td>{row.amount}</td>
+                            <td>{row.status}</td>
+                            <td>{row.date}</td>
                           </tr>
                         ))}
                       </tbody>

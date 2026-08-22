@@ -566,8 +566,12 @@ test("renders the finished platform landing page", async () => {
   assert.match(demoPortalHtml, /data-cp-panel="ozet"/);
   assert.match(demoPortalHtml, /cp-mobile-nav-toggle/);
   assert.match(demoPortalHtml, /cp-finance-summary/);
-  assert.match(demoPortalHtml, /Lisans ve tahsil görünümü/);
+  assert.match(demoPortalHtml, /Faturalar &amp; Lisanslar|Faturalar & Lisanslar/);
   assert.match(demoPortalHtml, /Açık bakiye/);
+  assert.match(demoPortalHtml, /Son ödeme/);
+  assert.match(demoPortalHtml, /cp-billing-table/);
+  assert.match(demoPortalHtml, /scope="col">Paket</);
+  assert.match(demoPortalHtml, /scope="col">Tutar</);
   assert.match(demoPortalHtml, /id="teslim"/);
   assert.match(demoPortalHtml, /TESLİM VE EĞİTİM/);
   assert.match(demoPortalHtml, /Eğitim oturumu/);

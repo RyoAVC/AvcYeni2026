@@ -2745,6 +2745,19 @@ footer > small { color: rgba(255,255,255,.28); font-size: 8px; }
   padding: 0;
   list-style: none;
 }
+.cp-finance-grid-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.cp-billing-panel {
+  display: grid;
+  gap: 18px;
+}
+.cp-billing-panel.is-active {
+  display: grid;
+}
+.cp-billing-table .demo-portal-note {
+  margin-bottom: 14px;
+}
 .cp-finance-grid li {
   display: grid;
   gap: 6px;
@@ -5938,6 +5951,7 @@ body:has(.cookie-notice) .avcai-mascot { bottom: clamp(8.5rem, 26vw, 12rem); }
   .cp-metric-strip { grid-template-columns: 1fr; }
   .cp-stats { grid-template-columns: 1fr 1fr; }
   .cp-finance-grid { grid-template-columns: 1fr 1fr; }
+  .cp-finance-grid-3 { grid-template-columns: 1fr; }
   .cp-notice { grid-template-columns: 1fr; }
   .cp-notice-when { white-space: normal; }
   .cp-ops-grid { grid-template-columns: 1fr; }
