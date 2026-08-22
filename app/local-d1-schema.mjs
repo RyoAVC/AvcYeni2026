@@ -1,6 +1,7 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { isLocalAdminBypassEnabled } from "./local-admin-identity.mjs";
+import { isCustomerPortalPreviewEnabled } from "./customer-portal-preview.mjs";
 
 const SCHEMA_GEN = 26;
 let appliedGen = 0;
@@ -835,6 +836,72 @@ async function ensureIntegrationsTable(db) {
   }
 }
 
+async function seedDemoCustomerPortal(db) {
+  if (!(await tableExists(db, "customers"))) return;
+  const existing = await db.prepare(
+    "SELECT id, domain_expires_at, hosting_expires_at FROM customers WHERE email = ? LIMIT 1",
+  ).bind("musteri@ornek.local").first();
+  if (existing?.id) {
+    if (!existing.domain_expires_at && !existing.hosting_expires_at) {
+      await db.prepare(`
+        UPDATE customers
+        SET domain_expires_at = ?, hosting_expires_at = ?, updated_at = ?
+        WHERE id = ?
+      `).bind("2027-12-01", "2027-06-15", new Date().toISOString(), existing.id).run();
+    }
+    return;
+  }
+
+  const now = new Date().toISOString();
+  const insert = await db.prepare(`
+    INSERT INTO customers (
+      name, email, phone, phone_normalized, company, city, interest, note,
+      domain_name, domain_expires_at, hosting_expires_at, status, created_by_email, created_at, updated_at
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?)
+  `).bind(
+    "Murat Bey",
+    "musteri@ornek.local",
+    "+90 555 000 00 00",
+    "905550000000",
+    "BasBitir Atölyesi",
+    "Adana",
+    "E-ticaret altyapısı",
+    "Yerel müşteri paneli test kaydı",
+    "basbitir.com",
+    "2027-12-01",
+    "2027-06-15",
+    "local-seed@avcieticaret.com",
+    now,
+    now,
+  ).run();
+  const customerId = Number(insert.meta?.last_row_id ?? 0);
+  if (!customerId) return;
+
+  const scale = await db.prepare("SELECT id FROM packages WHERE slug = 'scale' LIMIT 1").first();
+  const trendyol = await db.prepare("SELECT id FROM modules WHERE slug = 'trendyol' LIMIT 1").first();
+  if (scale?.id) {
+    await db.prepare(`
+      INSERT INTO software_orders (customer_id, kind, package_id, status, price_note, note, created_by_email, created_at, updated_at)
+      VALUES (?, 'package', ?, 'active', '74.999 TL örnek band', 'Yerel panel test siparişi', 'local-seed@avcieticaret.com', ?, ?)
+    `).bind(customerId, scale.id, now, now).run();
+  }
+  if (trendyol?.id) {
+    await db.prepare(`
+      INSERT INTO software_orders (customer_id, kind, module_id, status, price_note, note, created_by_email, created_at, updated_at)
+      VALUES (?, 'module', ?, 'pending', 'Teklif notu', 'Pazaryeri modülü · yerel test', 'local-seed@avcieticaret.com', ?, ?)
+    `).bind(customerId, trendyol.id, now, now).run();
+  }
+  await db.prepare(`
+    INSERT INTO support_tickets (customer_id, topic, subject, message, status, created_by_email, created_at, updated_at)
+    VALUES (?, 'teknik', 'Pazaryeri stok eşlemesi', 'Yerel panel test kaydı', 'closed', 'local-seed@avcieticaret.com', ?, ?)
+  `).bind(customerId, now, now).run();
+  await db.prepare(`
+    INSERT INTO software_invoices (customer_id, title, amount_note, status, note, created_by_email, created_at, updated_at)
+    VALUES (?, 'Scale lisans çerçevesi', '74.999 TL örnek band', 'paid', 'Yerel panel test faturası', 'local-seed@avcieticaret.com', ?, ?)
+  `).bind(customerId, now, now).run();
+}
+
 async function applyLocalD1Schema(env) {
   if (!isLocalAdminBypassEnabled(env) || !env.DB) return;
 
@@ -860,6 +927,7 @@ async function applyLocalD1Schema(env) {
     await ensureAuditLogsTable(env.DB);
     await ensureIntegrationsTable(env.DB);
     await seedDemoLeads(env.DB);
+    await seedDemoCustomerPortal(env.DB);
     return;
   }
 
@@ -897,6 +965,7 @@ async function applyLocalD1Schema(env) {
   await ensureAuditLogsTable(env.DB);
   await ensureIntegrationsTable(env.DB);
   await seedDemoLeads(env.DB);
+  await seedDemoCustomerPortal(env.DB);
 }
 
 export function ensureLocalD1Schema(env) {
@@ -911,5 +980,29 @@ export function ensureLocalD1Schema(env) {
       throw cause;
     });
   return pending;
+}
+
+let previewPending = null;
+
+async function applyCustomerPortalPreviewData(env) {
+  if (!env?.DB) return;
+  await ensureCustomersTable(env.DB);
+  await ensureCustomerDomainColumns(env.DB);
+  await ensurePackagesTable(env.DB);
+  await ensureModulesTable(env.DB);
+  await ensureSoftwareOrdersTable(env.DB);
+  await ensureSupportTicketsTable(env.DB);
+  await ensureSoftwareInvoicesTable(env.DB);
+  await seedDemoCustomerPortal(env.DB);
+}
+
+export function ensureCustomerPortalPreviewData(env) {
+  if (!isCustomerPortalPreviewEnabled(env)) return Promise.resolve();
+  if (previewPending) return previewPending;
+  previewPending = applyCustomerPortalPreviewData(env).catch((cause) => {
+    previewPending = null;
+    throw cause;
+  });
+  return previewPending;
 }
 

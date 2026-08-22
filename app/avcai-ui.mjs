@@ -6,7 +6,7 @@ export function shouldShowAvcai(pathname) {
   if (!path || path === "/api" || path.startsWith("/api/")) return false;
   if (path === "/yonetim" || path.startsWith("/yonetim/")) return false;
   if (path === "/en" || path.startsWith("/en/")) return false;
-  if (path === "/musteri-girisi" || path === "/demo-portal") return false;
+  if (path === "/musteri-girisi" || path === "/demo-portal" || path === "/musteri-panel" || path.startsWith("/musteri-panel/") || path === "/onizleme/musteri-portali-k7m2x9") return false;
   return true;
 }
 

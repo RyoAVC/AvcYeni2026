@@ -4,6 +4,7 @@ import { HeaderCtaCluster } from "../header-cta-cluster";
 import { SiteBrand } from "../site-brand";
 import { loadSiteSettings } from "../site-settings.mjs";
 import { withBasePath } from "../base-path";
+import { usesInternalCustomerPortal } from "../customer-portal-dev.mjs";
 
 export const dynamic = "force-dynamic";
 
@@ -14,10 +15,21 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
+async function readRuntimeEnv() {
+  try {
+    const { env } = await import("cloudflare:workers") as unknown as { env: Record<string, unknown> };
+    return env;
+  } catch {
+    return typeof process !== "undefined" ? process.env : {};
+  }
+}
+
 export default async function CustomerLoginPage({ searchParams }: { searchParams: Promise<{ durum?: string }> }) {
   const { durum } = await searchParams;
   const settings = await loadSiteSettings();
-  const preparing = durum === "hazirlaniyor" || !settings.portalReady;
+  const env = await readRuntimeEnv();
+  const internalPortal = usesInternalCustomerPortal(env);
+  const preparing = durum === "hazirlaniyor" || (!settings.portalReady && !internalPortal);
   const supportMailto = `mailto:${settings.supportEmail}?subject=${encodeURIComponent("Müşteri Portalı Erişim Talebi")}`;
 
   return (
@@ -35,7 +47,12 @@ export default async function CustomerLoginPage({ searchParams }: { searchParams
               <h2>Parola bu sitede yazılmaz</h2>
               <p>Devam etmek ayrı bir lisans platformuna gider, yalnızca adres bağlandıysa. Bağlı değilse hazırlanıyor uyarısı görünür. Demo örnek veridir.</p>
               {preparing && <div className="portal-notice" role="status"><strong>Portal bağlantısı hazırlanıyor.</strong><span>Şifre kutusu yoktur. Erişim adresini destekten isteyin; parolayı e-postaya yazmayın.</span></div>}
-              {!preparing && <a className="button button-primary" href={withBasePath("/musteri-portali")}>Güvenli geçişe devam et</a>}
+              {!preparing && internalPortal ? (
+                <Link className="button button-primary" href="/musteri-panel/giris">Yerel salt okunur panele geç</Link>
+              ) : null}
+              {!preparing && !internalPortal ? (
+                <a className="button button-primary" href={withBasePath("/musteri-portali")}>Güvenli geçişe devam et</a>
+              ) : null}
               <Link className="demo-portal-link" href="/musteri-hesap#sifre">Şifremi unuttum — yol burada</Link>
               {settings.demoPortalEnabled && <Link className="demo-portal-link" href="/demo-portal">Demo portalını örnek verilerle inceleyin</Link>}
               {settings.supportEnabled && (

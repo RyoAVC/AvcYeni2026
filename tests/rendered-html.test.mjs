@@ -552,6 +552,24 @@ test("renders the finished platform landing page", async () => {
   assert.match(demoPortalHtml, /BasBitir Atölyesi/);
   assert.match(demoPortalHtml, /Tofy Ajan V2/);
   assert.match(demoPortalHtml, /Tofy'nin Önerdiği Ürünler|Tofy&apos;nin Önerdiği Ürünler/);
+  assert.match(demoPortalHtml, /DESTEK ÖZETİ/);
+  assert.match(demoPortalHtml, /DSP-2401/);
+  assert.match(demoPortalHtml, /id="operasyon"/);
+  assert.match(demoPortalHtml, /Altyapı kontrol listesi/);
+  assert.match(demoPortalHtml, /SEO temel tarama/);
+  assert.match(demoPortalHtml, /id="bildirimler"/);
+  assert.match(demoPortalHtml, /Panel duyuruları/);
+  assert.match(demoPortalHtml, /Hosting yenileme takvimi/);
+  assert.match(demoPortalHtml, /cp-sidebar-nav-shell/);
+  assert.match(demoPortalHtml, /cp-sidebar-nav-track/);
+  assert.match(demoPortalHtml, /cp-finance-summary/);
+  assert.match(demoPortalHtml, /Lisans ve tahsil görünümü/);
+  assert.match(demoPortalHtml, /Açık bakiye/);
+  assert.match(demoPortalHtml, /id="teslim"/);
+  assert.match(demoPortalHtml, /TESLİM VE EĞİTİM/);
+  assert.match(demoPortalHtml, /Eğitim oturumu/);
+  assert.match(demoPortalHtml, /href="\/teslim-egitim"/);
+  assert.match(demoPortalHtml, /id="sonraki"/);
   assert.match(demoPortalHtml, /Start/);
   assert.match(demoPortalHtml, /Scale/);
   assert.match(demoPortalHtml, /Enterprise/);
@@ -621,6 +639,45 @@ test("renders the finished platform landing page", async () => {
   );
   assert.equal(unsafePortalResponse.status, 302);
   assert.equal(unsafePortalResponse.headers.get("location"), "https://localhost/musteri-girisi?durum=hazirlaniyor");
+
+  const internalPortalResponse = await worker.fetch(
+    new Request("https://localhost/musteri-portali"),
+    {
+      ...runtimeEnv,
+      CUSTOMER_PORTAL_DEV: "1",
+      ADMIN_SESSION_SECRET: "x".repeat(32),
+    },
+    runtimeContext,
+  );
+  assert.equal(internalPortalResponse.status, 302);
+  assert.equal(internalPortalResponse.headers.get("location"), "https://localhost/musteri-panel/giris");
+
+  const customerPortalLoginResponse = await worker.fetch(
+    new Request("https://localhost/musteri-panel/giris", { headers: { accept: "text/html" } }),
+    runtimeEnv,
+    runtimeContext,
+  );
+  assert.equal(customerPortalLoginResponse.status, 200);
+  assert.equal(customerPortalLoginResponse.headers.get("x-robots-tag"), "noindex, nofollow, noarchive");
+  const customerPortalLoginHtml = await customerPortalLoginResponse.text();
+  assert.match(customerPortalLoginHtml, /MÜŞTERİ PANELİ · YEREL|Yerel panel girişi kapalı/);
+  assert.match(customerPortalLoginHtml, /salt okunur/);
+  assert.doesNotMatch(customerPortalLoginHtml, /type="password"/);
+
+  const protectedCustomerPortalResponse = await worker.fetch(
+    new Request("https://localhost/musteri-panel", { headers: { accept: "text/html" } }),
+    runtimeEnv,
+    runtimeContext,
+  );
+  assert.match(protectedCustomerPortalResponse.headers.get("location") ?? "", /\/musteri-panel\/giris/);
+
+  const previewPortalResponse = await worker.fetch(
+    new Request("https://localhost/onizleme/musteri-portali-k7m2x9"),
+    runtimeEnv,
+    runtimeContext,
+  );
+  assert.equal(previewPortalResponse.status, 404);
+  assert.equal(previewPortalResponse.headers.get("x-robots-tag"), "noindex, nofollow, noarchive");
 
   const portalPostResponse = await worker.fetch(
     new Request("https://localhost/musteri-portali", { method: "POST" }),
@@ -784,6 +841,8 @@ test("renders the finished platform landing page", async () => {
   assert.match(robotsText, /Disallow: \/yonetim\//);
   assert.match(robotsText, /Disallow: \/musteri-girisi/);
   assert.match(robotsText, /Disallow: \/musteri-portali/);
+  assert.match(robotsText, /Disallow: \/musteri-panel/);
+  assert.match(robotsText, /Disallow: \/onizleme\/musteri-portali-k7m2x9/);
   assert.match(robotsText, /Disallow: \/signin-with-chatgpt/);
   assert.match(robotsText, /Disallow: \/signout-with-chatgpt/);
   assert.match(robotsText, /Disallow: \/callback/);

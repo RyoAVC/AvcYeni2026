@@ -5,6 +5,7 @@ import { SiteBrand } from "../site-brand";
 import { TofyMark } from "../tofy-mark";
 import { loadSiteSettings } from "../site-settings.mjs";
 import { PACKAGE_SCOPE_DETAILS, packageScopeTitle } from "../package-scope-details";
+import { DemoPortalNav, type DemoPortalNavItem } from "./demo-portal-nav";
 
 export const metadata: Metadata = {
   title: "Demo Müşteri Paneli V2 | Avcı E-Ticaret",
@@ -27,14 +28,27 @@ const invoices = PACKAGE_SCOPE_DETAILS.map((item) => [
   item.salePrice,
 ]);
 
-const navItems = [
-  { id: "ozet", label: "Özet", active: true },
-  { id: "altyapi", label: "Altyapı", active: false },
-  { id: "tofy", label: "Tofy", active: false },
-  { id: "lisanslar", label: "Lisanslar", active: false },
-  { id: "erisim", label: "Erişimler", active: false },
-  { id: "destek", label: "Destek", active: false },
+const scalePackage = PACKAGE_SCOPE_DETAILS.find((item) => item.id === "scale") ?? PACKAGE_SCOPE_DETAILS[1];
+
+const financialHighlights = [
+  { label: "Aktif paket", value: packageScopeTitle("scale"), note: "örnek çerçeve" },
+  { label: "Örnek band", value: scalePackage.salePrice, note: "teklifte netleşir" },
+  { label: "Açık bakiye", value: "0 TL", note: "salt demo · tahsilat yok" },
+  { label: "Son kayıt", value: "Ödendi", note: "örnek · e-Fatura değil" },
 ] as const;
+
+const navItems: DemoPortalNavItem[] = [
+  { id: "ozet", label: "Özet" },
+  { id: "bildirimler", label: "Bildirimler" },
+  { id: "operasyon", label: "Operasyon" },
+  { id: "altyapi", label: "Altyapı" },
+  { id: "tofy", label: "Tofy" },
+  { id: "lisanslar", label: "Lisanslar" },
+  { id: "erisim", label: "Erişimler" },
+  { id: "destek", label: "Destek" },
+  { id: "teslim", label: "Teslim" },
+  { id: "sonraki", label: "Sonraki" },
+];
 
 const modules = [
   { name: "E-Ticaret altyapısı", status: "Aktif", note: "Scale çerçevesi · örnek" },
@@ -107,16 +121,71 @@ function ProductThumb({ tone }: { tone: (typeof tofyRecommendedProducts)[number]
   );
 }
 
+const supportSnapshot = {
+  openCount: 0,
+  lastTicket: {
+    code: "DSP-2401",
+    subject: "Pazaryeri stok eşlemesi",
+    status: "Kapalı",
+    updated: "örnek · 12 gün önce",
+  },
+  channel: "E-posta · örnek",
+} as const;
+
 const projectMilestones = [
   { label: "Teslim", value: "Tamamlandı", tone: "live" },
   { label: "Eğitim", value: "Planlandı", tone: "pending" },
   { label: "Tofy V2", value: "Aktif", tone: "live" },
 ] as const;
 
+const operationChecks = [
+  { label: "SSL sertifikası", status: "Geçerli", tone: "ok", note: "örnek · 2027 yenileme" },
+  { label: "Gece yedeği", status: "Başarılı", tone: "ok", note: "örnek · 04:00 snapshot" },
+  { label: "Alan adı DNS", status: "Senkron", tone: "ok", note: "örnek · basbitir.com" },
+  { label: "SEO temel tarama", status: "İzleniyor", tone: "watch", note: "örnek · 3 uyarı" },
+  { label: "Mobil performans", status: "İyi", tone: "ok", note: "örnek · 78 puan" },
+  { label: "Uptime izleme", status: "Aktif", tone: "ok", note: "örnek · 30 gün" },
+] as const;
+
+const panelNotices = [
+  {
+    title: "Hosting yenileme takvimi",
+    text: "Scale çerçevesi için örnek yenileme penceresi 2027 son çeyrekte planlanır.",
+    when: "örnek · 2 gün önce",
+    tone: "info",
+  },
+  {
+    title: "Tofy V2 öneri güncellemesi",
+    text: "Kategori bazlı öneri kuralları örnek vitrinde genişletildi; mağaza verisi değişmez.",
+    when: "örnek · bugün",
+    tone: "live",
+  },
+  {
+    title: "Planlı bakım penceresi",
+    text: "Gece yedeği sonrası kısa DNS kontrolü örnek olarak işaretlendi; müdahale yok.",
+    when: "örnek · 5 gün sonra",
+    tone: "watch",
+  },
+] as const;
+
 const nextSteps = [
   "Tofy Ajan V2 öneri kurallarını kategori bazında netleştirin.",
   "Pazaryeri stok eşlemesini canlıya alın.",
   "Yenileme öncesi hosting ve SSL kontrol listesini tamamlayın.",
+] as const;
+
+const deliverySnapshot = {
+  completedAt: "örnek · 14 gün önce",
+  trainingStatus: "Planlandı",
+  sessions: "2 oturum",
+  attendee: "Murat Bey · operasyon",
+} as const;
+
+const deliveryNotes = [
+  { label: "Yayın kontrolü", status: "Tamamlandı", tone: "ok", note: "HTTPS ve ödeme denemesi · örnek" },
+  { label: "Yetkili ekip", status: "Belirlendi", tone: "ok", note: "1 kişi · örnek rol listesi" },
+  { label: "Eğitim oturumu", status: "Planlandı", tone: "pending", note: "Katalog ve sipariş · örnek tarih" },
+  { label: "Günlük operasyon", status: "Müşteri", tone: "ok", note: "Avcı mağaza işletmez · örnek sınır" },
 ] as const;
 
 export const dynamic = "force-dynamic";
@@ -174,14 +243,7 @@ export default async function DemoPortalPage() {
         <aside className="cp-sidebar" aria-label="Müşteri paneli menüsü">
           <SiteBrand href="/demo-portal" subtitle="MÜŞTERİ PANELİ" label="Demo müşteri paneli" />
           <p className="cp-sidebar-badge">ÖRNEK VERİ · salt demo</p>
-          <nav aria-label="Panel bölümleri">
-            {navItems.map((item, index) => (
-              <a className={item.active ? "active" : undefined} href={`#${item.id}`} key={item.id}>
-                <span>{String(index + 1).padStart(2, "0")}</span>
-                {item.label}
-              </a>
-            ))}
-          </nav>
+          <DemoPortalNav items={navItems} />
           <div className="cp-sidebar-foot">
             <small>GÜVENLİ DEMO OTURUMU</small>
             <strong>Örnek Yazılım Müşterisi</strong>
@@ -263,6 +325,50 @@ export default async function DemoPortalPage() {
               <strong>Yok</strong>
               <span>salt demo</span>
             </article>
+          </section>
+
+          <section className="cp-notices" id="bildirimler" aria-label="Panel bildirimleri">
+            <div className="cp-notices-head">
+              <span className="kicker">BİLDİRİMLER</span>
+              <h2>Panel duyuruları</h2>
+              <p>
+                Yenileme, bakım ve modül notları örnek görünümdür. E-posta gönderimi veya okundu işaretleme bu demoda
+                çalışmaz.
+              </p>
+            </div>
+            <ul className="cp-notices-list">
+              {panelNotices.map((item) => (
+                <li className={`cp-notice is-${item.tone}`} key={item.title}>
+                  <div className="cp-notice-copy">
+                    <strong>{item.title}</strong>
+                    <p>{item.text}</p>
+                  </div>
+                  <span className="cp-notice-when">{item.when}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <section className="cp-ops-checklist" id="operasyon" aria-label="Operasyon kontrol listesi">
+            <div className="cp-ops-head">
+              <span className="kicker">OPERASYON</span>
+              <h2>Altyapı kontrol listesi</h2>
+              <p>
+                SSL, yedek, DNS ve SEO durumu örnek özet görünümüdür. Gerçek tarama, müdahale veya otomatik onarım bu
+                demoda çalışmaz.
+              </p>
+            </div>
+            <ul className="cp-ops-grid">
+              {operationChecks.map((item) => (
+                <li className={`cp-ops-item is-${item.tone}`} key={item.label}>
+                  <div className="cp-ops-copy">
+                    <strong>{item.label}</strong>
+                    <span>{item.note}</span>
+                  </div>
+                  <b className={item.tone === "watch" ? "cp-pill" : "cp-pill is-live"}>{item.status}</b>
+                </li>
+              ))}
+            </ul>
           </section>
 
           <section className="cp-grid" id="altyapi">
@@ -392,6 +498,82 @@ export default async function DemoPortalPage() {
 
             <article className="cp-card" id="destek">
               <div className="cp-card-head">
+                <span className="kicker">DESTEK ÖZETİ</span>
+                <b className="cp-pill">Salt okunur · örnek</b>
+              </div>
+              <h2>Destek talepleri</h2>
+              <p className="cp-card-lead">
+                Açık talep yok. Son kapanan kayıt örnek gösterim içindir; bu demoda yeni talep açılmaz.
+              </p>
+              <div className="cp-support-summary" aria-label="Örnek destek özeti">
+                <div>
+                  <small>AÇIK TALEP</small>
+                  <strong>{supportSnapshot.openCount}</strong>
+                  <span>örnek sayaç</span>
+                </div>
+                <div>
+                  <small>KANAL</small>
+                  <strong>{supportSnapshot.channel}</strong>
+                  <span>destek hattı · örnek</span>
+                </div>
+              </div>
+              <ul className="cp-support-ticket" aria-label="Son örnek destek kaydı">
+                <li>
+                  <div>
+                    <strong>{supportSnapshot.lastTicket.code}</strong>
+                    <span>{supportSnapshot.lastTicket.subject}</span>
+                  </div>
+                  <div className="cp-support-ticket-meta">
+                    <b className="cp-pill">{supportSnapshot.lastTicket.status}</b>
+                    <span>{supportSnapshot.lastTicket.updated}</span>
+                  </div>
+                </li>
+              </ul>
+            </article>
+
+            <article className="cp-card" id="teslim">
+              <div className="cp-card-head">
+                <span className="kicker">TESLİM VE EĞİTİM</span>
+                <b className="cp-pill is-live">Teslim tamam · örnek</b>
+              </div>
+              <h2>Teslim ve eğitim notları</h2>
+              <p className="cp-card-lead">
+                Yayın kontrolü ve eğitim planı örnek özetidir. Oturum kaydı veya sertifika indirme bu demoda yoktur.
+              </p>
+              <div className="cp-delivery-summary" aria-label="Örnek teslim özeti">
+                <div>
+                  <small>CANLI TESLİM</small>
+                  <strong>{deliverySnapshot.completedAt}</strong>
+                  <span>yayın kontrolü · örnek</span>
+                </div>
+                <div>
+                  <small>EĞİTİM</small>
+                  <strong>{deliverySnapshot.trainingStatus}</strong>
+                  <span>
+                    {deliverySnapshot.sessions} · {deliverySnapshot.attendee}
+                  </span>
+                </div>
+              </div>
+              <ul className="cp-delivery-notes" aria-label="Örnek teslim ve eğitim notları">
+                {deliveryNotes.map((item) => (
+                  <li className={item.tone === "pending" ? "is-pending" : undefined} key={item.label}>
+                    <div>
+                      <strong>{item.label}</strong>
+                      <span>{item.note}</span>
+                    </div>
+                    <b className={item.tone === "pending" ? "cp-pill" : "cp-pill is-live"}>{item.status}</b>
+                  </li>
+                ))}
+              </ul>
+              <p className="cp-card-lead">
+                Tam kapsam için{" "}
+                <Link href="/teslim-egitim">teslim ve eğitim sayfasına</Link> bakın; günlük sipariş ve kargo müşteri
+                operasyonudur.
+              </p>
+            </article>
+
+            <article className="cp-card" id="sonraki">
+              <div className="cp-card-head">
                 <span className="kicker">SONRAKİ ADIMLAR</span>
               </div>
               <h2>Önerilen işler</h2>
@@ -400,11 +582,31 @@ export default async function DemoPortalPage() {
                   <li key={step}>{step}</li>
                 ))}
               </ol>
-              <p className="cp-card-lead">Destek kaydı açma ve belge indirme bu demoda yoktur.</p>
+              <p className="cp-card-lead">Belge indirme ve canlı destek bağlantısı bu demoda yoktur.</p>
             </article>
           </section>
 
           <section className="demo-portal-data cp-data" id="lisanslar">
+            <div className="cp-finance-summary" aria-label="Örnek finansal özet">
+              <div className="cp-finance-head">
+                <span className="kicker">FİNANSAL ÖZET</span>
+                <h2>Lisans ve tahsil görünümü</h2>
+                <p>
+                  Tutarlar örnek banddır; kart çekimi, e-Fatura veya indirme bu demoda yoktur. Güncel kapsam{" "}
+                  <Link href="/paketler">paket sayfasında</Link> özetlenir.
+                </p>
+              </div>
+              <ul className="cp-finance-grid">
+                {financialHighlights.map((item) => (
+                  <li key={item.label}>
+                    <small>{item.label}</small>
+                    <strong>{item.value}</strong>
+                    <span>{item.note}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
             <div>
               <span className="kicker">LİSANS GÖRÜNÜMÜ</span>
               <h2>Örnek lisanslar</h2>

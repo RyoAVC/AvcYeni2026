@@ -9,6 +9,8 @@ const BLOCKED_PREFIXES = [
   "/signout-with-chatgpt",
   "/callback",
   "/musteri-portali",
+  "/musteri-panel",
+  "/onizleme/musteri-portali-k7m2x9",
 ];
 
 export const SITE_VISIT_COOKIE = "avci_vid";

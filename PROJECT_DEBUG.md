@@ -1197,6 +1197,76 @@ Dürüst sınır:
 - Sağdaki Aktif Modüller / Erişimler kartlarına dokunulmadı.
 - Değişen kaynaklar: `app/demo-portal/page.tsx`, `app/globals.css`, `tests/rendered-html.test.mjs`, `PROJECT_DEBUG.md`.
 
+### v153 — Demo panel menü + destek özeti
+
+- Sol menü artık kaydırma ve `#hash` ile aktif bölümü vurgular (`DemoPortalNav`).
+- Plana uygun **Destek özeti** kartı eklendi: açık talep sayacı, kanal ve son örnek kayıt (`DSP-2401`).
+- “Sonraki adımlar” ayrı `#sonraki` bölümüne taşındı; menüde Destek / Sonraki ayrımı netleşti.
+- Değişen kaynaklar: `app/demo-portal/page.tsx`, `app/demo-portal/demo-portal-nav.tsx`, `app/globals.css`, `tests/rendered-html.test.mjs`, `PROJECT_DEBUG.md`.
+- Doğrulama: yerel `/demo-portal` HTTP 200. Deploy yapılmadı.
+
+### v154 — Demo panel operasyon kontrol listesi
+
+- Plana uygun **Operasyon** bölümü eklendi: SSL, gece yedeği, DNS, SEO tarama, mobil performans ve uptime örnek durumları.
+- Sol menüye `Operasyon` bağlantısı eklendi; Tofy vitrini ve sağ kartlara dokunulmadı.
+- Değişen kaynaklar: `app/demo-portal/page.tsx`, `app/globals.css`, `tests/rendered-html.test.mjs`, `PROJECT_DEBUG.md`.
+- Doğrulama: yerel önizleme. Deploy yapılmadı.
+
+### v161 — Gizli müşteri portalı önizleme yolu
+
+- `/onizleme/musteri-portali-k7m2x9` — menüde yok; yerel dev + loopback'te seed hesaba (`musteri@ornek.local`) oturum açıp `/musteri-panel`'e yönlendirir.
+- `noindex` / `nofollow` (meta + `X-Robots-Tag` + `robots.txt`). Deploy yapılmadı.
+
+### v160 — Gerçek panel altyapı + finans özeti
+
+- `/musteri-panel` içine D1’den **alan adı / hosting yenileme** kartı (`#altyapi`) ve **finansal özet şeridi** (`#finans`) eklendi.
+- Veri kaynağı: müşteri kartı (`domain_name`, `domain_expires_at`, `hosting_expires_at`) + sipariş/fatura satırları. Salt okunur; tahsilat ve e-Fatura yok.
+- Yerel seed güncellendi: `musteri@ornek.local` için yenileme tarihleri. Deploy yapılmadı.
+- Değişen kaynaklar: `app/customer-portal-data.mjs`, `app/musteri-panel/page.tsx`, `app/local-d1-schema.mjs`, `PROJECT_DEBUG.md`.
+
+### v159 — Gerçek müşteri oturumu (yerel, salt okunur)
+
+- `CUSTOMER_PORTAL_DEV` / `LOCAL_ADMIN_BYPASS` ile açılan **parolasız** yerel oturum: kayıtlı aktif müşteri e-postası → imzalı `avci_customer` çerezi.
+- Sayfalar: `/musteri-panel/giris`, `/musteri-panel` (D1’den sipariş / destek / fatura salt okunur). `/musteri-portali` harici lisans yoksa `/musteri-panel/giris`e yönlendirir.
+- Yerel seed: `musteri@ornek.local` (BasBitir Atölyesi) — yalnız `LOCAL_ADMIN_BYPASS` şemasında.
+- Kart çekimi, e-Fatura, yönetim linki yok. Canlı deploy yapılmadı.
+- Değişen kaynaklar: `app/customer-*.mjs`, `app/customer-auth.ts`, `app/customer-portal-data.mjs`, `app/musteri-panel/**`, `app/api/musteri-panel/**`, `worker/index.ts`, `app/musteri-girisi/page.tsx`, `app/globals.css`, `app/local-d1-schema.mjs`, `tests/rendered-html.test.mjs`, `PROJECT_DEBUG.md`.
+
+### v158 — Demo panel finansal özet kartı
+
+- `#lisanslar` bölümünün üstüne tam genişlik **finansal özet** şeridi eklendi: aktif paket (Scale), örnek band, açık bakiye ve son kayıt durumu.
+- Tahsilat / e-Fatura / indirme olmadığı metinde belirtildi; alt lisans ve fatura tabloları aynı kaldı.
+- Değişen kaynaklar: `app/demo-portal/page.tsx`, `app/globals.css`, `tests/rendered-html.test.mjs`, `PROJECT_DEBUG.md`.
+- Doğrulama: yerel önizleme. Deploy yapılmadı.
+
+### v158 — Demo panel finansal özet kartı
+
+- `#lisanslar` bölümünün üstüne tam genişlik **finansal özet** şeridi eklendi: aktif paket (Scale), örnek band, açık bakiye ve son kayıt durumu.
+- Tahsilat / e-Fatura / indirme olmadığı metinde belirtildi; alt lisans ve fatura tabloları aynı kaldı.
+- Değişen kaynaklar: `app/demo-portal/page.tsx`, `app/globals.css`, `tests/rendered-html.test.mjs`, `PROJECT_DEBUG.md`.
+- Doğrulama: yerel önizleme. Deploy yapılmadı.
+
+### v157 — Demo panel mobil menü cilası
+
+- Mobilde 3 sütunlu sıkışık menü kaldırıldı; **yatay kaydırmalı** bölüm şeridi (44px dokunma, numara + etiket, aktif öğe ortalanır).
+- Üst menü **sticky**; kenar fade ipucu; alt bilgi satırı mobilde gizlendi (üst bardaki gerçek giriş CTA kalır).
+- Değişen kaynaklar: `app/demo-portal/demo-portal-nav.tsx`, `app/globals.css`, `tests/rendered-html.test.mjs`, `PROJECT_DEBUG.md`.
+- Doğrulama: yerel önizleme, mobil genişlik. Deploy yapılmadı.
+
+### v156 — Demo panel bildirimler
+
+- **Bildirimler** menü bağlantısı ve `#bildirimler` bölümü eklendi: hosting yenileme, Tofy güncelleme ve planlı bakım için üç örnek duyuru.
+- Salt okunur; e-posta veya okundu işaretleme yok. Tofy vitrini ve lisans tablolarına dokunulmadı.
+- Değişen kaynaklar: `app/demo-portal/page.tsx`, `app/globals.css`, `tests/rendered-html.test.mjs`, `PROJECT_DEBUG.md`.
+- Doğrulama: yerel önizleme. Deploy yapılmadı.
+
+### v155 — Demo panel teslim ve eğitim notları
+
+- **Teslim** menü bağlantısı ve `#teslim` kartı eklendi: canlı teslim tarihi, eğitim planı ve dört örnek not (yayın kontrolü, yetkili ekip, eğitim oturumu, günlük operasyon sınırı).
+- `/teslim-egitim` sayfasına bağlantı; Tofy vitrini ve operasyon listesine dokunulmadı.
+- Değişen kaynaklar: `app/demo-portal/page.tsx`, `app/globals.css`, `tests/rendered-html.test.mjs`, `PROJECT_DEBUG.md`.
+- Doğrulama: yerel önizleme. Deploy yapılmadı.
+
 ### v144 — Gündüz katalog menüsü ve teklif header
 
 - Katalog header menüsü gündüzde 9px açık gri olmaktan çıktı; ana sayfadaki gibi okunaklı mürekkep rengi, `clamp()` punto ve beyaz hap zemin kullanır.

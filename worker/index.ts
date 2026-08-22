@@ -2,12 +2,16 @@
 import { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } from "vinext/server/image-optimization";
 import handler from "vinext/server/app-router-entry";
 import { withLocalAdminIdentity } from "../app/local-admin-identity.mjs";
-import { ensureLocalD1Schema } from "../app/local-d1-schema.mjs";
+import { usesInternalCustomerPortal } from "../app/customer-portal-dev.mjs";
+import { ensureCustomerPortalPreviewData, ensureLocalD1Schema } from "../app/local-d1-schema.mjs";
 
 interface Env {
   ASSETS: Fetcher;
   DB: D1Database;
   LICENSE_PORTAL_URL?: string;
+  CUSTOMER_PORTAL_DEV?: string;
+  CUSTOMER_PORTAL_PREVIEW?: string;
+  CUSTOMER_SESSION_SECRET?: string;
   LOCAL_ADMIN_BYPASS?: string;
   ADMIN_EMAILS?: string;
   ADMIN_LOGIN_EMAIL?: string;
@@ -79,6 +83,9 @@ function secure(response: Response, request: Request) {
 
 function isPrivateResponsePath(pathname: string) {
   return pathname === "/musteri-portali"
+    || pathname === "/musteri-panel"
+    || pathname.startsWith("/musteri-panel/")
+    || pathname === "/onizleme/musteri-portali-k7m2x9"
     || pathname === "/signin-with-chatgpt"
     || pathname === "/signout-with-chatgpt"
     || pathname === "/callback"
@@ -95,6 +102,9 @@ function isNonIndexableResponsePath(pathname: string) {
     || pathname === "/api"
     || pathname.startsWith("/api/")
     || pathname === "/musteri-girisi"
+    || pathname === "/musteri-panel"
+    || pathname.startsWith("/musteri-panel/")
+    || pathname === "/onizleme/musteri-portali-k7m2x9"
     || pathname === "/demo-portal";
 }
 
@@ -143,8 +153,10 @@ const worker = {
       if (request.method !== "GET" && request.method !== "HEAD") {
         return secure(new Response("Method Not Allowed", { status: 405, headers: { Allow: "GET, HEAD" } }), request);
       }
-      const loginUrl = customerPortalLoginUrl(env.LICENSE_PORTAL_URL);
-      const destination = loginUrl ?? new URL("/musteri-girisi?durum=hazirlaniyor", request.url).toString();
+      const destination = usesInternalCustomerPortal(env)
+        ? new URL("/musteri-panel/giris", request.url).toString()
+        : (customerPortalLoginUrl(env.LICENSE_PORTAL_URL)
+          ?? new URL("/musteri-girisi?durum=hazirlaniyor", request.url).toString());
       return secure(Response.redirect(destination, 302), request);
     }
 
@@ -161,6 +173,7 @@ const worker = {
     }
 
     await ensureLocalD1Schema(env);
+    await ensureCustomerPortalPreviewData(env);
     if (isPublicDocumentRequest(request, url.pathname) && await isMaintenanceMode(env)) {
       return secure(maintenanceResponse(request), request);
     }
