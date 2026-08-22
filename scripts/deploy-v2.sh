@@ -23,6 +23,17 @@ if [ -f "${V1_DIR}/.dev.vars" ]; then
   cp "${V1_DIR}/.dev.vars" "${APP_DIR}/.dev.vars"
 fi
 
+# Gizli müşteri paneli önizlemesi — wrangler/vinext .dev.vars okur.
+if [ -f "${APP_DIR}/.dev.vars" ]; then
+  if grep -q '^CUSTOMER_PORTAL_PREVIEW=' "${APP_DIR}/.dev.vars"; then
+    sed -i 's/^CUSTOMER_PORTAL_PREVIEW=.*/CUSTOMER_PORTAL_PREVIEW=1/' "${APP_DIR}/.dev.vars"
+  else
+    echo "CUSTOMER_PORTAL_PREVIEW=1" >> "${APP_DIR}/.dev.vars"
+  fi
+else
+  echo "CUSTOMER_PORTAL_PREVIEW=1" > "${APP_DIR}/.dev.vars"
+fi
+
 npm ci --include=dev
 export NODE_ENV="production"
 

@@ -22,14 +22,7 @@ async function readSessionCookieValue() {
   return readNamedCookie((await headers()).get("cookie") ?? "", CUSTOMER_SESSION_COOKIE);
 }
 
-async function readRuntimeEnv() {
-  try {
-    const { env } = await import("cloudflare:workers") as unknown as { env: Record<string, unknown> };
-    return env;
-  } catch {
-    return typeof process !== "undefined" ? process.env : {};
-  }
-}
+import { readRuntimeEnv } from "./runtime-env.mjs";
 
 export async function getCustomerUser() {
   const env = await readRuntimeEnv();

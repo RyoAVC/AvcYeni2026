@@ -4,6 +4,7 @@ import handler from "vinext/server/app-router-entry";
 import { withLocalAdminIdentity } from "../app/local-admin-identity.mjs";
 import { usesInternalCustomerPortal } from "../app/customer-portal-dev.mjs";
 import { ensureCustomerPortalPreviewData, ensureLocalD1Schema } from "../app/local-d1-schema.mjs";
+import { mergeRuntimeEnv } from "../app/runtime-env.mjs";
 
 interface Env {
   ASSETS: Fetcher;
@@ -148,12 +149,13 @@ function maintenanceResponse(request: Request) {
 const worker = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
+    const runtimeEnv = mergeRuntimeEnv(env) as Env;
 
     if (url.pathname === "/musteri-portali") {
       if (request.method !== "GET" && request.method !== "HEAD") {
         return secure(new Response("Method Not Allowed", { status: 405, headers: { Allow: "GET, HEAD" } }), request);
       }
-      const destination = usesInternalCustomerPortal(env)
+      const destination = usesInternalCustomerPortal(runtimeEnv)
         ? new URL("/musteri-panel/giris", request.url).toString()
         : (customerPortalLoginUrl(env.LICENSE_PORTAL_URL)
           ?? new URL("/musteri-girisi?durum=hazirlaniyor", request.url).toString());
@@ -172,13 +174,13 @@ const worker = {
       return secure(imageResponse, request);
     }
 
-    await ensureLocalD1Schema(env);
-    await ensureCustomerPortalPreviewData(env);
-    if (isPublicDocumentRequest(request, url.pathname) && await isMaintenanceMode(env)) {
+    await ensureLocalD1Schema(runtimeEnv);
+    await ensureCustomerPortalPreviewData(runtimeEnv);
+    if (isPublicDocumentRequest(request, url.pathname) && await isMaintenanceMode(runtimeEnv)) {
       return secure(maintenanceResponse(request), request);
     }
-    const incoming = withLocalAdminIdentity(request, env);
-    const response = await handler.fetch(incoming, env, ctx);
+    const incoming = withLocalAdminIdentity(request, runtimeEnv);
+    const response = await handler.fetch(incoming, runtimeEnv as Env, ctx);
     return secure(response, request);
   },
 };
