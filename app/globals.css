@@ -2025,6 +2025,90 @@ footer > small { color: rgba(255,255,255,.28); font-size: 8px; }
 }
 .cp-sidebar nav a.active span,
 .cp-sidebar-nav-track a.active span { color: var(--mint); }
+.cp-panels {
+  display: grid;
+  gap: 0;
+  min-width: 0;
+}
+.cp-panel[hidden] {
+  display: none !important;
+}
+.cp-panel.is-active {
+  display: block;
+  animation: cpPanelIn .28s ease both;
+}
+.cp-panel.cp-grid.is-active,
+.cp-panel.cp-data.is-active,
+.cp-panel.demo-portal-data.is-active {
+  display: grid;
+}
+.cp-panel.cp-notices.is-active,
+.cp-panel.cp-ops-checklist.is-active {
+  display: grid;
+}
+.cp-panel-ozet.is-active {
+  display: block;
+}
+.cp-panel-single {
+  grid-template-columns: 1fr;
+}
+.cp-panel-card {
+  margin: 0;
+}
+@keyframes cpPanelIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cp-panel.is-active { animation: none; }
+}
+.cp-mobile-nav-toggle {
+  display: none;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin: 12px 0 4px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: var(--ink);
+  background: var(--white);
+  cursor: pointer;
+  text-align: left;
+}
+.cp-mobile-nav-toggle-bars {
+  display: grid;
+  gap: 4px;
+  width: 18px;
+  flex: 0 0 auto;
+}
+.cp-mobile-nav-toggle-bars i {
+  display: block;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--ink);
+}
+.cp-mobile-nav-toggle-copy {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.cp-mobile-nav-toggle-copy small {
+  color: var(--muted);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: .1em;
+}
+.cp-mobile-nav-toggle-copy strong {
+  font-size: 13px;
+  letter-spacing: -.02em;
+}
+.cp-mobile-nav-backdrop {
+  display: none;
+}
+.cp-mobile-nav-drawer {
+  display: none;
+}
 .cp-sidebar-foot {
   margin-top: auto;
   display: grid;
@@ -5726,85 +5810,111 @@ body:has(.cookie-notice) .avcai-mascot { bottom: clamp(8.5rem, 26vw, 12rem); }
     top: 0;
     z-index: 35;
     gap: 10px;
-    padding: 14px 0 12px;
+    padding: 14px 16px 12px;
     border-right: 0;
     border-bottom: 1px solid rgba(255,255,255,.08);
     box-shadow: 0 14px 32px rgba(17,19,23,.12);
   }
-  .cp-sidebar .brand {
-    padding: 0 16px;
-  }
   .cp-sidebar-badge {
-    margin: 0 16px;
+    margin: 0;
     padding: 7px 10px;
     font-size: 7px;
   }
   .cp-sidebar-nav-shell {
-    position: relative;
-    padding: 0 16px;
-  }
-  .cp-sidebar-nav-shell::before,
-  .cp-sidebar-nav-shell::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    bottom: 4px;
-    width: 22px;
-    pointer-events: none;
-    z-index: 1;
-  }
-  .cp-sidebar-nav-shell::before {
-    left: 0;
-    background: linear-gradient(90deg, var(--dark) 15%, transparent);
-  }
-  .cp-sidebar-nav-shell::after {
-    right: 0;
-    background: linear-gradient(270deg, var(--dark) 15%, transparent);
-  }
-  .cp-sidebar-nav-label {
-    display: block;
-  }
-  .cp-sidebar nav,
-  .cp-sidebar-nav-track {
-    display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    padding-bottom: 4px;
-    scroll-snap-type: x proximity;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
-  .cp-sidebar nav::-webkit-scrollbar,
-  .cp-sidebar-nav-track::-webkit-scrollbar { display: none; }
-  .cp-sidebar nav a,
-  .cp-sidebar-nav-track a {
-    flex: 0 0 auto;
-    grid-template-columns: auto 1fr;
-    align-items: center;
-    justify-items: start;
-    text-align: left;
-    gap: 8px;
-    min-height: 44px;
-    padding: 10px 14px;
-    white-space: nowrap;
-    font-size: 12px;
-    scroll-snap-align: center;
-  }
-  .cp-sidebar nav a span,
-  .cp-sidebar-nav-track a span {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 22px;
-    padding: 2px 0;
-    font-size: 8px;
-  }
-  .cp-sidebar nav a.active,
-  .cp-sidebar-nav-track a.active {
-    box-shadow: 0 8px 20px rgba(17,19,23,.18);
+    display: none;
   }
   .cp-sidebar-foot {
     display: none;
+  }
+  .cp-mobile-nav-toggle {
+    display: inline-flex;
+  }
+  .cp-mobile-nav-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    border: 0;
+    background: rgba(7, 19, 28, .48);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s ease;
+  }
+  .cp-mobile-nav-backdrop.is-open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .cp-mobile-nav-drawer {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 61;
+    width: min(320px, 88vw);
+    height: 100dvh;
+    padding: 18px 16px 24px;
+    color: var(--white);
+    background:
+      radial-gradient(circle at 12% 8%, rgba(197, 50, 59, .22), transparent 42%),
+      linear-gradient(168deg, var(--dark-soft), var(--dark) 72%);
+    box-shadow: 18px 0 40px rgba(7, 19, 28, .28);
+    transform: translateX(-104%);
+    transition: transform .24s ease;
+  }
+  .cp-mobile-nav-drawer.is-open {
+    transform: translateX(0);
+  }
+  .cp-mobile-nav-drawer-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .cp-mobile-nav-drawer-head .kicker {
+    color: var(--mint);
+  }
+  .cp-mobile-nav-close {
+    border: 1px solid rgba(255,255,255,.16);
+    border-radius: 999px;
+    padding: 7px 12px;
+    color: var(--white);
+    background: rgba(255,255,255,.06);
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .cp-mobile-nav-drawer nav {
+    display: grid;
+    gap: 4px;
+    overflow-y: auto;
+  }
+  .cp-mobile-nav-drawer nav a {
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    border-radius: 10px;
+    color: rgba(255,255,255,.72);
+    font-size: 13px;
+    font-weight: 650;
+    border: 1px solid transparent;
+  }
+  .cp-mobile-nav-drawer nav a span {
+    color: rgba(255,255,255,.3);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .08em;
+  }
+  .cp-mobile-nav-drawer nav a.active {
+    color: var(--white);
+    background: rgba(197, 50, 59, .18);
+    border-color: rgba(197, 50, 59, .22);
+  }
+  .cp-mobile-nav-drawer nav a.active span {
+    color: var(--mint);
   }
   .cp-topbar { align-items: flex-start; flex-direction: column; }
   .cp-workspace { grid-template-columns: 1fr; }

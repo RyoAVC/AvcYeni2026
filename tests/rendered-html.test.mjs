@@ -562,6 +562,9 @@ test("renders the finished platform landing page", async () => {
   assert.match(demoPortalHtml, /Hosting yenileme takvimi/);
   assert.match(demoPortalHtml, /cp-sidebar-nav-shell/);
   assert.match(demoPortalHtml, /cp-sidebar-nav-track/);
+  assert.match(demoPortalHtml, /cp-panels/);
+  assert.match(demoPortalHtml, /data-cp-panel="ozet"/);
+  assert.match(demoPortalHtml, /cp-mobile-nav-toggle/);
   assert.match(demoPortalHtml, /cp-finance-summary/);
   assert.match(demoPortalHtml, /Lisans ve tahsil görünümü/);
   assert.match(demoPortalHtml, /Açık bakiye/);
