@@ -35,5 +35,8 @@ rsync -az --delete \
   --exclude dist \
   --exclude .vinext \
   --exclude .next \
+  --exclude .env \
+  --exclude .env.* \
+  --exclude .dev.vars \
   "${APP_DIR}/" "${V2_DIR}/"
 bash "${V2_DIR}/scripts/deploy-v2.sh"

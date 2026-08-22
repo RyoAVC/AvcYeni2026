@@ -1,18 +1,22 @@
 [Unit]
-Description=Avcı yeni vitrin v2 (vinext)
+Description=Avci yeni.avcieticaret.com v2 Node app
 After=network.target
 
 [Service]
 Type=simple
-User=root
+User=avccom
+Group=avccom
 WorkingDirectory=/home/avccom/yeni/v2/app
+Environment=PATH=/opt/node-v22.23.1-linux-x64/bin:/usr/bin
 Environment=NODE_ENV=production
 Environment=NEXT_PUBLIC_BASE_PATH=/v2
 Environment=NEXT_PUBLIC_SITE_ORIGIN=https://yeni.avcieticaret.com
+EnvironmentFile=-/home/avccom/yeni/hub-bridge.env
 Environment=WRANGLER_LOG_PATH=/home/avccom/yeni/v2/app/.wrangler/wrangler.log
 ExecStart=/opt/node-v22.23.1-linux-x64/bin/node /home/avccom/yeni/v2/app/node_modules/vinext/dist/cli.js start -H 127.0.0.1 -p 4121
 Restart=on-failure
-RestartSec=3
+RestartSec=5
+TimeoutStartSec=120
 
 [Install]
 WantedBy=multi-user.target
