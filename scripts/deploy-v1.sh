@@ -25,3 +25,15 @@ cp "${APP_DIR}/hosting/yeni.htaccess" "${ROOT_DIR}/.htaccess"
 systemctl restart avci-yeni-v1.service
 systemctl is-active avci-yeni-v1.service
 curl -sI -o /dev/null -w "local_v1:%{http_code}\n" --max-time 10 http://127.0.0.1:4120/v1 || true
+
+V2_DIR="/home/avccom/yeni/v2/app"
+mkdir -p "${V2_DIR}"
+rsync -az --delete \
+  --exclude node_modules \
+  --exclude .wrangler \
+  --exclude .sites-runtime \
+  --exclude dist \
+  --exclude .vinext \
+  --exclude .next \
+  "${APP_DIR}/" "${V2_DIR}/"
+bash "${V2_DIR}/scripts/deploy-v2.sh"
