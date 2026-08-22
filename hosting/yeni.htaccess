@@ -4,5 +4,6 @@ RewriteBase /
 RewriteRule ^\.well-known/ - [L]
 RewriteRule ^index\.php$ - [L]
 RewriteRule ^v1(/.*)?$ /index.php [L,QSA]
+RewriteRule ^v2(/.*)?$ /index.php [L,QSA]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^(.*)$ /index.php [L,QSA]

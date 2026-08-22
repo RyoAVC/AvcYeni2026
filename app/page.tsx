@@ -11,6 +11,7 @@ import { StoryBand } from "./story-band";
 import { SITE_OPEN_GRAPH } from "./site-social-metadata";
 import { HeaderCtaCluster } from "./header-cta-cluster";
 import { SiteBrand } from "./site-brand";
+import { TofyMark } from "./tofy-mark";
 import { SiteFooter } from "./site-footer";
 import { loadSiteSettings } from "./site-settings.mjs";
 
@@ -517,6 +518,7 @@ export default async function Home() {
             <div className="ai-console-bar"><span>Avcı Commerce · Tofy modülü</span><i /><i /><i /></div>
             <div className="ai-console-stage">
               <div className="ai-core">
+                <TofyMark className="ai-core-mark" />
                 <div>
                   <small>TOFY</small>
                   <strong>Avcı E-Ticaret</strong>

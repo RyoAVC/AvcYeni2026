@@ -548,6 +548,10 @@ test("renders the finished platform landing page", async () => {
   const demoPortalHtml = await demoPortalResponse.text();
   assert.match(demoPortalHtml, /GÜVENLİ DEMO OTURUMU/);
   assert.match(demoPortalHtml, /Örnek Yazılım Müşterisi/);
+  assert.match(demoPortalHtml, /AVCI MÜŞTERİ PANELİ V2/);
+  assert.match(demoPortalHtml, /BasBitir Atölyesi/);
+  assert.match(demoPortalHtml, /Tofy Ajan V2/);
+  assert.match(demoPortalHtml, /Tofy'nin Önerdiği Ürünler|Tofy&apos;nin Önerdiği Ürünler/);
   assert.match(demoPortalHtml, /Start/);
   assert.match(demoPortalHtml, /Scale/);
   assert.match(demoPortalHtml, /Enterprise/);

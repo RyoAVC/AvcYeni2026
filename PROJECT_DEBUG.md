@@ -1,6 +1,6 @@
 # AVC E-Ticaret — Kalıcı Proje Hafızası ve Debug/Devir Kaydı
 
-Son güncelleme: 20 Ağustos 2026
+Son güncelleme: 22 Ağustos 2026
 
 Bu dosya projenin tek yetkili debug/devir kaydıdır. Yeni bir Codex/ChatGPT oturumu önce bu dosyayı okumalı, mevcut kaynakları korumalı ve yalnızca aktif iş için gerekli dosyalara hedefli bakmalıdır. Gizli anahtar, parola, token ve gerçek müşteri verisi bu dosyaya yazılmaz.
 
@@ -1157,6 +1157,46 @@ Dürüst sınır:
 - Değişen kaynaklar: `app/page.tsx`, `app/globals.css`, `PROJECT_DEBUG.md`.
 - Doğrulama: kullanıcı tarayıcıda `#yapay-zeka` görünümünü onaylayacak. Deploy yapılmadı.
 
+### v147 — Demo müşteri paneli V2
+
+- `/demo-portal` salt tablo vitrininden sol menülü profesyonel müşteri paneli demosuna çevrildi. Örnek işletme: BasBitir Atölyesi. Tofy Ajan V2, altyapı modülleri, erişimler, sonraki adımlar ve lisans/fatura tabloları aynı ekranda.
+- Gerçek müşteri/parola/ödeme yok; “örnek veri / salt demo” sınırı korundu. Yeni renk token’ı eklenmedi; mevcut `--ink`, `--brand-red`, `--surface` kullanıldı.
+- Değişen kaynaklar: `app/demo-portal/page.tsx`, `app/globals.css`, `tests/rendered-html.test.mjs`, `PROJECT_DEBUG.md`.
+- Doğrulama: yerel `/demo-portal` HTTP 200; kullanıcı onayı bekleniyor. Deploy yapılmadı.
+
+### v148 — Demo panel tasarım cilası
+
+- `/demo-portal` üst alanı güçlendirildi: hesap çipi (Murat Bey · örnek), mağaza/altyapı/destek özet şeridi, proje durum hapları (Teslim, Eğitim, Tofy V2).
+- Tofy Ajan V2 kartına örnek metrik şeridi eklendi (tıklama, sepet, tamamlayıcı ürün). Sidebar menüsü numaralı kurumsal dil.
+- KPI kartlarına sol accent çizgisi; tablo bölümü `cp-data` ile daha temiz çerçeve. Tema düğmesi panel üstünden kaldırıldı (sade CTA).
+- Değişen kaynaklar: `app/demo-portal/page.tsx`, `app/globals.css`, `PROJECT_DEBUG.md`.
+- Doğrulama: yerel `/demo-portal` HTTP 200. Deploy yapılmadı.
+
+### v149 — Tofy kurumsal görünüm (maskot sadeleştirme)
+
+- VEO3/PNG maskot seti siteye bağlanmadı; çizgi film robotu (CSS kulak/jet/gülümseme) ve uçan FAB animasyonu kaldırıldı.
+- Yeni `app/tofy-mark.tsx`: düz SVG monogram (vizör + mint göz çizgileri, durum noktası). FAB koyu hap, “Tofy / Asistan” etiketi; sohbet başlığı “Avcı asistanı”.
+- Ana sayfa `#yapay-zeka` konsoluna aynı mark eklendi. Yeni renk token’ı yok.
+- Değişen kaynaklar: `app/tofy-mark.tsx`, `app/avcai-mascot.tsx`, `app/page.tsx`, `app/globals.css`, `PROJECT_DEBUG.md`.
+
+### v150 — Demo panel Tofy vitrini
+
+- `/demo-portal` Tofy kartına kurumsal `TofyMark` SVG eklendi: sol vitrin (koyu panel + mağaza diyalog önizlemesi), sağda yetenek ızgarası ve metrik şeridi.
+- PNG maskot kullanılmadı; global Tofy (v149) aynen kaldı. Örnek veri / salt demo sınırı korundu.
+- Değişen kaynaklar: `app/demo-portal/page.tsx`, `app/globals.css`, `PROJECT_DEBUG.md`.
+
+### v151 — Demo panel en çok satan ürünler
+
+- Tofy kartının altındaki boş alana 6 ürünlük “En çok satan ürünler” şeridi eklendi (BasBitir örnek SKU’ları, SVG ürün görseli).
+- `breathe` ve `pulse` ile nefes/yıldız animasyonu; mobilde yatay kaydırma. PNG dış kaynak yok; mevcut token’lar.
+- Değişen kaynaklar: `app/demo-portal/page.tsx`, `app/globals.css`, `tests/rendered-html.test.mjs`, `PROJECT_DEBUG.md`.
+
+### v152 — Tofy önerdiği ürün vitrini
+
+- Tofy kartı altı “En çok satan” yerine **Tofy'nin Önerdiği Ürünler** oldu: ajan çerçevesi, TofyMark, 6 ürün (görsel 4:5, isim, fiyat), sakin `cpProductBreathe` animasyonu.
+- Sağdaki Aktif Modüller / Erişimler kartlarına dokunulmadı.
+- Değişen kaynaklar: `app/demo-portal/page.tsx`, `app/globals.css`, `tests/rendered-html.test.mjs`, `PROJECT_DEBUG.md`.
+
 ### v144 — Gündüz katalog menüsü ve teklif header
 
 - Katalog header menüsü gündüzde 9px açık gri olmaktan çıktı; ana sayfadaki gibi okunaklı mürekkep rengi, `clamp()` punto ve beyaz hap zemin kullanır.
@@ -1247,7 +1287,7 @@ Son tamamlanmış doğrulama (v61):
 ## 11. Git, deploy ve dış sistem durumu
 
 - Git remote: `https://github.com/RyoAVC/AvcYeni2026.git` (`main`).
-- `main` push, GitHub Action ile canlı teste gider: `http://yeni.avcieticaret.com/v1/` (`avci-yeni-v1.service`, 127.0.0.1:4120).
+- `main` push, GitHub Action ile canlı teste gider: `http://yeni.avcieticaret.com/v1/` (`avci-yeni-v1.service`, 127.0.0.1:4120) ve `http://yeni.avcieticaret.com/v2/` (`avci-yeni-v2.service`, 127.0.0.1:4121).
 - `/v1` geçici canlı test. Kalıcı hedef: `avcieticaret.com` kökü. Taşıma yalnız kullanıcı açıkça isteyince yapılır.
 - `yeni.avcieticaret.com/` kökü şu an eski vitrin; bu proje orayı ezmez.
 - Yerel: yalnız `http://127.0.0.1:4115/`.

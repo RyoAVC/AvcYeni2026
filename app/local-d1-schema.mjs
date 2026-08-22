@@ -2,7 +2,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { isLocalAdminBypassEnabled } from "./local-admin-identity.mjs";
 
-const SCHEMA_GEN = 25;
+const SCHEMA_GEN = 26;
 let appliedGen = 0;
 let pending = null;
 
@@ -501,6 +501,340 @@ async function ensureSiteAssetsTable(db) {
   `).run();
 }
 
+async function ensureCategoriesTable(db) {
+  if (!await tableExists(db, "categories")) {
+    await db.prepare(`
+      CREATE TABLE categories (
+        id integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+        name text NOT NULL,
+        slug text NOT NULL,
+        parent_id integer,
+        description text DEFAULT '' NOT NULL,
+        image_url text DEFAULT '' NOT NULL,
+        sort_order integer DEFAULT 0 NOT NULL,
+        status text DEFAULT 'active' NOT NULL,
+        seo_title text DEFAULT '' NOT NULL,
+        seo_description text DEFAULT '' NOT NULL,
+        created_at text DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        updated_at text DEFAULT CURRENT_TIMESTAMP NOT NULL
+      )
+    `).run();
+    await db.prepare("CREATE UNIQUE INDEX IF NOT EXISTS idx_categories_slug ON categories (slug)").run();
+  }
+
+  const countRow = await db.prepare("SELECT COUNT(*) AS total FROM categories").first();
+  if (Number(countRow?.total ?? 0) === 0) {
+    const defaultCats = [
+      ["Elektronik & Akıllı Cihazlar", "elektronik", "Akıllı telefon, bilgisayar ve çevre birimleri"],
+      ["Giyim & Moda", "giyim-moda", "Kadın, erkek ve çocuk giyim koleksiyonları"],
+      ["Gıda & Gurme Lezzetler", "gida-gurme", "Doğal peynir, zeytinyağı ve organik ürünler"],
+      ["Ev & Yaşam", "ev-yasam", "Mobilya, aydınlatma ve ev dekorasyonu"],
+    ];
+    for (let i = 0; i < defaultCats.length; i++) {
+      const [name, slug, desc] = defaultCats[i];
+      await db.prepare(`
+        INSERT INTO categories (name, slug, description, sort_order, status)
+        VALUES (?, ?, ?, ?, 'active')
+      `).bind(name, slug, desc, i + 1).run();
+    }
+  }
+}
+
+async function ensureBrandsTable(db) {
+  if (!await tableExists(db, "brands")) {
+    await db.prepare(`
+      CREATE TABLE brands (
+        id integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+        name text NOT NULL,
+        slug text NOT NULL,
+        logo_url text DEFAULT '' NOT NULL,
+        website text DEFAULT '' NOT NULL,
+        description text DEFAULT '' NOT NULL,
+        sort_order integer DEFAULT 0 NOT NULL,
+        status text DEFAULT 'active' NOT NULL,
+        created_at text DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        updated_at text DEFAULT CURRENT_TIMESTAMP NOT NULL
+      )
+    `).run();
+    await db.prepare("CREATE UNIQUE INDEX IF NOT EXISTS idx_brands_slug ON brands (slug)").run();
+  }
+
+  const countRow = await db.prepare("SELECT COUNT(*) AS total FROM brands").first();
+  if (Number(countRow?.total ?? 0) === 0) {
+    const defaultBrands = [
+      ["Avcı Teknoloji", "avci-tech", "https://avcieticaret.com", "Yerli ve kurumsal yazılım altyapıları"],
+      ["Atölye Gurme", "atolye-gurme", "", "Geleneksel ve organik lezzet üreticisi"],
+      ["Vortex Labs", "vortex-labs", "", "İleri seviye donanım ve akıllı cihazlar"],
+      ["Luna Studio", "luna-studio", "", "Minimalist ev ve yaşam tasarımları"],
+    ];
+    for (let i = 0; i < defaultBrands.length; i++) {
+      const [name, slug, web, desc] = defaultBrands[i];
+      await db.prepare(`
+        INSERT INTO brands (name, slug, website, description, sort_order, status)
+        VALUES (?, ?, ?, ?, ?, 'active')
+      `).bind(name, slug, web, desc, i + 1).run();
+    }
+  }
+}
+
+async function ensureProductsTable(db) {
+  if (!await tableExists(db, "products")) {
+    await db.prepare(`
+      CREATE TABLE products (
+        id integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+        name text NOT NULL,
+        slug text NOT NULL,
+        sku text DEFAULT '' NOT NULL,
+        barcode text DEFAULT '' NOT NULL,
+        category_id integer,
+        brand_id integer,
+        short_description text DEFAULT '' NOT NULL,
+        description text DEFAULT '' NOT NULL,
+        price integer DEFAULT 0 NOT NULL,
+        discounted_price integer,
+        cost_price integer DEFAULT 0 NOT NULL,
+        vat_rate integer DEFAULT 20 NOT NULL,
+        stock integer DEFAULT 0 NOT NULL,
+        critical_stock integer DEFAULT 5 NOT NULL,
+        status text DEFAULT 'active' NOT NULL,
+        is_featured integer DEFAULT 0 NOT NULL,
+        images text DEFAULT '[]' NOT NULL,
+        variants text DEFAULT '[]' NOT NULL,
+        seo_title text DEFAULT '' NOT NULL,
+        seo_description text DEFAULT '' NOT NULL,
+        created_at text DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        updated_at text DEFAULT CURRENT_TIMESTAMP NOT NULL
+      )
+    `).run();
+    await db.prepare("CREATE UNIQUE INDEX IF NOT EXISTS idx_products_slug ON products (slug)").run();
+  }
+
+  const countRow = await db.prepare("SELECT COUNT(*) AS total FROM products").first();
+  if (Number(countRow?.total ?? 0) === 0) {
+    const demoProducts = [
+      {
+        name: "Avcı Pro E-Ticaret Lisans Paketi",
+        slug: "avci-pro-e-ticaret-lisansi",
+        sku: "AVC-PRO-001",
+        barcode: "868000100101",
+        price: 24900,
+        discountedPrice: 19900,
+        costPrice: 8000,
+        stock: 50,
+        criticalStock: 5,
+        isFeatured: 1,
+        categoryId: 1,
+        brandId: 1,
+        shortDescription: "Sınırsız ürün, çoklu dil, pazaryeri ve SEO modülü dahil kurumsal altyapı.",
+        description: "B2C ve B2B odaklı, yüksek performanslı Cloudflare Worker destekli e-ticaret yönetim platformu lisansı.",
+      },
+      {
+        name: "Akıllı B2B Bayi Portalı Eklentisi",
+        slug: "akilli-b2b-bayi-portali",
+        sku: "AVC-B2B-002",
+        barcode: "868000100102",
+        price: 12500,
+        discountedPrice: null,
+        costPrice: 3500,
+        stock: 25,
+        criticalStock: 3,
+        isFeatured: 1,
+        categoryId: 1,
+        brandId: 1,
+        shortDescription: "Bayiye özel fiyat, cari hesap ve vadeli sipariş yönetimi.",
+        description: "Bayi ağınızı dijitalleştirin, toptan siparişleri ve hakedişleri tek merkezden yönetin.",
+      },
+      {
+        name: "Tofy AI Sesli & Yazılı Satış Asistanı",
+        slug: "tofy-ai-satis-asistani",
+        sku: "AVC-AI-003",
+        barcode: "868000100103",
+        price: 8900,
+        discountedPrice: 6900,
+        costPrice: 2000,
+        stock: 99,
+        criticalStock: 10,
+        isFeatured: 1,
+        categoryId: 1,
+        brandId: 1,
+        shortDescription: "7/24 müşterilerle konuşan, ürün öneren ve sipariş yönlendiren yapay zeka asistanı.",
+        description: "Gemini API tabanlı, gerçek zamanlı Türkçe ses ve sohbet desteğine sahip yapay zeka botu.",
+      },
+      {
+        name: "Eski Kaşar & Gurme Peynir Paketi",
+        slug: "eski-kasar-gurme-peynir-paketi",
+        sku: "GUR-KASAR-004",
+        barcode: "868000200201",
+        price: 850,
+        discountedPrice: 750,
+        costPrice: 420,
+        stock: 14,
+        criticalStock: 4,
+        isFeatured: 0,
+        categoryId: 3,
+        brandId: 2,
+        shortDescription: "12 ay olgunlaştırılmış Kars eski kaşarı ve tulum peyniri özel seçkisi.",
+        description: "Geleneksel yöntemlerle dinlendirilmiş, katkısız doğal şirden mayalı gurme peynir seti.",
+      },
+      {
+        name: "Premium Deri Ev & Ofis Çalışma Matı",
+        slug: "premium-deri-calisma-mati",
+        sku: "LUN-MAT-005",
+        barcode: "868000300301",
+        price: 1450,
+        discountedPrice: 1190,
+        costPrice: 500,
+        stock: 2,
+        criticalStock: 5,
+        isFeatured: 0,
+        categoryId: 4,
+        brandId: 4,
+        shortDescription: "Su geçirmez hakiki deri masaüstü koruyucu ve mouse pad.",
+        description: "Lüks çalışma alanları için el yapımı birinci sınıf dikişli deri mat.",
+      },
+    ];
+
+    for (const p of demoProducts) {
+      await db.prepare(`
+        INSERT INTO products (
+          name, slug, sku, barcode, category_id, brand_id, short_description, description,
+          price, discounted_price, cost_price, vat_rate, stock, critical_stock, status, is_featured
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 20, ?, ?, 'active', ?)
+      `).bind(
+        p.name, p.slug, p.sku, p.barcode, p.categoryId, p.brandId, p.shortDescription, p.description,
+        p.price, p.discountedPrice, p.costPrice, p.stock, p.criticalStock, p.isFeatured
+      ).run();
+    }
+  }
+}
+
+async function ensureCampaignsTable(db) {
+  if (!await tableExists(db, "campaigns")) {
+    await db.prepare(`
+      CREATE TABLE campaigns (
+        id integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+        name text NOT NULL,
+        type text DEFAULT 'percentage' NOT NULL,
+        discount_value integer DEFAULT 0 NOT NULL,
+        min_spend integer DEFAULT 0 NOT NULL,
+        target_type text DEFAULT 'all' NOT NULL,
+        target_id integer,
+        status text DEFAULT 'active' NOT NULL,
+        starts_at text DEFAULT '' NOT NULL,
+        ends_at text DEFAULT '' NOT NULL,
+        created_at text DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        updated_at text DEFAULT CURRENT_TIMESTAMP NOT NULL
+      )
+    `).run();
+  }
+
+  const countRow = await db.prepare("SELECT COUNT(*) AS total FROM campaigns").first();
+  if (Number(countRow?.total ?? 0) === 0) {
+    await db.prepare(`
+      INSERT INTO campaigns (name, type, discount_value, min_spend, target_type, status, starts_at, ends_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `).bind(
+      "Kurumsal Başlangıç %20 İndirimi", "percentage", 20, 10000, "all", "active", "2026-01-01", "2026-12-31"
+    ).run();
+    await db.prepare(`
+      INSERT INTO campaigns (name, type, discount_value, min_spend, target_type, status, starts_at, ends_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `).bind(
+      "500 TL Üzeri Ücretsiz Kargo & Kurulum", "free_shipping", 0, 500, "all", "active", "2026-01-01", "2026-12-31"
+    ).run();
+  }
+}
+
+async function ensureCouponsTable(db) {
+  if (!await tableExists(db, "coupons")) {
+    await db.prepare(`
+      CREATE TABLE coupons (
+        id integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+        code text NOT NULL,
+        type text DEFAULT 'percentage' NOT NULL,
+        discount_value integer DEFAULT 0 NOT NULL,
+        min_spend integer DEFAULT 0 NOT NULL,
+        max_discount integer DEFAULT 0 NOT NULL,
+        usage_limit integer DEFAULT 100 NOT NULL,
+        used_count integer DEFAULT 0 NOT NULL,
+        status text DEFAULT 'active' NOT NULL,
+        starts_at text DEFAULT '' NOT NULL,
+        ends_at text DEFAULT '' NOT NULL,
+        created_at text DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        updated_at text DEFAULT CURRENT_TIMESTAMP NOT NULL
+      )
+    `).run();
+    await db.prepare("CREATE UNIQUE INDEX IF NOT EXISTS idx_coupons_code ON coupons (code)").run();
+  }
+
+  const countRow = await db.prepare("SELECT COUNT(*) AS total FROM coupons").first();
+  if (Number(countRow?.total ?? 0) === 0) {
+    await db.prepare(`
+      INSERT INTO coupons (code, type, discount_value, min_spend, max_discount, usage_limit, used_count, status)
+      VALUES (?, ?, ?, ?, ?, ?, ?, 'active')
+    `).bind("AVCI2026", "percentage", 15, 1000, 5000, 500, 12).run();
+    await db.prepare(`
+      INSERT INTO coupons (code, type, discount_value, min_spend, max_discount, usage_limit, used_count, status)
+      VALUES (?, ?, ?, ?, ?, ?, ?, 'active')
+    `).bind("HOSGELDIN250", "fixed", 250, 1500, 250, 1000, 48).run();
+  }
+}
+
+async function ensureAuditLogsTable(db) {
+  if (!await tableExists(db, "audit_logs")) {
+    await db.prepare(`
+      CREATE TABLE audit_logs (
+        id integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+        user_email text NOT NULL,
+        action text NOT NULL,
+        entity text NOT NULL,
+        entity_id text DEFAULT '' NOT NULL,
+        details text DEFAULT '' NOT NULL,
+        ip_address text DEFAULT '' NOT NULL,
+        created_at text DEFAULT CURRENT_TIMESTAMP NOT NULL
+      )
+    `).run();
+  }
+}
+
+async function ensureIntegrationsTable(db) {
+  if (!await tableExists(db, "integrations")) {
+    await db.prepare(`
+      CREATE TABLE integrations (
+        id integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+        provider_key text NOT NULL,
+        category text NOT NULL,
+        name text NOT NULL,
+        status text DEFAULT 'passive' NOT NULL,
+        config text DEFAULT '{}' NOT NULL,
+        last_sync_at text DEFAULT '' NOT NULL,
+        updated_at text DEFAULT CURRENT_TIMESTAMP NOT NULL
+      )
+    `).run();
+    await db.prepare("CREATE UNIQUE INDEX IF NOT EXISTS idx_integrations_provider_key ON integrations (provider_key)").run();
+  }
+
+  const countRow = await db.prepare("SELECT COUNT(*) AS total FROM integrations").first();
+  if (Number(countRow?.total ?? 0) === 0) {
+    const list = [
+      ["paytr", "payment", "PayTR Sanal POS", "active", JSON.stringify({ merchantId: "123456", mode: "test" })],
+      ["iyzico", "payment", "iyzico Checkout Form", "active", JSON.stringify({ apiKey: "sandbox-...", mode: "sandbox" })],
+      ["yurtici", "shipping", "Yurtiçi Kargo Entegrasyonu", "active", JSON.stringify({ username: "avci_user", autoTracking: true })],
+      ["aras", "shipping", "Aras Kargo Entegrasyonu", "passive", JSON.stringify({ username: "", autoTracking: false })],
+      ["trendyol", "marketplace", "Trendyol Pazaryeri Senkronizasyonu", "active", JSON.stringify({ supplierId: "987654", syncStock: true })],
+      ["hepsiburada", "marketplace", "Hepsiburada API Entegrasyonu", "passive", JSON.stringify({ merchantId: "", syncStock: false })],
+      ["parasut", "erp", "Paraşüt E-Fatura & Muhasebe", "active", JSON.stringify({ companyId: "45012", autoInvoice: true })],
+      ["netgsm", "sms", "NetGSM Başlıklı SMS", "active", JSON.stringify({ header: "AVCI", otpEnabled: true })],
+    ];
+    for (const [key, cat, name, status, conf] of list) {
+      await db.prepare(`
+        INSERT INTO integrations (provider_key, category, name, status, config, last_sync_at)
+        VALUES (?, ?, ?, ?, ?, ?)
+      `).bind(key, cat, name, status, conf, new Date().toISOString()).run();
+    }
+  }
+}
+
 async function applyLocalD1Schema(env) {
   if (!isLocalAdminBypassEnabled(env) || !env.DB) return;
 
@@ -518,6 +852,13 @@ async function applyLocalD1Schema(env) {
     await ensureVitrineToastsTable(env.DB);
     await ensureSiteSettingsTable(env.DB);
     await ensureSiteAssetsTable(env.DB);
+    await ensureCategoriesTable(env.DB);
+    await ensureBrandsTable(env.DB);
+    await ensureProductsTable(env.DB);
+    await ensureCampaignsTable(env.DB);
+    await ensureCouponsTable(env.DB);
+    await ensureAuditLogsTable(env.DB);
+    await ensureIntegrationsTable(env.DB);
     await seedDemoLeads(env.DB);
     return;
   }
@@ -548,6 +889,13 @@ async function applyLocalD1Schema(env) {
   await ensureVitrineToastsTable(env.DB);
   await ensureSiteSettingsTable(env.DB);
   await ensureSiteAssetsTable(env.DB);
+  await ensureCategoriesTable(env.DB);
+  await ensureBrandsTable(env.DB);
+  await ensureProductsTable(env.DB);
+  await ensureCampaignsTable(env.DB);
+  await ensureCouponsTable(env.DB);
+  await ensureAuditLogsTable(env.DB);
+  await ensureIntegrationsTable(env.DB);
   await seedDemoLeads(env.DB);
 }
 
@@ -564,3 +912,4 @@ export function ensureLocalD1Schema(env) {
     });
   return pending;
 }
+

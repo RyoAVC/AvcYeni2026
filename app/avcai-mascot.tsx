@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AVCAI_CHAT, AVCAI_SUGGESTIONS } from "./avcai-knowledge.mjs";
 import { pageCue, shouldShowAvcai, TOFY_LISTEN_MAX_MS, TOFY_LISTEN_PAUSE_MS, tofySpeechText, voiceChunks } from "./avcai-ui.mjs";
+import { TofyMark } from "./tofy-mark";
 import {
   DEFAULT_TOFY_POPUP,
   TOFY_EXIT_SEEN_KEY,
@@ -130,24 +131,6 @@ function VoiceClip({ url, caption, onPlay }: { url: string; caption: string; onP
       <strong>{formatClipTime(length)}</strong>
       <p className="avcai-voice-caption">{caption}</p>
     </div>
-  );
-}
-
-function AvcaiMark({ talking, listening }: { talking: boolean; listening: boolean }) {
-  const state = listening ? " is-listening" : talking ? " is-talking" : "";
-  return (
-    <span className={`avcai-mark${state}`} aria-hidden="true">
-      <i className="avcai-antenna" />
-      <i className="avcai-ear avcai-ear-left" />
-      <i className="avcai-ear avcai-ear-right" />
-      <span className="avcai-face">
-        <i className="avcai-eye avcai-eye-left" />
-        <i className="avcai-eye avcai-eye-right" />
-        <i className="avcai-smile" />
-      </span>
-      <i className="avcai-jet" />
-      <i className="status-dot" />
-    </span>
   );
 }
 
@@ -1101,10 +1084,10 @@ export function AvcaiMascot({ exitPopup }: { exitPopup?: TofyPopup } = {}) {
 
       <div className={open ? "avcai-dock is-open" : "avcai-dock"} id="avcai-dock" hidden={!open}>
         <div className="avcai-dock-head">
-          <AvcaiMark talking={talking} listening={listening} />
+          <TofyMark talking={talking} listening={listening} />
           <div>
             <small>TOFY</small>
-            <strong>Sesli ve yazılı asistan</strong>
+            <strong>Avcı asistanı</strong>
           </div>
           <button
             type="button"
@@ -1220,8 +1203,11 @@ export function AvcaiMascot({ exitPopup }: { exitPopup?: TofyPopup } = {}) {
         aria-label={open ? "Tofy sohbetini kapat" : "Tofy’ye sor"}
         onClick={toggleOpen}
       >
-        <AvcaiMark talking={talking} listening={listening} />
-        <b>Tofy</b>
+        <TofyMark talking={talking} listening={listening} />
+        <span className="avcai-fab-copy">
+          <b>Tofy</b>
+          <small>Asistan</small>
+        </span>
       </button>
     </div>
     </>

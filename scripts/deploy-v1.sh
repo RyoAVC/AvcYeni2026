@@ -3,6 +3,7 @@
 set -euo pipefail
 
 APP_DIR="/home/avccom/yeni/v1/app"
+ROOT_DIR="/home/avccom/yeni"
 NODE_BIN="/opt/node-v22.23.1-linux-x64/bin"
 export PATH="${NODE_BIN}:${PATH}"
 export NEXT_PUBLIC_BASE_PATH="/v1"
@@ -19,6 +20,8 @@ npm ci --include=dev
 export NODE_ENV="production"
 
 npx vinext build
+cp "${APP_DIR}/hosting/yeni-index.php" "${ROOT_DIR}/index.php"
+cp "${APP_DIR}/hosting/yeni.htaccess" "${ROOT_DIR}/.htaccess"
 systemctl restart avci-yeni-v1.service
 systemctl is-active avci-yeni-v1.service
 curl -sI -o /dev/null -w "local_v1:%{http_code}\n" --max-time 10 http://127.0.0.1:4120/v1 || true

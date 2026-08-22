@@ -2,12 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { HeaderCtaCluster } from "../header-cta-cluster";
 import { SiteBrand } from "../site-brand";
+import { TofyMark } from "../tofy-mark";
 import { loadSiteSettings } from "../site-settings.mjs";
 import { PACKAGE_SCOPE_DETAILS, packageScopeTitle } from "../package-scope-details";
 
 export const metadata: Metadata = {
-  title: "Demo Müşteri Portalı | Avcı E-Ticaret",
-  description: "AVC müşteri portalı görünümünü örnek verilerle inceleyin.",
+  title: "Demo Müşteri Paneli V2 | Avcı E-Ticaret",
+  description: "Avcı müşteri paneli görünümünü örnek işletme verisiyle inceleyin. Gerçek hesap veya parola içermez.",
   alternates: { canonical: "/demo-portal" },
   robots: { index: false, follow: false },
 };
@@ -26,6 +27,98 @@ const invoices = PACKAGE_SCOPE_DETAILS.map((item) => [
   item.salePrice,
 ]);
 
+const navItems = [
+  { id: "ozet", label: "Özet", active: true },
+  { id: "altyapi", label: "Altyapı", active: false },
+  { id: "tofy", label: "Tofy", active: false },
+  { id: "lisanslar", label: "Lisanslar", active: false },
+  { id: "erisim", label: "Erişimler", active: false },
+  { id: "destek", label: "Destek", active: false },
+] as const;
+
+const modules = [
+  { name: "E-Ticaret altyapısı", status: "Aktif", note: "Scale çerçevesi · örnek" },
+  { name: "Pazaryeri senkronu", status: "Kurulumda", note: "Trendyol / HB · örnek" },
+  { name: "Tofy Ajan V2", status: "Aktif", note: "Sepet ve öneri · örnek" },
+  { name: "Hosting & SSL", status: "Aktif", note: "Yenileme 2027 · örnek" },
+] as const;
+
+const accessLinks = [
+  { title: "Mağaza vitrini", text: "Müşteriye açık site", href: "https://basbitir.com", external: true },
+  { title: "Mağaza paneli", text: "Ürün, sipariş, stok", href: "#erisim", external: false },
+  { title: "Tofy konsolu", text: "Ajan ayarları", href: "#tofy", external: false },
+  { title: "Destek kaydı", text: "Talep ve yanıt", href: "#destek", external: false },
+] as const;
+
+const tofyCapabilities = [
+  { title: "Ürün önerisi", note: "Kategori ve stok bağlamı · örnek" },
+  { title: "Sepet yönlendirme", note: "Tek tık ekleme akışı · örnek" },
+  { title: "Çapraz satış", note: "Tamamlayıcı ürün · örnek" },
+  { title: "Politika güvenliği", note: "Uydurma fiyat yok · örnek" },
+] as const;
+
+const tofyStorePreview = [
+  { role: "visitor" as const, text: "Bu deri cüzdanın kahverengi rengi stokta mı?" },
+  { role: "tofy" as const, text: "Evet, stokta. Sepete eklemek veya benzer modellere bakmak ister misiniz?" },
+] as const;
+
+const tofyMetrics = [
+  { label: "Öneri tıklama", value: "%12,4", note: "örnek · son 7 gün" },
+  { label: "Sepete yönlendirme", value: "186", note: "örnek oturum" },
+  { label: "Tamamlayıcı ürün", value: "34", note: "örnek ekleme" },
+] as const;
+
+const tofyRecommendedProducts = [
+  { name: "Deri cüzdan", price: "1.890 ₺", tone: "wallet" },
+  { name: "Minimal kartlık", price: "890 ₺", tone: "card" },
+  { name: "El dikişi kemer", price: "1.450 ₺", tone: "belt" },
+  { name: "Mini sırt çantası", price: "2.680 ₺", tone: "bag" },
+  { name: "Anahtarlık seti", price: "420 ₺", tone: "key" },
+  { name: "Pasaport kılıfı", price: "760 ₺", tone: "cover" },
+] as const;
+
+function ProductThumb({ tone }: { tone: (typeof tofyRecommendedProducts)[number]["tone"] }) {
+  return (
+    <span className={`cp-product-thumb is-${tone}`} aria-hidden="true">
+      <svg viewBox="0 0 64 64" role="img" aria-hidden="true">
+        {tone === "wallet" ? (
+          <path fill="currentColor" d="M12 22h36a6 6 0 0 1 6 6v18a6 6 0 0 1-6 6H12a4 4 0 0 1-4-4V26a4 4 0 0 1 4-4zm30 10h8v8h-8a4 4 0 1 1 0-8z" />
+        ) : null}
+        {tone === "card" ? (
+          <rect x="14" y="18" width="36" height="28" rx="5" fill="currentColor" />
+        ) : null}
+        {tone === "belt" ? (
+          <path fill="currentColor" d="M10 30h44v8H10zm38-6 8 4-8 4z" />
+        ) : null}
+        {tone === "bag" ? (
+          <path fill="currentColor" d="M18 24h28l4 28H14zm10-8a8 8 0 0 1 16 0v6H28z" />
+        ) : null}
+        {tone === "key" ? (
+          <>
+            <circle cx="22" cy="24" r="8" fill="currentColor" />
+            <path fill="currentColor" d="M28 24h24v6H34v8h-6v-8h-6z" />
+          </>
+        ) : null}
+        {tone === "cover" ? (
+          <path fill="currentColor" d="M16 14h32a4 4 0 0 1 4 4v32a4 4 0 0 1-4 4H16a6 6 0 0 1-6-6V20a6 6 0 0 1 6-6z" />
+        ) : null}
+      </svg>
+    </span>
+  );
+}
+
+const projectMilestones = [
+  { label: "Teslim", value: "Tamamlandı", tone: "live" },
+  { label: "Eğitim", value: "Planlandı", tone: "pending" },
+  { label: "Tofy V2", value: "Aktif", tone: "live" },
+] as const;
+
+const nextSteps = [
+  "Tofy Ajan V2 öneri kurallarını kategori bazında netleştirin.",
+  "Pazaryeri stok eşlemesini canlıya alın.",
+  "Yenileme öncesi hosting ve SSL kontrol listesini tamamlayın.",
+] as const;
+
 export const dynamic = "force-dynamic";
 
 export default async function DemoPortalPage() {
@@ -33,20 +126,365 @@ export default async function DemoPortalPage() {
   if (!settings.demoPortalEnabled) {
     return (
       <main className="demo-portal-page">
-        <header className="demo-portal-header"><SiteBrand subtitle="DEMO PORTAL" /><div><span>KAPALI</span><HeaderCtaCluster><Link href="/">Ana sayfa</Link></HeaderCtaCluster></div></header>
-        <section className="demo-portal-hero" id="demo-ozeti"><div><span className="kicker">DEMO PORTAL</span><h1>Örnek portal<br /><em>şu anda kapalı.</em></h1><p>Yönetim bu vitrini kapattı. Gerçek lisans hesabınız varsa müşteri girişini kullanın.</p></div><aside><small>DURUM</small><strong>Kapalı</strong><span>örnek veri yok</span>{settings.customerLoginEnabled ? <Link className="button button-primary" href="/musteri-girisi">Müşteri girişi</Link> : <Link className="button button-primary" href="/">Ana sayfaya dön</Link>}</aside></section>
+        <header className="demo-portal-header">
+          <SiteBrand subtitle="DEMO PORTAL" />
+          <div>
+            <span>KAPALI</span>
+            <HeaderCtaCluster>
+              <Link href="/">Ana sayfa</Link>
+            </HeaderCtaCluster>
+          </div>
+        </header>
+        <section className="demo-portal-hero" id="demo-ozeti">
+          <div>
+            <span className="kicker">DEMO PORTAL</span>
+            <h1>
+              Örnek portal
+              <br />
+              <em>şu anda kapalı.</em>
+            </h1>
+            <p>Yönetim bu vitrini kapattı. Gerçek lisans hesabınız varsa müşteri girişini kullanın.</p>
+          </div>
+          <aside>
+            <small>DURUM</small>
+            <strong>Kapalı</strong>
+            <span>örnek veri yok</span>
+            {settings.customerLoginEnabled ? (
+              <Link className="button button-primary" href="/musteri-girisi">
+                Müşteri girişi
+              </Link>
+            ) : (
+              <Link className="button button-primary" href="/">
+                Ana sayfaya dön
+              </Link>
+            )}
+          </aside>
+        </section>
       </main>
     );
   }
 
   return (
-    <main className="demo-portal-page">
-      <a className="skip-link" href="#demo-ozeti">Demo özetine geç</a>
-      <header className="demo-portal-header"><SiteBrand subtitle="DEMO PORTAL" /><div><span>ÖRNEK VERİ</span><HeaderCtaCluster><Link href="/musteri-girisi">Gerçek girişe dön</Link></HeaderCtaCluster></div></header>
-      <section className="demo-portal-hero" id="demo-ozeti"><div><span className="kicker">GÜVENLİ DEMO OTURUMU</span><h1>Portal görünümünü<br /><em>gerçek hesap olmadan</em> inceleyin.</h1><p>Bu ekran yalnız test amaçlı örnek veriler gösterir. Lisans satırları sitedeki Start / Scale / Enterprise çerçevesiyle aynıdır. Gerçek müşteri, lisans, fatura, parola veya ödeme bilgisi içermez.</p></div><aside><small>DEMO HESABI</small><strong>Örnek Yazılım Müşterisi</strong><span>Demo kullanıcı · salt görünüm</span><Link className="button button-primary" href="/musteri-girisi">Gerçek müşteri girişi</Link></aside></section>
-      <section className="demo-portal-stats" aria-label="Demo portal özeti"><article><small>Lisanslar</small><strong>{licenses.length}</strong><span>örnek kayıt</span></article><article><small>Fatura görünümü</small><strong>{invoices.length}</strong><span>örnek kalem</span></article><article><small>İşlem yetkisi</small><strong>Yok</strong><span>salt demo</span></article></section>
-      <section className="demo-portal-data"><div><span className="kicker">LİSANS GÖRÜNÜMÜ</span><h2>Örnek lisanslar</h2><p className="demo-portal-note">Start, Scale ve Enterprise — <Link href="/paketler">paket sayfasındaki</Link> örnek bantla aynı kaynak.</p><div className="demo-table-wrap"><table><caption className="visually-hidden">Demo hesaba ait örnek lisans kayıtları</caption><thead><tr><th scope="col">Ürün</th><th scope="col">Plan</th><th scope="col">Durum</th><th scope="col">Not</th></tr></thead><tbody>{licenses.map((row) => <tr key={row[1]}>{row.map((cell, index) => index === 0 ? <th scope="row" key={`${row[1]}-${index}`}>{cell}</th> : <td key={`${row[1]}-${index}`}>{cell}</td>)}</tr>)}</tbody></table></div></div><div><span className="kicker">FİNANSAL ÖZET</span><h2>Örnek fatura kalemleri</h2><p className="demo-portal-note">Tutarlar örnek banddır; tahsilat veya e-Fatura değildir.</p><div className="demo-table-wrap"><table><caption className="visually-hidden">Demo hesaba ait örnek fatura kalemleri</caption><thead><tr><th scope="col">Kayıt</th><th scope="col">Kapsam</th><th scope="col">Durum</th><th scope="col">Not</th></tr></thead><tbody>{invoices.map((row) => <tr key={row[0]}>{row.map((cell, index) => index === 0 ? <th scope="row" key={`${row[0]}-${index}`}>{cell}</th> : <td key={`${row[0]}-${index}`}>{cell}</td>)}</tr>)}</tbody></table></div></div></section>
-      <aside className="demo-portal-boundary"><strong>Demo sınırı</strong><p>Bu sayfa oturum açma, kayıt değiştirme, ödeme, indirme veya müşteri verisine erişim işlevi sunmaz. Paket adları tanıtım sitesindeki çerçeveden gelir; yönetimdeki gerçek müşteri kaydı burada görünmez. Gerçek portal erişimi yalnız onaylı müşteri hesabıyla yapılır.</p></aside>
+    <main className="demo-portal-page cp-page">
+      <a className="skip-link" href="#demo-ozeti">
+        Demo özetine geç
+      </a>
+
+      <div className="cp-shell">
+        <aside className="cp-sidebar" aria-label="Müşteri paneli menüsü">
+          <SiteBrand href="/demo-portal" subtitle="MÜŞTERİ PANELİ" label="Demo müşteri paneli" />
+          <p className="cp-sidebar-badge">ÖRNEK VERİ · salt demo</p>
+          <nav aria-label="Panel bölümleri">
+            {navItems.map((item, index) => (
+              <a className={item.active ? "active" : undefined} href={`#${item.id}`} key={item.id}>
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                {item.label}
+              </a>
+            ))}
+          </nav>
+          <div className="cp-sidebar-foot">
+            <small>GÜVENLİ DEMO OTURUMU</small>
+            <strong>Örnek Yazılım Müşterisi</strong>
+            <Link href="/musteri-girisi">Gerçek müşteri girişi</Link>
+          </div>
+        </aside>
+
+        <div className="cp-main">
+          <header className="cp-topbar">
+            <div className="cp-topbar-copy">
+              <div className="cp-topbar-meta">
+                <span className="kicker">AVCI MÜŞTERİ PANELİ V2</span>
+                <span className="cp-account-chip">Murat Bey · örnek hesap</span>
+              </div>
+              <h1 id="demo-ozeti">
+                BasBitir Atölyesi
+                <em>örnek işletme görünümü</em>
+              </h1>
+              <p>
+                Bu ekran yalnız test amaçlı örnek veriler gösterir. Gerçek müşteri, lisans, fatura, parola veya ödeme
+                bilgisi içermez.
+              </p>
+            </div>
+            <div className="cp-topbar-actions">
+              <Link className="button button-ghost" href="/musteri-merkezi">
+                Portal kapsamı
+              </Link>
+              <Link className="button button-primary" href="/musteri-girisi">
+                Gerçek müşteri girişi
+              </Link>
+            </div>
+          </header>
+
+          <div className="cp-workspace" aria-label="Örnek site özeti">
+            <div>
+              <small>MAĞAZA ADRESİ</small>
+              <strong>basbitir.com</strong>
+              <span>örnek müşteri vitrini</span>
+            </div>
+            <div>
+              <small>ALTYAPI</small>
+              <strong>Scale</strong>
+              <span>örnek paket çerçevesi</span>
+            </div>
+            <div>
+              <small>DESTEK</small>
+              <strong>Açık değil</strong>
+              <span>demo · salt okunur</span>
+            </div>
+          </div>
+
+          <ul className="cp-milestones" aria-label="Proje durumu">
+            {projectMilestones.map((item) => (
+              <li className={item.tone === "live" ? "is-live" : undefined} key={item.label}>
+                <span>{item.label}</span>
+                <strong>{item.value}</strong>
+              </li>
+            ))}
+          </ul>
+
+          <section className="cp-stats" aria-label="Demo portal özeti" id="ozet">
+            <article>
+              <small>Proje</small>
+              <strong>Canlı</strong>
+              <span>teslim sonrası · örnek</span>
+            </article>
+            <article>
+              <small>Lisanslar</small>
+              <strong>{licenses.length}</strong>
+              <span>örnek kayıt</span>
+            </article>
+            <article>
+              <small>Tofy</small>
+              <strong>V2</strong>
+              <span>ajan aktif · örnek</span>
+            </article>
+            <article>
+              <small>İşlem yetkisi</small>
+              <strong>Yok</strong>
+              <span>salt demo</span>
+            </article>
+          </section>
+
+          <section className="cp-grid" id="altyapi">
+            <article className="cp-card cp-card-wide cp-card-featured" id="tofy">
+              <div className="cp-tofy-showcase">
+                <div className="cp-tofy-visual">
+                  <div className="cp-tofy-mark-wrap" aria-hidden="true">
+                    <TofyMark className="cp-tofy-mark" />
+                  </div>
+                  <div className="cp-tofy-mark-copy">
+                    <strong>Tofy Ajan V2</strong>
+                    <span>BasBitir vitrininde · örnek modül</span>
+                  </div>
+                  <div className="cp-tofy-preview" aria-label="Mağazada örnek Tofy diyaloğu">
+                    <small>MAĞAZADA GÖRÜNÜM</small>
+                    {tofyStorePreview.map((line) => (
+                      <p className={line.role === "tofy" ? "is-tofy" : undefined} key={line.text}>
+                        {line.role === "tofy" ? <TofyMark className="cp-tofy-preview-mark" /> : null}
+                        <span>{line.text}</span>
+                      </p>
+                    ))}
+                  </div>
+                </div>
+                <div className="cp-tofy-body">
+                  <div className="cp-card-head">
+                    <span className="kicker">TOFY AJAN V2</span>
+                    <b className="cp-pill is-live">Aktif · örnek</b>
+                  </div>
+                  <h2>Mağazada satış asistanı</h2>
+                  <p>
+                    Tofy Ajan V2, müşterinin vitrininde ürün önerir, sepete ekleme yolunu gösterir ve çapraz satış
+                    önerisi üretir. Avcı’nın kendi tanıtım asistanından ayrıdır; satılan bir mağaza modülüdür.
+                  </p>
+                  <ul className="cp-tofy-capabilities" aria-label="Tofy modül yetenekleri">
+                    {tofyCapabilities.map((item) => (
+                      <li key={item.title}>
+                        <strong>{item.title}</strong>
+                        <span>{item.note}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="cp-metric-strip" aria-label="Tofy örnek metrikleri">
+                    {tofyMetrics.map((item) => (
+                      <div key={item.label}>
+                        <small>{item.label}</small>
+                        <strong>{item.value}</strong>
+                        <span>{item.note}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="cp-card-actions">
+                    <Link href="/yapay-zeka">AI modül kataloğu</Link>
+                    <Link href="/avcai">Tofy tanıtımını aç</Link>
+                  </div>
+                </div>
+              </div>
+              <section className="cp-tofy-picks" aria-label="Tofy'nin önerdiği ürünler örnek">
+                <div className="cp-tofy-picks-head">
+                  <TofyMark className="cp-tofy-picks-mark" />
+                  <div className="cp-tofy-picks-copy">
+                    <span className="kicker">AJAN ÖNERİSİ</span>
+                    <h3>Tofy&apos;nin Önerdiği Ürünler</h3>
+                    <p>
+                      Tofy Ajan V2, mağaza vitrininde ziyaretçiye bu ürünleri örnek bağlamda öne çıkarır. Gerçek
+                      fiyat mağaza kataloğundan gelir; burada salt demo görünümüdür.
+                    </p>
+                  </div>
+                  <b className="cp-pill is-live">Öneri aktif · örnek</b>
+                </div>
+                <ul className="cp-tofy-picks-grid">
+                  {tofyRecommendedProducts.map((item, index) => (
+                    <li className="cp-tofy-pick" key={item.name} style={{ animationDelay: `${index * 0.45}s` }}>
+                      <ProductThumb tone={item.tone} />
+                      <div className="cp-tofy-pick-meta">
+                        <strong>{item.name}</strong>
+                        <span className="cp-tofy-pick-price">{item.price}</span>
+                        <small>örnek vitrin</small>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            </article>
+
+            <article className="cp-card">
+              <div className="cp-card-head">
+                <span className="kicker">AKTİF MODÜLLER</span>
+              </div>
+              <h2>Altyapı özeti</h2>
+              <ul className="cp-module-list">
+                {modules.map((item) => (
+                  <li key={item.name}>
+                    <div>
+                      <strong>{item.name}</strong>
+                      <span>{item.note}</span>
+                    </div>
+                    <b className={item.status === "Aktif" ? "cp-pill is-live" : "cp-pill"}>{item.status}</b>
+                  </li>
+                ))}
+              </ul>
+            </article>
+
+            <article className="cp-card" id="erisim">
+              <div className="cp-card-head">
+                <span className="kicker">ERİŞİMLER</span>
+              </div>
+              <h2>Özel geçişler</h2>
+              <p className="cp-card-lead">Demo linkleridir; gerçek panel parolası burada yoktur.</p>
+              <ul className="cp-access-list">
+                {accessLinks.map((item) => (
+                  <li key={item.title}>
+                    {item.external ? (
+                      <a href={item.href} rel="noopener noreferrer" target="_blank">
+                        <strong>{item.title}</strong>
+                        <span>{item.text}</span>
+                      </a>
+                    ) : (
+                      <a href={item.href}>
+                        <strong>{item.title}</strong>
+                        <span>{item.text}</span>
+                      </a>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </article>
+
+            <article className="cp-card" id="destek">
+              <div className="cp-card-head">
+                <span className="kicker">SONRAKİ ADIMLAR</span>
+              </div>
+              <h2>Önerilen işler</h2>
+              <ol className="cp-steps">
+                {nextSteps.map((step) => (
+                  <li key={step}>{step}</li>
+                ))}
+              </ol>
+              <p className="cp-card-lead">Destek kaydı açma ve belge indirme bu demoda yoktur.</p>
+            </article>
+          </section>
+
+          <section className="demo-portal-data cp-data" id="lisanslar">
+            <div>
+              <span className="kicker">LİSANS GÖRÜNÜMÜ</span>
+              <h2>Örnek lisanslar</h2>
+              <p className="demo-portal-note">
+                Start, Scale ve Enterprise — <Link href="/paketler">paket sayfasındaki</Link> örnek bantla aynı kaynak.
+              </p>
+              <div className="demo-table-wrap">
+                <table>
+                  <caption className="visually-hidden">Demo hesaba ait örnek lisans kayıtları</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Ürün</th>
+                      <th scope="col">Plan</th>
+                      <th scope="col">Durum</th>
+                      <th scope="col">Not</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {licenses.map((row) => (
+                      <tr key={row[1]}>
+                        {row.map((cell, index) =>
+                          index === 0 ? (
+                            <th scope="row" key={`${row[1]}-${index}`}>
+                              {cell}
+                            </th>
+                          ) : (
+                            <td key={`${row[1]}-${index}`}>{cell}</td>
+                          ),
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div>
+              <span className="kicker">FİNANSAL ÖZET</span>
+              <h2>Örnek fatura kalemleri</h2>
+              <p className="demo-portal-note">Tutarlar örnek banddır; tahsilat veya e-Fatura değildir.</p>
+              <div className="demo-table-wrap">
+                <table>
+                  <caption className="visually-hidden">Demo hesaba ait örnek fatura kalemleri</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Kayıt</th>
+                      <th scope="col">Kapsam</th>
+                      <th scope="col">Durum</th>
+                      <th scope="col">Not</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {invoices.map((row) => (
+                      <tr key={row[0]}>
+                        {row.map((cell, index) =>
+                          index === 0 ? (
+                            <th scope="row" key={`${row[0]}-${index}`}>
+                              {cell}
+                            </th>
+                          ) : (
+                            <td key={`${row[0]}-${index}`}>{cell}</td>
+                          ),
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <aside className="demo-portal-boundary">
+            <strong>Demo sınırı</strong>
+            <p>
+              Bu sayfa oturum açma, kayıt değiştirme, ödeme, indirme veya müşteri verisine erişim işlevi sunmaz. Paket
+              adları tanıtım sitesindeki çerçeveden gelir; yönetimdeki gerçek müşteri kaydı burada görünmez. Gerçek
+              portal erişimi yalnız onaylı müşteri hesabıyla yapılır.
+            </p>
+          </aside>
+        </div>
+      </div>
     </main>
   );
 }

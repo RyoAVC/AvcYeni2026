@@ -269,3 +269,165 @@ export const siteAssets = sqliteTable("site_assets", {
   data: text("data").notNull(),
   updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
 });
+
+export const categories = sqliteTable(
+  "categories",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    name: text("name").notNull(),
+    slug: text("slug").notNull(),
+    parentId: integer("parent_id"),
+    description: text("description").notNull().default(""),
+    imageUrl: text("image_url").notNull().default(""),
+    sortOrder: integer("sort_order").notNull().default(0),
+    status: text("status").notNull().default("active"),
+    seoTitle: text("seo_title").notNull().default(""),
+    seoDescription: text("seo_description").notNull().default(""),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    uniqueIndex("idx_categories_slug").on(table.slug),
+    index("idx_categories_parent").on(table.parentId),
+    index("idx_categories_status_sort").on(table.status, table.sortOrder),
+  ],
+);
+
+export const brands = sqliteTable(
+  "brands",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    name: text("name").notNull(),
+    slug: text("slug").notNull(),
+    logoUrl: text("logo_url").notNull().default(""),
+    website: text("website").notNull().default(""),
+    description: text("description").notNull().default(""),
+    sortOrder: integer("sort_order").notNull().default(0),
+    status: text("status").notNull().default("active"),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    uniqueIndex("idx_brands_slug").on(table.slug),
+    index("idx_brands_status_sort").on(table.status, table.sortOrder),
+  ],
+);
+
+export const products = sqliteTable(
+  "products",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    name: text("name").notNull(),
+    slug: text("slug").notNull(),
+    sku: text("sku").notNull().default(""),
+    barcode: text("barcode").notNull().default(""),
+    categoryId: integer("category_id"),
+    brandId: integer("brand_id"),
+    shortDescription: text("short_description").notNull().default(""),
+    description: text("description").notNull().default(""),
+    price: integer("price").notNull().default(0),
+    discountedPrice: integer("discounted_price"),
+    costPrice: integer("cost_price").notNull().default(0),
+    vatRate: integer("vat_rate").notNull().default(20),
+    stock: integer("stock").notNull().default(0),
+    criticalStock: integer("critical_stock").notNull().default(5),
+    status: text("status").notNull().default("active"),
+    isFeatured: integer("is_featured").notNull().default(0),
+    images: text("images").notNull().default("[]"),
+    variants: text("variants").notNull().default("[]"),
+    seoTitle: text("seo_title").notNull().default(""),
+    seoDescription: text("seo_description").notNull().default(""),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    uniqueIndex("idx_products_slug").on(table.slug),
+    index("idx_products_sku").on(table.sku),
+    index("idx_products_category").on(table.categoryId),
+    index("idx_products_brand").on(table.brandId),
+    index("idx_products_status_featured").on(table.status, table.isFeatured),
+    index("idx_products_stock").on(table.stock),
+  ],
+);
+
+export const campaigns = sqliteTable(
+  "campaigns",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    name: text("name").notNull(),
+    type: text("type").notNull().default("percentage"),
+    discountValue: integer("discount_value").notNull().default(0),
+    minSpend: integer("min_spend").notNull().default(0),
+    targetType: text("target_type").notNull().default("all"),
+    targetId: integer("target_id"),
+    status: text("status").notNull().default("active"),
+    startsAt: text("starts_at").notNull().default(""),
+    endsAt: text("ends_at").notNull().default(""),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    index("idx_campaigns_status").on(table.status),
+    index("idx_campaigns_type").on(table.type),
+  ],
+);
+
+export const coupons = sqliteTable(
+  "coupons",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    code: text("code").notNull(),
+    type: text("type").notNull().default("percentage"),
+    discountValue: integer("discount_value").notNull().default(0),
+    minSpend: integer("min_spend").notNull().default(0),
+    maxDiscount: integer("max_discount").notNull().default(0),
+    usageLimit: integer("usage_limit").notNull().default(100),
+    usedCount: integer("used_count").notNull().default(0),
+    status: text("status").notNull().default("active"),
+    startsAt: text("starts_at").notNull().default(""),
+    endsAt: text("ends_at").notNull().default(""),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    uniqueIndex("idx_coupons_code").on(table.code),
+    index("idx_coupons_status").on(table.status),
+  ],
+);
+
+export const auditLogs = sqliteTable(
+  "audit_logs",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    userEmail: text("user_email").notNull(),
+    action: text("action").notNull(),
+    entity: text("entity").notNull(),
+    entityId: text("entity_id").notNull().default(""),
+    details: text("details").notNull().default(""),
+    ipAddress: text("ip_address").notNull().default(""),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    index("idx_audit_logs_user").on(table.userEmail, table.createdAt),
+    index("idx_audit_logs_entity").on(table.entity, table.entityId),
+    index("idx_audit_logs_created_at").on(table.createdAt),
+  ],
+);
+
+export const integrations = sqliteTable(
+  "integrations",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    providerKey: text("provider_key").notNull(),
+    category: text("category").notNull(),
+    name: text("name").notNull(),
+    status: text("status").notNull().default("passive"),
+    config: text("config").notNull().default("{}"),
+    lastSyncAt: text("last_sync_at").notNull().default(""),
+    updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    uniqueIndex("idx_integrations_provider_key").on(table.providerKey),
+    index("idx_integrations_category_status").on(table.category, table.status),
+  ],
+);

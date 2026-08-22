@@ -176,6 +176,13 @@
       "when": 1786880000000,
       "tag": "0024_customer_domains",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "6",
+      "when": 1787200000000,
+      "tag": "0025_ecommerce_core",
+      "breakpoints": true
     }
   ]
 }
