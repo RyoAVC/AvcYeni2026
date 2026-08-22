@@ -29,7 +29,7 @@ export NODE_ENV="production"
 echo "Building v2 with NEXT_PUBLIC_BASE_PATH=${NEXT_PUBLIC_BASE_PATH}"
 NEXT_PUBLIC_BASE_PATH="/v2" NEXT_PUBLIC_SITE_ORIGIN="https://yeni.avcieticaret.com" npx vinext build
 
-if ! grep -rq '/v2/assets/' dist/client 2>/dev/null; then
+if ! grep -rq '/v2/assets/' dist/server 2>/dev/null; then
   echo "v2 build artifact is missing /v2 asset prefix" >&2
   exit 1
 fi
