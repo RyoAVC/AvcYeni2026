@@ -76,6 +76,17 @@ if [ "${health_code}" != "200" ]; then
   exit 1
 fi
 
+preview_code="000"
+for attempt in 1 2 3 4 5; do
+  sleep 2
+  preview_code="$(curl -sI -o /dev/null -w "%{http_code}" --max-time 10 http://127.0.0.1:4121/v2/onizleme/musteri-portali-k7m2x9 || echo 000)"
+  echo "local_v2_preview_try_${attempt}:${preview_code}"
+  if [ "${preview_code}" = "303" ]; then
+    break
+  fi
+done
+echo "local_v2_preview:${preview_code}"
+
 public_code="$(curl -sI -o /dev/null -w "%{http_code}" --max-time 20 https://yeni.avcieticaret.com/v2/demo-portal || echo 000)"
 echo "public_v2_demo:${public_code}"
 if [ "${public_code}" != "200" ]; then

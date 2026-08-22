@@ -4,6 +4,7 @@ import { withBasePath } from "../../base-path";
 import {
   CUSTOMER_PORTAL_PREVIEW_EMAIL,
   canUseCustomerPortalPreview,
+  isLiveCustomerPortalPreviewHost,
 } from "../../customer-portal-preview.mjs";
 import {
   createCustomerSessionToken,
@@ -43,12 +44,18 @@ export async function GET(request: Request) {
   }
 
   const env = await readRuntimeEnv();
+  let liveHost = false;
+  try {
+    liveHost = isLiveCustomerPortalPreviewHost(new URL(request.url).hostname);
+  } catch {
+    liveHost = false;
+  }
 
   if (!canUseCustomerPortalPreview(request, env)) {
     return previewNotFound();
   }
 
-  const config = getCustomerPortalConfig(env);
+  const config = getCustomerPortalConfig(env, { liveHost });
   if (!config.ready) return previewNotFound();
 
   try {
