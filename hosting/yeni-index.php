@@ -57,6 +57,8 @@ if (!empty($_SERVER['REDIRECT_URL']) && strpos($uri, '/index.php') === 0) {
 
 [$backend, $forwardUri] = avciForwardUri($uri);
 $url = $backend . $forwardUri;
+header('X-Avc-Proxy-Backend: ' . $backend, false);
+header('X-Avc-Proxy-Uri: ' . $forwardUri, false);
 
 $headers = [];
 foreach (getallheaders() ?: [] as $name => $value) {
