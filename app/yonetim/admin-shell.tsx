@@ -83,6 +83,10 @@ const NAV_GROUPS: NavGroup[] = [
   },
 ];
 
+const SECTION_LABELS: Record<AdminSection, string> = Object.fromEntries(
+  NAV_GROUPS.flatMap((group) => group.items.map((item) => [item.id, item.label])),
+) as Record<AdminSection, string>;
+
 function NavIcon({ type }: { type: string }) {
   switch (type) {
     case "dashboard":
@@ -241,6 +245,7 @@ export function AdminShell({
 }) {
   return (
     <main className="admin-page admin-page-modern">
+      <input aria-hidden="true" className="admin-sidebar-toggle-input" id="admin-sidebar-toggle" type="checkbox" />
       <aside className="admin-sidebar admin-sidebar-modern">
         <div className="admin-sidebar-header">
           <SiteBrand href="/yonetim" label="Avcı E-Ticaret Yönetim Paneli" />
@@ -310,6 +315,9 @@ export function AdminShell({
 
       <div className="admin-content-wrap">
         <header className="admin-topbar">
+          <label aria-label="Kenar menüyü daralt veya genişlet" className="admin-sidebar-toggle" htmlFor="admin-sidebar-toggle" title="Kenar menüyü daralt">
+            <svg aria-hidden="true" fill="none" height="17" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="17"><path d="M4 6h16M4 12h16M4 18h16" /></svg>
+          </label>
           <details className="admin-mobile-menu">
             <summary aria-label="Yönetim menüsünü aç">☰</summary>
             <nav aria-label="Mobil yönetim menüsü">
@@ -320,6 +328,7 @@ export function AdminShell({
               ))}
             </nav>
           </details>
+          <div className="admin-breadcrumb"><span>Avcı Yönetim</span><b>/</b><strong>{SECTION_LABELS[current]}</strong></div>
           <div className="admin-topbar-search">
             <svg aria-hidden="true" fill="none" height="15" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="15">
               <circle cx="11" cy="11" r="8" /><line x1="21" x2="16.65" y1="21" y2="16.65" />
@@ -329,6 +338,7 @@ export function AdminShell({
           </div>
 
           <div className="admin-topbar-actions">
+            <span className="admin-live-pill"><i />CANLI</span>
             <Link className="admin-ai-badge" href="/avcai">
               <span className="admin-ai-sparkle">✨</span>
               <span>Avcı AI Asistan</span>

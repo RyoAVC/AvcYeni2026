@@ -117,6 +117,11 @@ export default async function ProviderDashboard() {
           </div>
         </header>
 
+        <div className="provider-command-strip">
+          <div><span className="provider-command-icon">A</span><span><strong>Avcı Commerce kontrol düzlemi</strong><small>Lisans, müşteri sistemi ve modül operasyonları tek merkezde</small></span></div>
+          <div className="provider-command-health"><span><i className="is-healthy" />D1 bağlı</span><span><i className="is-healthy" />Lisans servisi aktif</span><span><i className="is-healthy" />Canlı ortam</span></div>
+        </div>
+
         {!data ? (
           <div className="admin-card provider-empty-state">
             <h2>Veri bağlantısı kontrol ediliyor</h2>
@@ -125,10 +130,10 @@ export default async function ProviderDashboard() {
         ) : (
           <>
             <div className="admin-kpi-grid">
-              <ProviderMetric label="MÜŞTERİ PORTFÖYÜ" value={data.customers} detail={`${data.leads} toplam başvuru`} href="/yonetim/musteriler" />
-              <ProviderMetric label="LİSANS & HİZMET" value={data.assignments} detail={`${data.activeModules} aktif modül`} href="/yonetim/siparisler" />
-              <ProviderMetric label="DESTEK & SLA" value={data.openTickets} detail="açık veya bekleyen talep" href="/yonetim/destek" />
-              <ProviderMetric label="FATURA KAYITLARI" value={data.invoices} detail={`${data.activeIntegrations} aktif entegrasyon`} href="/yonetim/faturalar" />
+              <ProviderMetric icon="users" label="MÜŞTERİ PORTFÖYÜ" value={data.customers} detail={`${data.leads} toplam başvuru`} href="/yonetim/musteriler" tone="mint" />
+              <ProviderMetric icon="license" label="LİSANS & HİZMET" value={data.assignments} detail={`${data.activeModules} aktif modül`} href="/yonetim/siparisler" tone="cyan" />
+              <ProviderMetric icon="support" label="DESTEK & SLA" value={data.openTickets} detail="açık veya bekleyen talep" href="/yonetim/destek" tone="lime" />
+              <ProviderMetric icon="invoice" label="FATURA KAYITLARI" value={data.invoices} detail={`${data.activeIntegrations} katalog entegrasyonu`} href="/yonetim/faturalar" tone="ink" />
             </div>
 
             <div className="admin-toolbar">
@@ -139,6 +144,16 @@ export default async function ProviderDashboard() {
                 <Link className="admin-badge admin-badge--success" href="/yonetim/moduller">Eklenti & modüller</Link>
                 <Link className="admin-badge admin-badge--warning" href="/yonetim/entegrasyonlar">Entegrasyon kataloğu</Link>
               </div>
+            </div>
+
+            <div className="provider-overview-grid">
+              <div className="admin-card provider-operation-overview">
+                <div className="admin-card-header"><div><span className="kicker">OPERASYON DAĞILIMI</span><h2 className="admin-card-title">Platform özeti</h2></div><Link className="admin-card-action" href="/yonetim/raporlar">Raporu aç →</Link></div>
+                <DashboardBar label="Müşteri portföyü" value={data.customers} max={Math.max(data.customers, data.assignments, data.leads, 1)} />
+                <DashboardBar label="Lisans ve hizmet ataması" value={data.assignments} max={Math.max(data.customers, data.assignments, data.leads, 1)} />
+                <DashboardBar label="Teklif / başvuru" value={data.leads} max={Math.max(data.customers, data.assignments, data.leads, 1)} />
+              </div>
+              <div className="admin-card provider-focus-card"><span className="kicker">BUGÜNÜN ODAĞI</span><h2>Kontrol edilmesi gerekenler</h2><Link href="/yonetim/destek"><span>Açık destek kayıtları</span><strong>{data.openTickets}</strong></Link><Link href="/yonetim/basvurular"><span>Toplam teklif havuzu</span><strong>{data.leads}</strong></Link><Link href="/yonetim/entegrasyonlar"><span>Yayınlanan entegrasyonlar</span><strong>{data.activeIntegrations}</strong></Link></div>
             </div>
 
             <div className="admin-dashboard-row">
@@ -182,14 +197,18 @@ export default async function ProviderDashboard() {
   );
 }
 
-function ProviderMetric({ label, value, detail, href }: { label: string; value: string | number; detail: string; href: string }) {
+function ProviderMetric({ label, value, detail, href, icon, tone }: { label: string; value: string | number; detail: string; href: string; icon: string; tone: string }) {
   return (
-    <Link className="admin-kpi-card provider-metric" href={href}>
-      <div className="admin-kpi-head"><span className="admin-kpi-label">{label}</span></div>
+    <Link className={`admin-kpi-card provider-metric is-${tone}`} href={href}>
+      <div className="admin-kpi-head"><span className="provider-metric-icon" aria-hidden="true">{icon === "users" ? "M" : icon === "license" ? "L" : icon === "support" ? "S" : "F"}</span><span className="admin-kpi-label">{label}</span><span className="provider-metric-arrow">↗</span></div>
       <div className="admin-kpi-value">{value}</div>
       <div className="admin-kpi-footer"><span className="admin-kpi-subtext">{detail}</span></div>
     </Link>
   );
+}
+
+function DashboardBar({ label, value, max }: { label: string; value: number; max: number }) {
+  return <div className="provider-dashboard-bar"><div><span>{label}</span><strong>{value}</strong></div><i><b style={{ width: `${Math.max(4, Math.round((value / max) * 100))}%` }} /></i></div>;
 }
 
 function ProviderList({ title, action, href, children }: { title: string; action: string; href: string; children: React.ReactNode }) {
