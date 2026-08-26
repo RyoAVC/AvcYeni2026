@@ -204,6 +204,13 @@
       "when": 1787733364955,
       "tag": "0028_skinny_blue_shield",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "6",
+      "when": 1787736000000,
+      "tag": "0029_integration_catalog_seed",
+      "breakpoints": true
     }
   ]
 }
