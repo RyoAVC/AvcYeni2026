@@ -13,6 +13,7 @@ Environment=NEXT_PUBLIC_BASE_PATH=/v2
 Environment=NEXT_PUBLIC_SITE_ORIGIN=https://yeni.avcieticaret.com
 Environment=CUSTOMER_PORTAL_PREVIEW=1
 EnvironmentFile=-/home/avccom/yeni/hub-bridge.env
+EnvironmentFile=-/home/avccom/yeni/admin-runtime.env
 EnvironmentFile=-/home/avccom/yeni/v2/app/.dev.vars
 Environment=WRANGLER_LOG_PATH=/home/avccom/yeni/v2/app/.wrangler/wrangler.log
 ExecStart=/opt/node-v22.23.1-linux-x64/bin/node /home/avccom/yeni/v2/app/node_modules/vinext/dist/cli.js start -H 127.0.0.1 -p 4121

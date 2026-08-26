@@ -38,5 +38,17 @@ jobs:
             --exclude "*.zip" \
             ./ root@186.240.158.199:/home/avccom/yeni/v1/app/
 
+      - name: V2 yonetim sirlarini aktar
+        env:
+          ADMIN_LOGIN_EMAIL: ${{ secrets.V2_ADMIN_LOGIN_EMAIL }}
+          ADMIN_LOGIN_PASSWORD: ${{ secrets.V2_ADMIN_LOGIN_PASSWORD }}
+          ADMIN_SESSION_SECRET: ${{ secrets.V2_ADMIN_SESSION_SECRET }}
+        run: |
+          {
+            printf 'ADMIN_LOGIN_EMAIL=%s\n' "$ADMIN_LOGIN_EMAIL"
+            printf 'ADMIN_LOGIN_PASSWORD=%s\n' "$ADMIN_LOGIN_PASSWORD"
+            printf 'ADMIN_SESSION_SECRET=%s\n' "$ADMIN_SESSION_SECRET"
+          } | ssh root@186.240.158.199 "umask 077; mkdir -p /home/avccom/yeni; cat > /home/avccom/yeni/admin-runtime.env"
+
       - name: Derle ve servisi ac
         run: ssh root@186.240.158.199 "bash /home/avccom/yeni/v1/app/scripts/deploy-v1.sh"
