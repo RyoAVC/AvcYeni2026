@@ -1,0 +1,144 @@
+.provider-heading {
+  margin-bottom: 28px;
+}
+
+.provider-heading h1 {
+  margin: 8px 0 4px;
+  font-size: clamp(26px, 2.5vw, 38px);
+  letter-spacing: -0.04em;
+}
+
+.provider-heading p {
+  margin: 0;
+  color: var(--admin-text-muted);
+  font-size: 13px;
+}
+
+.provider-heading .admin-heading-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.provider-empty-state {
+  padding: 40px;
+}
+
+.provider-metric {
+  color: inherit;
+  text-decoration: none;
+}
+
+.provider-toolbar-label {
+  color: var(--admin-text-muted);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.provider-activity-list {
+  display: grid;
+}
+
+.provider-activity-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 15px 4px;
+  border-top: 1px solid var(--admin-border);
+  color: inherit;
+  text-decoration: none;
+}
+
+.provider-activity-row:hover {
+  background: color-mix(in srgb, var(--mint) 5%, transparent);
+}
+
+.provider-activity-row > span {
+  display: grid;
+  gap: 4px;
+}
+
+.provider-activity-row > span:last-child {
+  text-align: right;
+}
+
+.provider-activity-row strong {
+  font-size: 13px;
+}
+
+.provider-activity-row b {
+  color: var(--admin-accent);
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.provider-activity-row small {
+  color: var(--admin-text-muted);
+  font-size: 10px;
+}
+
+.provider-list-empty {
+  margin: 0;
+  padding: 24px;
+  color: var(--admin-text-muted);
+}
+
+.provider-architecture {
+  margin-top: 20px;
+}
+
+.provider-link-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  padding-top: 10px;
+}
+
+.provider-link-grid a {
+  display: grid;
+  gap: 6px;
+  padding: 18px;
+  border: 1px solid var(--admin-border);
+  border-radius: 14px;
+  background: var(--admin-surface);
+  color: inherit;
+  text-decoration: none;
+  transition: transform 160ms ease, border-color 160ms ease;
+}
+
+.provider-link-grid a:hover {
+  border-color: var(--mint);
+  transform: translateY(-2px);
+}
+
+.provider-link-grid strong {
+  font-size: 13px;
+}
+
+.provider-link-grid span {
+  color: var(--admin-text-muted);
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+@media (max-width: 980px) {
+  .provider-link-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .provider-heading .admin-heading-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .provider-activity-row {
+    align-items: flex-start;
+  }
+
+  .provider-link-grid {
+    grid-template-columns: 1fr;
+  }
+}

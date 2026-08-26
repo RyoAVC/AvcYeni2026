@@ -45,52 +45,37 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
-    groupTitle: "KATALOG & ENVANTER",
+    groupTitle: "ÜRÜNLEŞTİRME & LİSANSLAMA",
     items: [
-      { id: "urunler", label: "Ürünler", href: "/yonetim/urunler", icon: "box" },
-      { id: "kategoriler", label: "Kategoriler", href: "/yonetim/kategoriler", icon: "tags" },
-      { id: "markalar", label: "Markalar", href: "/yonetim/markalar", icon: "building" },
-      { id: "paketler", label: "E-Ticaret Paketleri", href: "/yonetim/paketler", icon: "layers" },
-      { id: "moduller", label: "Modül Kataloğu", href: "/yonetim/moduller", icon: "grid" },
+      { id: "paketler", label: "Altyapı Paketleri", href: "/yonetim/paketler", icon: "layers" },
+      { id: "moduller", label: "Eklenti & Modüller", href: "/yonetim/moduller", icon: "grid" },
+      { id: "entegrasyonlar", label: "Entegrasyon Kataloğu", href: "/yonetim/entegrasyonlar", icon: "zap" },
     ],
   },
   {
-    groupTitle: "SATIŞ & OPERASYON",
+    groupTitle: "MÜŞTERİ & TİCARİ OPERASYON",
     items: [
-      { id: "siparisler", label: "Siparişler", href: "/yonetim/siparisler", icon: "cart" },
       { id: "basvurular", label: "Teklif & Başvurular", href: "/yonetim/basvurular", icon: "inbox" },
-      { id: "faturalar", label: "Faturalar & Finans", href: "/yonetim/faturalar", icon: "receipt" },
-      { id: "destek", label: "Destek Talepleri", href: "/yonetim/destek", icon: "life-buoy" },
-    ],
-  },
-  {
-    groupTitle: "MÜŞTERİLER & CRM",
-    items: [
       { id: "musteriler", label: "Müşteri Portföyü", href: "/yonetim/musteriler", icon: "users" },
+      { id: "siparisler", label: "Lisans & Hizmet Atamaları", href: "/yonetim/siparisler", icon: "cart" },
+      { id: "faturalar", label: "Faturalar & Tahsilat", href: "/yonetim/faturalar", icon: "receipt" },
+      { id: "destek", label: "Destek & SLA", href: "/yonetim/destek", icon: "life-buoy" },
     ],
   },
   {
-    groupTitle: "PAZARLAMA & BÜYÜME",
+    groupTitle: "SAĞLAYICI GÖRÜNÜMÜ",
     items: [
-      { id: "kampanyalar", label: "Kampanyalar", href: "/yonetim/kampanyalar", icon: "sparkles" },
-      { id: "kuponlar", label: "İndirim Kuponları", href: "/yonetim/kuponlar", icon: "ticket" },
-      { id: "vitrin", label: "Vitrin Bildirimleri", href: "/yonetim/vitrin", icon: "bell" },
+      { id: "raporlar", label: "Gelir & Lisans Raporu", href: "/yonetim/raporlar", icon: "pie-chart" },
+      { id: "istatistik", label: "Avcı Site Trafiği", href: "/yonetim/istatistik", icon: "trending-up" },
+      { id: "vitrin", label: "Portal Bildirimleri", href: "/yonetim/vitrin", icon: "bell" },
     ],
   },
   {
-    groupTitle: "RAPORLAR & ANALİTİK",
+    groupTitle: "AVCI SİTESİ & SİSTEM",
     items: [
-      { id: "istatistik", label: "Trafik & Ziyaret", href: "/yonetim/istatistik", icon: "trending-up" },
-      { id: "raporlar", label: "Satış & Gelir Raporu", href: "/yonetim/raporlar", icon: "pie-chart" },
-    ],
-  },
-  {
-    groupTitle: "ENTEGRASYONLAR & SİSTEM",
-    items: [
-      { id: "entegrasyonlar", label: "Entegrasyon Merkezi", href: "/yonetim/entegrasyonlar", icon: "zap" },
-      { id: "editor", label: "Blok & Sayfa Editörü", href: "/yonetim/editor", icon: "layout" },
-      { id: "ayarlar", label: "Site & Logo Ayarları", href: "/yonetim/ayarlar", icon: "settings" },
-      { id: "loglar", label: "Sistem & Denetim Logları", href: "/yonetim/loglar", icon: "shield" },
+      { id: "editor", label: "Avcı Site İçerikleri", href: "/yonetim/editor", icon: "layout" },
+      { id: "ayarlar", label: "Marka & Sistem Ayarları", href: "/yonetim/ayarlar", icon: "settings" },
+      { id: "loglar", label: "Denetim Kayıtları", href: "/yonetim/loglar", icon: "shield" },
     ],
   },
 ];
@@ -292,7 +277,7 @@ export function AdminShell({
                   <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" x2="21" y1="14" y2="3" />
                 </svg>
               </span>
-              <span className="admin-nav-text">Canlı Mağazaya Git</span>
+              <span className="admin-nav-text">Avcı E-Ticaret Sitesi</span>
             </Link>
           </div>
         </nav>
@@ -326,7 +311,7 @@ export function AdminShell({
             <svg aria-hidden="true" fill="none" height="15" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="15">
               <circle cx="11" cy="11" r="8" /><line x1="21" x2="16.65" y1="21" y2="16.65" />
             </svg>
-            <input placeholder="Hızlı ara: Ürün, sipariş, müşteri, teklif..." type="search" />
+            <input placeholder="Müşteri, teklif, lisans veya modül ara..." type="search" />
             <kbd>⌘K</kbd>
           </div>
 
@@ -336,11 +321,11 @@ export function AdminShell({
               <span>Avcı AI Asistan</span>
             </Link>
 
-            <Link className="admin-quick-add-btn" href="/yonetim/urunler/yeni">
+            <Link className="admin-quick-add-btn" href="/yonetim/musteriler/yeni">
               <svg aria-hidden="true" fill="none" height="14" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" viewBox="0 0 24 24" width="14">
                 <line x1="12" x2="12" y1="5" y2="19" /><line x1="5" x2="19" y1="12" y2="12" />
               </svg>
-              <span>Yeni Ürün</span>
+              <span>Yeni Müşteri</span>
             </Link>
           </div>
         </header>

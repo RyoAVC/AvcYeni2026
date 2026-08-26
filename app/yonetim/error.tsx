@@ -7,19 +7,14 @@ import "./error-panel.css";
 
 const sections = [
   ["Kontrol Merkezi", "/yonetim"],
-  ["Ürünler", "/yonetim/urunler"],
-  ["Kategoriler", "/yonetim/kategoriler"],
-  ["Markalar", "/yonetim/markalar"],
-  ["Paketler", "/yonetim/paketler"],
-  ["Modüller", "/yonetim/moduller"],
-  ["Siparişler", "/yonetim/siparisler"],
+  ["Altyapı Paketleri", "/yonetim/paketler"],
+  ["Eklenti & Modüller", "/yonetim/moduller"],
+  ["Lisans Atamaları", "/yonetim/siparisler"],
   ["Başvurular", "/yonetim/basvurular"],
   ["Faturalar", "/yonetim/faturalar"],
   ["Destek", "/yonetim/destek"],
   ["Müşteriler", "/yonetim/musteriler"],
-  ["Kampanyalar", "/yonetim/kampanyalar"],
-  ["Kuponlar", "/yonetim/kuponlar"],
-  ["Raporlar", "/yonetim/raporlar"],
+  ["Gelir & Lisans Raporu", "/yonetim/raporlar"],
   ["Entegrasyonlar", "/yonetim/entegrasyonlar"],
   ["Site Ayarları", "/yonetim/ayarlar"],
 ] as const;
