@@ -1,228 +1,76 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { asc, desc, eq, sql } from "drizzle-orm";
-import { brands, categories, customers, products, softwareOrders } from "../../../db/schema";
+import { desc, eq, ne, sql } from "drizzle-orm";
+import { customers, integrations, modules, softwareInvoices, softwareOrders, supportTickets } from "../../../db/schema";
 import { chatGPTSignOutPath } from "../../chatgpt-auth";
 import { requireAdminUser } from "../../admin-auth";
 import { AdminShell } from "../admin-shell";
+import "./reports.css";
 
 export const dynamic = "force-dynamic";
+export const metadata: Metadata = { title: "Sağlayıcı Raporları | Avcı E-Ticaret", robots: { index: false, follow: false } };
 
-export const metadata: Metadata = {
-  title: "Raporlar & Analitik | Avcı E-Ticaret",
-  robots: { index: false, follow: false },
-};
-
-function formatPrice(cents: number) {
-  return new Intl.NumberFormat("tr-TR", {
-    style: "currency",
-    currency: "TRY",
-    maximumFractionDigits: 0,
-  }).format(cents);
-}
+const formatDate = (value: string) => new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium", timeZone: "Europe/Istanbul" }).format(new Date(value));
+const statusLabel: Record<string, string> = { active: "Aktif", draft: "Taslak", planned: "Planlandı", setup: "Kurulumda", paused: "Duraklatıldı", expired: "Süresi doldu", paid: "Ödendi", pending: "Bekliyor", overdue: "Gecikmiş", cancelled: "İptal", open: "Açık", waiting: "Beklemede", closed: "Kapalı" };
 
 export default async function ReportsPage() {
   const admin = await requireAdminUser("/yonetim/raporlar");
-  if (!admin.authorized || !admin.user) {
-    return (
-      <main className="admin-access-page">
-        <section>
-          <span className="admin-lock" aria-hidden="true">×</span>
-          <span className="kicker kicker-light">YETKİLİ ERİŞİMİ</span>
-          <h1>Bu hesap raporları göremez.</h1>
-          <p>Giriş yaptığınız <strong>{admin.user?.email}</strong> adresi yetkili izin listesinde bulunmuyor.</p>
-          <div>
-            <Link className="button button-primary" href="/">Ana sayfaya dön</Link>
-            <a className="button button-ghost" href={chatGPTSignOutPath("/yonetim/raporlar")}>Farklı hesapla giriş yap</a>
-          </div>
-        </section>
-      </main>
-    );
-  }
+  if (!admin.authorized || !admin.user) return <main className="admin-access-page"><section><span className="admin-lock" aria-hidden="true">×</span><span className="kicker kicker-light">YETKİLİ ERİŞİMİ</span><h1>Bu hesap raporları göremez.</h1><p>Giriş yaptığınız <strong>{admin.user?.email}</strong> adresi yetkili izin listesinde bulunmuyor.</p><div><Link className="button button-primary" href="/">Ana sayfaya dön</Link><a className="button button-ghost" href={chatGPTSignOutPath("/yonetim/raporlar")}>Farklı hesapla giriş yap</a></div></section></main>;
 
   const { getDb } = await import("../../../db");
   const db = getDb();
-
-  const [
-    totalProductsRow,
-    totalStockValuationRow,
-    categoryBreakdown,
-    recentProducts,
-    totalOrdersRow,
-    totalRevenueRow,
-    activeCustomersRow,
-  ] = await Promise.all([
-    db.select({ count: sql<number>`count(*)` }).from(products),
-    db.select({ totalValue: sql<number>`sum(${products.price} * ${products.stock})` }).from(products),
-    db
-      .select({
-        categoryName: categories.name,
-        productCount: sql<number>`count(${products.id})`,
-        stockSum: sql<number>`sum(${products.stock})`,
-      })
-      .from(categories)
-      .leftJoin(products, eq(categories.id, products.categoryId))
-      .groupBy(categories.id, categories.name)
-      .orderBy(desc(sql`count(${products.id})`)),
-    db
-      .select({
-        id: products.id,
-        name: products.name,
-        price: products.price,
-        stock: products.stock,
-        categoryName: categories.name,
-      })
-      .from(products)
-      .leftJoin(categories, eq(products.categoryId, categories.id))
-      .orderBy(desc(products.price))
-      .limit(8),
-    db.select({ count: sql<number>`count(*)` }).from(softwareOrders),
-    db.select({ count: sql<number>`count(*)` }).from(softwareOrders).where(eq(softwareOrders.status, "active")),
-    db.select({ count: sql<number>`count(*)` }).from(customers),
+  const [customerRows, orderRows, invoiceRows, ticketRows, activeModulesRow, activeIntegrationsRow, recentInvoices] = await Promise.all([
+    db.select({ status: customers.status, count: sql<number>`count(*)` }).from(customers).groupBy(customers.status),
+    db.select({ status: softwareOrders.status, count: sql<number>`count(*)` }).from(softwareOrders).groupBy(softwareOrders.status),
+    db.select({ status: softwareInvoices.status, count: sql<number>`count(*)` }).from(softwareInvoices).groupBy(softwareInvoices.status),
+    db.select({ status: supportTickets.status, count: sql<number>`count(*)` }).from(supportTickets).groupBy(supportTickets.status),
+    db.select({ count: sql<number>`count(*)` }).from(modules).where(eq(modules.status, "active")),
+    db.select({ count: sql<number>`count(*)` }).from(integrations).where(eq(integrations.status, "active")),
+    db.select({ id: softwareInvoices.id, title: softwareInvoices.title, amountNote: softwareInvoices.amountNote, status: softwareInvoices.status, createdAt: softwareInvoices.createdAt, customer: customers.company }).from(softwareInvoices).leftJoin(customers, eq(softwareInvoices.customerId, customers.id)).orderBy(desc(softwareInvoices.createdAt)).limit(7),
   ]);
 
-  const totalProducts = Number(totalProductsRow[0]?.count ?? 0);
-  const totalStockValuation = Number(totalStockValuationRow[0]?.totalValue ?? 0);
-  const totalOrders = Number(totalOrdersRow[0]?.count ?? 0);
-  const activeOrders = Number(totalRevenueRow[0]?.count ?? 0);
-  const activeCustomers = Number(activeCustomersRow[0]?.count ?? 0);
-  const avgOrderValue = totalOrders > 0 ? totalStockValuation / (totalProducts || 1) : 0;
+  const sum = (rows: Array<{ count: number }>) => rows.reduce((total, row) => total + Number(row.count || 0), 0);
+  const countStatus = (rows: Array<{ status: string; count: number }>, status: string) => Number(rows.find((row) => row.status === status)?.count || 0);
+  const customerTotal = sum(customerRows);
+  const activeCustomers = countStatus(customerRows, "active");
+  const assignmentTotal = sum(orderRows);
+  const activeAssignments = countStatus(orderRows, "active");
+  const invoiceTotal = sum(invoiceRows);
+  const pendingInvoices = invoiceRows.filter((row) => !["paid", "cancelled"].includes(row.status)).reduce((total, row) => total + Number(row.count), 0);
+  const openTickets = ticketRows.filter((row) => row.status !== "closed").reduce((total, row) => total + Number(row.count), 0);
+  const catalogTotal = Number(activeModulesRow[0]?.count || 0) + Number(activeIntegrationsRow[0]?.count || 0);
+  const assignmentRate = assignmentTotal ? Math.round((activeAssignments / assignmentTotal) * 100) : 0;
+  const customerRate = customerTotal ? Math.round((activeCustomers / customerTotal) * 100) : 0;
 
-  return (
-    <AdminShell current="raporlar" displayName={admin.user.displayName}>
-      <section className="admin-main">
-        <header className="admin-heading" style={{ marginBottom: "24px" }}>
-          <div>
-            <span className="kicker">FİNANS VE ANALİTİK</span>
-            <h1 style={{ fontSize: "clamp(24px, 2.5vw, 36px)", letterSpacing: "-0.04em", margin: "8px 0 4px" }}>
-              Raporlar ve Performans Analitiği
-            </h1>
-            <p style={{ margin: 0, color: "var(--admin-text-muted)", fontSize: "13px" }}>
-              Ciro performansı, envanter değerlemesi, sipariş eğilimleri ve kategori metrikleri.
-            </p>
-          </div>
-          <div className="admin-heading-actions">
-            <button
-              className="admin-btn admin-btn-secondary"
-              onClick={undefined}
-              type="button"
-            >
-              📥 CSV Rapor İndir
-            </button>
-          </div>
-        </header>
+  return <AdminShell current="raporlar" displayName={admin.user.displayName}><section className="admin-main reports-page">
+    <header className="admin-heading reports-heading"><div><span className="kicker">SAĞLAYICI ANALİTİĞİ</span><h1>Gelir ve lisans görünümü</h1><p>Avcı E‑Ticaret müşteri portföyünü, lisans atamalarını, fatura durumlarını ve destek yükünü gerçek sistem kayıtlarıyla izleyin.</p></div><div className="admin-heading-actions"><Link className="admin-btn admin-btn-secondary" href="/yonetim/faturalar">Faturaları aç</Link><Link className="admin-btn admin-btn-primary" href="/yonetim/sistemler">Müşteri sistemleri</Link></div></header>
 
-        {/* Executive KPI Cards */}
-        <div className="admin-stats-grid" style={{ marginBottom: "24px" }}>
-          <div className="admin-stat-card">
-            <div className="admin-stat-top">
-              <span className="admin-stat-label">Aktif / İşlemdeki Siparişler</span>
-              <span className="admin-stat-badge admin-stat-badge--up">▲ %18.4</span>
-            </div>
-            <div className="admin-stat-val">{activeOrders} / {totalOrders}</div>
-            <div className="admin-stat-footer">Tamamlanan sipariş hacmi</div>
-          </div>
+    <aside className="reports-trust-strip"><span><i />D1 canlı verisi</span><p>Bu raporda tahmini ciro, sahte büyüme yüzdesi veya mağaza stok verisi kullanılmaz.</p><small>Son görünüm: {new Intl.DateTimeFormat("tr-TR", { dateStyle: "long", timeStyle: "short", timeZone: "Europe/Istanbul" }).format(new Date())}</small></aside>
 
-          <div className="admin-stat-card">
-            <div className="admin-stat-top">
-              <span className="admin-stat-label">Envanter Değeri</span>
-              <span className="admin-stat-badge admin-stat-badge--neutral">Stok</span>
-            </div>
-            <div className="admin-stat-val">{formatPrice(totalStockValuation)}</div>
-            <div className="admin-stat-footer">{totalProducts} kalem ürün stoğu</div>
-          </div>
+    <div className="admin-kpi-grid reports-kpi-grid">
+      <ReportMetric label="MÜŞTERİ PORTFÖYÜ" value={customerTotal} detail={`${activeCustomers} aktif müşteri`} rate={customerRate} tone="mint" />
+      <ReportMetric label="LİSANS & HİZMET" value={assignmentTotal} detail={`${activeAssignments} aktif atama`} rate={assignmentRate} tone="cyan" />
+      <ReportMetric label="BEKLEYEN FATURA" value={pendingInvoices} detail={`${invoiceTotal} toplam fatura kaydı`} tone="lime" />
+      <ReportMetric label="DESTEK YÜKÜ" value={openTickets} detail="açık veya bekleyen talep" tone="ink" />
+    </div>
 
-          <div className="admin-stat-card">
-            <div className="admin-stat-top">
-              <span className="admin-stat-label">Ort. Sepet Tutarı (AOV)</span>
-              <span className="admin-stat-badge admin-stat-badge--up">▲ %6.2</span>
-            </div>
-            <div className="admin-stat-val">{formatPrice(avgOrderValue)}</div>
-            <div className="admin-stat-footer">Sipariş başına gelir</div>
-          </div>
+    <div className="reports-main-grid">
+      <section className="admin-card reports-distribution"><div className="admin-card-header"><div><span className="kicker">LİSANS DAĞILIMI</span><h2 className="admin-card-title">Atama sağlığı</h2><p className="admin-card-subtitle">Paket ve modül atamalarının mevcut durum dağılımı</p></div><strong>{assignmentRate}%<small>aktiflik</small></strong></div><StatusBars rows={orderRows} total={assignmentTotal} /></section>
+      <section className="admin-card reports-catalog"><div className="admin-card-header"><div><span className="kicker">ÜRÜN KATALOĞU</span><h2 className="admin-card-title">Yayınlanan yetenekler</h2></div></div><div><Link href="/yonetim/moduller"><span>Aktif modüller</span><strong>{Number(activeModulesRow[0]?.count || 0)}</strong></Link><Link href="/yonetim/entegrasyonlar"><span>Yayınlanan entegrasyonlar</span><strong>{Number(activeIntegrationsRow[0]?.count || 0)}</strong></Link><Link href="/yonetim/siparisler"><span>Toplam lisans ataması</span><strong>{assignmentTotal}</strong></Link></div><footer><span>Toplam yayınlanan katalog</span><strong>{catalogTotal}</strong></footer></section>
+    </div>
 
-          <div className="admin-stat-card">
-            <div className="admin-stat-top">
-              <span className="admin-stat-label">Kayıtlı Müşteri Portföyü</span>
-              <span className="admin-stat-badge admin-stat-badge--neutral">B2B/B2C</span>
-            </div>
-            <div className="admin-stat-val">{activeCustomers}</div>
-            <div className="admin-stat-footer">Aktif kurumsal müşteri</div>
-          </div>
-        </div>
+    <div className="reports-secondary-grid">
+      <section className="admin-card"><div className="admin-card-header"><div><h2 className="admin-card-title">Fatura durumları</h2><p className="admin-card-subtitle">Tahsilat kayıtlarının operasyonel dağılımı</p></div><Link className="admin-card-action" href="/yonetim/faturalar">Tümünü aç →</Link></div><StatusBars rows={invoiceRows} total={invoiceTotal} /></section>
+      <section className="admin-card reports-invoices"><div className="admin-card-header"><div><h2 className="admin-card-title">Son fatura kayıtları</h2><p className="admin-card-subtitle">En son oluşturulan müşteri faturaları</p></div></div>{recentInvoices.length ? <div>{recentInvoices.map((invoice) => <Link href={`/yonetim/faturalar/${invoice.id}`} key={invoice.id}><span><strong>{invoice.customer || "Müşteri kaydı"}</strong><small>{invoice.title} · {formatDate(invoice.createdAt)}</small></span><span><b className={`report-status is-${invoice.status}`}>{statusLabel[invoice.status] || invoice.status}</b><small>{invoice.amountNote || "Tutar belirtilmedi"}</small></span></Link>)}</div> : <p className="reports-empty">Henüz fatura kaydı bulunmuyor.</p>}</section>
+    </div>
+  </section></AdminShell>;
+}
 
-        {/* Breakdown Charts Grid */}
-        <div style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr", gap: "20px", marginBottom: "24px" }}>
-          {/* Category Performance Breakdown */}
-          <div className="admin-card">
-            <div className="admin-card-header">
-              <h3 className="admin-card-title">Kategori Dağılımı ve Envanter Hacmi</h3>
-            </div>
-            <div style={{ display: "grid", gap: "14px" }}>
-              {categoryBreakdown.map((cat, idx) => {
-                const pCount = Number(cat.productCount || 0);
-                const percentage = totalProducts > 0 ? Math.round((pCount / totalProducts) * 100) : 0;
-                return (
-                  <div key={cat.categoryName || idx}>
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12.5px", marginBottom: "4px" }}>
-                      <strong>{cat.categoryName || "Kategorisiz"}</strong>
-                      <span style={{ color: "var(--admin-text-muted)" }}>
-                        {pCount} ürün ({percentage}%)
-                      </span>
-                    </div>
-                    <div style={{ height: "6px", background: "#f1f5f9", borderRadius: "99px", overflow: "hidden" }}>
-                      <div
-                        style={{
-                          height: "100%",
-                          width: `${Math.max(percentage, 4)}%`,
-                          background: idx === 0 ? "var(--admin-accent)" : idx === 1 ? "#3b82f6" : "#6366f1",
-                          borderRadius: "99px",
-                        }}
-                      />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+function ReportMetric({ label, value, detail, rate, tone }: { label: string; value: number; detail: string; rate?: number; tone: string }) {
+  return <article className={`admin-kpi-card report-metric is-${tone}`}><header><span>{label}</span>{typeof rate === "number" && <b>{rate}% aktif</b>}</header><strong>{value}</strong><p>{detail}</p><i><b style={{ width: `${typeof rate === "number" ? Math.max(3, rate) : 100}%` }} /></i></article>;
+}
 
-          {/* High Valuation Catalog items */}
-          <div className="admin-card">
-            <div className="admin-card-header">
-              <h3 className="admin-card-title">Katalog Değeri En Yüksek Ürünler</h3>
-            </div>
-            <div style={{ display: "grid", gap: "10px" }}>
-              {recentProducts.map((p) => (
-                <div
-                  key={p.id}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    padding: "8px 0",
-                    borderBottom: "1px solid var(--admin-border-subtle)",
-                  }}
-                >
-                  <div>
-                    <Link
-                      href={`/yonetim/urunler/${p.id}`}
-                      style={{ fontSize: "12.5px", fontWeight: 700, color: "var(--admin-text-main)", display: "block" }}
-                    >
-                      {p.name}
-                    </Link>
-                    <span style={{ fontSize: "11px", color: "var(--admin-text-muted)" }}>
-                      {p.categoryName || "Kategorisiz"} · {p.stock} stok
-                    </span>
-                  </div>
-                  <strong style={{ fontSize: "13px", color: "var(--admin-accent)" }}>
-                    {formatPrice(p.price)}
-                  </strong>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-    </AdminShell>
-  );
+function StatusBars({ rows, total }: { rows: Array<{ status: string; count: number }>; total: number }) {
+  if (!rows.length) return <p className="reports-empty">Henüz raporlanacak kayıt bulunmuyor.</p>;
+  return <div className="report-status-bars">{rows.map((row) => { const count = Number(row.count || 0); const rate = total ? Math.round((count / total) * 100) : 0; return <div key={row.status}><header><span><i className={`is-${row.status}`} />{statusLabel[row.status] || row.status}</span><strong>{count}<small>{rate}%</small></strong></header><p><i style={{ width: `${Math.max(3, rate)}%` }} /></p></div>; })}</div>;
 }
