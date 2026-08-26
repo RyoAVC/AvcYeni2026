@@ -6,6 +6,7 @@ import { loadSiteLogoMetas, loadSiteSettings } from "../../site-settings.mjs";
 import { AdminShell } from "../admin-shell";
 import { LogoSettingsForm } from "./logo-form";
 import { SettingsForm } from "./settings-form";
+import "./settings-page.css";
 
 export const dynamic = "force-dynamic";
 
@@ -37,15 +38,15 @@ export default async function SiteSettingsPage() {
 
   return (
     <AdminShell current="ayarlar" displayName={admin.user.displayName}>
-      <section className="admin-main">
+      <section className="admin-main admin-settings-page">
         <header className="admin-heading">
           <div>
-            <span className="kicker">AVCI YÖNETİM</span>
-            <h1>Genel ve site ayarları</h1>
+            <span className="kicker">AVCI E-TİCARET SİSTEM AYARLARI</span>
+            <h1>Marka ve platform ayarları</h1>
             <Link className="admin-back-link" href="/yonetim">Panele dön</Link>
           </div>
           <div className="admin-heading-actions">
-            <p>İletişim, kanal, genel tasarım, logo ve Tofy çıkış penceresi. Mağaza stoğu / kasa ayarı değil. Parola veya lisans anahtarı buraya yazılmaz. Hero metinleri için Editör’ü kullanın.</p>
+            <p>Avcı’nın ana sitesi, kurumsal kimliği ve genel kanalları. Müşteri lisansı, domain ve ücretli modüller Müşteri Sistemleri alanından yönetilir.</p>
           </div>
         </header>
         <SettingsForm initial={settings} />

@@ -11,6 +11,7 @@ export type AdminSection =
   | "basvurular"
   | "faturalar"
   | "musteriler"
+  | "sistemler"
   | "kampanyalar"
   | "kuponlar"
   | "istatistik"
@@ -57,6 +58,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { id: "basvurular", label: "Teklif & Başvurular", href: "/yonetim/basvurular", icon: "inbox" },
       { id: "musteriler", label: "Müşteri Portföyü", href: "/yonetim/musteriler", icon: "users" },
+      { id: "sistemler", label: "Müşteri Sistemleri", href: "/yonetim/sistemler", icon: "shield" },
       { id: "siparisler", label: "Lisans & Hizmet Atamaları", href: "/yonetim/siparisler", icon: "cart" },
       { id: "faturalar", label: "Faturalar & Tahsilat", href: "/yonetim/faturalar", icon: "receipt" },
       { id: "destek", label: "Destek & SLA", href: "/yonetim/destek", icon: "life-buoy" },

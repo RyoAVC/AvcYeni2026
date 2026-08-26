@@ -8,6 +8,7 @@ import { loadCustomerPortalSnapshot } from "../../../../customer-portal-data.mjs
 import { AdminShell } from "../../../admin-shell";
 import { PortalEditor } from "./portal-editor";
 import "./portal-admin.css";
+import "./portal-assignments.css";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Portal Ürünleşme | Avcı Yönetim", robots: { index: false, follow: false } };

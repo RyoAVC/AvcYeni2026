@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import {
   customerIntegrationInstances, customerModuleInstances, customerPortalDocuments, customerPortalProfiles, portalNotifications, tofyExperiments,
-  commerceLicenseInstallations,
+  commerceLicenseInstallations, integrations, modules,
 } from "../../../../../../db/schema";
 import { getAdminUser } from "../../../../../admin-auth";
 import { readAdminJsonObject, validateAdminMutationRequest } from "../../../../../admin-request.mjs";
@@ -17,6 +17,14 @@ const clamp = (value: unknown, min: number, max: number, fallback: number) => {
 };
 const text = (value: unknown, max = 240) => String(value ?? "").trim().slice(0, max);
 const json = (body: Record<string, unknown>, status = 200) => Response.json(body, { status, headers: { "Cache-Control": "no-store" } });
+
+function updateScopeList(raw: string, scope: string, enabled: boolean) {
+  let values: string[] = [];
+  try { const parsed = JSON.parse(raw || "[]"); if (Array.isArray(parsed)) values = parsed.map(String); } catch { values = []; }
+  const next = new Set(values);
+  if (enabled) next.add(scope); else next.delete(scope);
+  return JSON.stringify([...next].sort());
+}
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const admin = await getAdminUser();
@@ -79,15 +87,29 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     } else if (action === "module") {
       const moduleId = clamp(data.moduleId, 1, 1_000_000, 0);
       const status = STATUSES.has(String(data.status)) ? String(data.status) : "planned";
-      if (!moduleId) return json({ ok: false, error: "Modül seçin." }, 400);
-      await db.insert(customerModuleInstances).values({ customerId, moduleId, status, coverage: text(data.coverage, 160), note: text(data.note, 500), enabledAt: status === "active" ? now : "", updatedAt: now })
-        .onConflictDoUpdate({ target: [customerModuleInstances.customerId, customerModuleInstances.moduleId], set: { status, coverage: text(data.coverage, 160), note: text(data.note, 500), updatedAt: now } });
+      const targetDomain = normalizeCommerceDomain(data.targetDomain);
+      if (!moduleId || !targetDomain) return json({ ok: false, error: "Modül ve lisanslı domain seçin." }, 400);
+      const [[catalog], [license]] = await Promise.all([
+        db.select({ slug: modules.slug }).from(modules).where(eq(modules.id, moduleId)).limit(1),
+        db.select({ id: commerceLicenseInstallations.id, scopesJson: commerceLicenseInstallations.scopesJson }).from(commerceLicenseInstallations).where(and(eq(commerceLicenseInstallations.customerId, customerId), eq(commerceLicenseInstallations.primaryDomain, targetDomain))).limit(1),
+      ]);
+      if (!catalog || !license) return json({ ok: false, error: "Modül veya bu müşteriye ait lisanslı domain bulunamadı." }, 404);
+      await db.insert(customerModuleInstances).values({ customerId, moduleId, targetDomain, status, coverage: text(data.coverage, 160), note: text(data.note, 500), enabledAt: status === "active" ? now : "", updatedAt: now })
+        .onConflictDoUpdate({ target: [customerModuleInstances.customerId, customerModuleInstances.moduleId], set: { targetDomain, status, coverage: text(data.coverage, 160), note: text(data.note, 500), updatedAt: now } });
+      await db.update(commerceLicenseInstallations).set({ scopesJson: updateScopeList(license.scopesJson, `addon.${catalog.slug}`, status === "active"), updatedAt: now }).where(eq(commerceLicenseInstallations.id, license.id));
     } else if (action === "integration") {
       const integrationId = clamp(data.integrationId, 1, 1_000_000, 0);
       const status = STATUSES.has(String(data.status)) ? String(data.status) : "planned";
-      if (!integrationId) return json({ ok: false, error: "Entegrasyon seçin." }, 400);
-      const values = { status, setupProgress: clamp(data.setupProgress, 0, 100, 0), healthScore: clamp(data.healthScore, 0, 100, 0), lastErrorSummary: text(data.lastErrorSummary, 500), updatedAt: now };
+      const targetDomain = normalizeCommerceDomain(data.targetDomain);
+      if (!integrationId || !targetDomain) return json({ ok: false, error: "Entegrasyon ve lisanslı domain seçin." }, 400);
+      const [[catalog], [license]] = await Promise.all([
+        db.select({ providerKey: integrations.providerKey }).from(integrations).where(eq(integrations.id, integrationId)).limit(1),
+        db.select({ id: commerceLicenseInstallations.id, scopesJson: commerceLicenseInstallations.scopesJson }).from(commerceLicenseInstallations).where(and(eq(commerceLicenseInstallations.customerId, customerId), eq(commerceLicenseInstallations.primaryDomain, targetDomain))).limit(1),
+      ]);
+      if (!catalog || !license) return json({ ok: false, error: "Entegrasyon veya bu müşteriye ait lisanslı domain bulunamadı." }, 404);
+      const values = { targetDomain, status, setupProgress: clamp(data.setupProgress, 0, 100, 0), healthScore: clamp(data.healthScore, 0, 100, 0), lastErrorSummary: text(data.lastErrorSummary, 500), updatedAt: now };
       await db.insert(customerIntegrationInstances).values({ customerId, integrationId, ...values }).onConflictDoUpdate({ target: [customerIntegrationInstances.customerId, customerIntegrationInstances.integrationId], set: values });
+      await db.update(commerceLicenseInstallations).set({ scopesJson: updateScopeList(license.scopesJson, `integration.${catalog.providerKey}`, status === "active"), updatedAt: now }).where(eq(commerceLicenseInstallations.id, license.id));
     } else if (action === "notification") {
       const title = text(data.title, 120);
       if (!title) return json({ ok: false, error: "Bildirim başlığı gerekli." }, 400);

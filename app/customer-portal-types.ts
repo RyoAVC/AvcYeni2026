@@ -14,6 +14,7 @@ export interface PortalModuleInstance {
   id: number;
   key: string;
   name: string;
+  targetDomain: string;
   status: PortalInstanceStatus;
   coverage: string;
   enabledAt: string;
@@ -25,6 +26,7 @@ export interface PortalIntegrationInstance {
   id: number;
   providerKey: string;
   name: string;
+  targetDomain: string;
   category: string;
   status: PortalInstanceStatus;
   setupProgress: number;
