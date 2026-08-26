@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { withBasePath } from "../base-path";
 import { SiteBrand } from "../site-brand";
+import "./admin-modern.css";
 
 export type AdminSection =
   | "panel"
@@ -309,6 +310,16 @@ export function AdminShell({
 
       <div className="admin-content-wrap">
         <header className="admin-topbar">
+          <details className="admin-mobile-menu">
+            <summary aria-label="Yönetim menüsünü aç">☰</summary>
+            <nav aria-label="Mobil yönetim menüsü">
+              {NAV_GROUPS.flatMap((group) => group.items).map((item) => (
+                <Link className={current === item.id ? "active" : ""} href={item.href} key={item.id}>
+                  <NavIcon type={item.icon} /><span>{item.label}</span>
+                </Link>
+              ))}
+            </nav>
+          </details>
           <div className="admin-topbar-search">
             <svg aria-hidden="true" fill="none" height="15" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="15">
               <circle cx="11" cy="11" r="8" /><line x1="21" x2="16.65" y1="21" y2="16.65" />
