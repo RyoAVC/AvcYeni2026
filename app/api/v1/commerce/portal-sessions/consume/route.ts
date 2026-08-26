@@ -3,6 +3,7 @@ import { commercePortalLoginCodes, customers } from "../../../../../../db/schema
 import { withBasePath } from "../../../../../base-path";
 import { sha256 } from "../../../../../commerce-license-control-plane.mjs";
 import { createCustomerSessionToken, customerSessionCookie, getCustomerPortalConfig } from "../../../../../customer-session.mjs";
+import { readRuntimeEnv } from "../../../../../runtime-env.mjs";
 
 export const dynamic = "force-dynamic";
 
@@ -11,8 +12,8 @@ export async function GET(request: Request) {
   const failure = () => new Response(null, { status: 303, headers: { Location: new URL(withBasePath("/musteri-panel/giris?durum=hata"), request.url).toString(), "Cache-Control": "no-store" } });
   if (!code.startsWith("avc_portal_") || code.length > 128) return failure();
   try {
-    const [{ env }, { getDb }] = await Promise.all([import("cloudflare:workers"), import("../../../../../../db")]);
-    const config = getCustomerPortalConfig(env as Record<string, unknown>, { liveHost: true });
+    const [{ getDb }, env] = await Promise.all([import("../../../../../../db"), readRuntimeEnv()]);
+    const config = getCustomerPortalConfig(env, { liveHost: true });
     if (!config.ready) return failure();
     const db = getDb();
     const now = new Date().toISOString();

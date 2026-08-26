@@ -15,8 +15,7 @@ export async function POST(request: Request) {
   const domain = normalizeCommerceDomain(body.primary_domain);
   if (!activationToken.startsWith("avc_live_") || !validCommerceIdentifier(storeKey) || !validCommerceIdentifier(installationId) || !domain) return Response.json({ ok: false, code: "invalid_request" }, { status: 400 });
   try {
-    const [{ env }, { getDb }, { ensureCommerceLicenseTables }] = await Promise.all([import("cloudflare:workers"), import("../../../../../db"), import("../../../../local-d1-schema.mjs")]);
-    await ensureCommerceLicenseTables(env);
+    const { getDb } = await import("../../../../../db");
     const db = getDb();
     const [installation] = await db.select().from(commerceLicenseInstallations).where(and(
       eq(commerceLicenseInstallations.storeKey, storeKey), eq(commerceLicenseInstallations.installationId, installationId),
