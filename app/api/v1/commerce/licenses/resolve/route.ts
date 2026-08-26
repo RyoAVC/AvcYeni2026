@@ -26,10 +26,11 @@ export async function POST(request: Request) {
   }
 
   try {
-    const [{ env }, { getDb }] = await Promise.all([import("cloudflare:workers"), import("../../../../../../db")]);
+    const [{ env }, { getDb }, { ensureCommerceLicenseTables }] = await Promise.all([import("cloudflare:workers"), import("../../../../../../db"), import("../../../../../local-d1-schema.mjs")]);
     const privateKey = String((env as Record<string, unknown>).COMMERCE_LICENSE_PRIVATE_KEY_PKCS8 ?? "").trim();
     const publicKey = String((env as Record<string, unknown>).COMMERCE_LICENSE_PUBLIC_KEY ?? "").trim();
     if (!privateKey || !publicKey) return respond({ ok: false, code: "issuer_not_configured" }, 503);
+    await ensureCommerceLicenseTables(env);
     const db = getDb();
     const tokenHash = await sha256(activationToken);
     const [installation] = await db.select().from(commerceLicenseInstallations).where(and(
