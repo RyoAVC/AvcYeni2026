@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { LEAD_STATUS_OPTIONS } from "../../lead-statuses";
+import { withBasePath } from "../../base-path";
 
 export function StatusControl({ id, label, initialStatus, initialUpdatedAt }: { id: number; label: string; initialStatus: string; initialUpdatedAt: string }) {
   const router = useRouter();
@@ -19,7 +20,7 @@ export function StatusControl({ id, label, initialStatus, initialUpdatedAt }: { 
     setMessage("Kaydediliyor…");
 
     try {
-      const response = await fetch(`/api/yonetim/basvurular/${id}`, {
+      const response = await fetch(withBasePath(`/api/yonetim/basvurular/${id}`), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: nextStatus, expectedUpdatedAt: updatedAt }),

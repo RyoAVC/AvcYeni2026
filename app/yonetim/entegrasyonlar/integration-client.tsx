@@ -32,6 +32,7 @@ export function IntegrationClient({ initialIntegrations }: { initialIntegrations
   const [isTestMode, setIsTestMode] = useState(true);
   const [status, setStatus] = useState("active");
   const [saving, setSaving] = useState(false);
+  const [logoVersion, setLogoVersion] = useState(0);
 
   function openConfigModal(item: IntegrationItem) {
     setSelectedItem(item);
@@ -94,6 +95,18 @@ export function IntegrationClient({ initialIntegrations }: { initialIntegrations
     }
   }
 
+  async function handleLogoUpload(file: File | null) {
+    if (!selectedItem || !file) return;
+    const form = new FormData();
+    form.set("logo", file);
+    setSaving(true);
+    const response = await fetch(withBasePath(`/api/yonetim/entegrasyonlar/${selectedItem.id}/logo`), { method: "POST", body: form });
+    const result = await response.json().catch(() => ({}));
+    setSaving(false);
+    if (!response.ok) return alert(typeof result.error === "string" ? result.error : "Logo yüklenemedi.");
+    setLogoVersion((value) => value + 1);
+  }
+
   const grouped = initialIntegrations.reduce((acc, curr) => {
     acc[curr.category] = acc[curr.category] || [];
     acc[curr.category].push(curr);
@@ -108,31 +121,15 @@ export function IntegrationClient({ initialIntegrations }: { initialIntegrations
             {CATEGORY_NAMES[category] || category.toUpperCase()}
           </h2>
 
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-              gap: "16px",
-            }}
-          >
+          <div className="integration-admin-grid">
             {items.map((item) => (
-              <div
-                className="admin-card"
-                key={item.id}
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-between",
-                  padding: "18px",
-                  border: item.status === "active" ? "1px solid #cbd5e1" : "1px dashed var(--admin-border)",
-                  background: item.status === "active" ? "#ffffff" : "#fbfcfd",
-                }}
-              >
+              <div className={`admin-card integration-admin-card ${item.status === "active" ? "is-active" : "is-passive"}`} key={item.id}>
                 <div>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-                    <strong style={{ fontSize: "14px" }}>{item.name}</strong>
+                  <div className="integration-admin-head">
+                    <span className="integration-admin-logo"><img alt="" onError={(event) => { event.currentTarget.style.display = "none"; }} src={withBasePath(`/api/yonetim/entegrasyonlar/${item.id}/logo?v=${logoVersion}`)} /><b>{item.name.slice(0, 2).toUpperCase()}</b></span>
+                    <strong>{item.name}</strong>
                     <span className={`admin-badge ${item.status === "active" ? "admin-badge--success" : "admin-badge--neutral"}`}>
-                      {item.status === "active" ? "🟢 Bağlı" : "⚪ Pasif"}
+                      {item.status === "active" ? "Bağlı" : "Pasif"}
                     </span>
                   </div>
                   <span style={{ fontSize: "11px", color: "var(--admin-text-muted)", display: "block" }}>
@@ -212,6 +209,14 @@ export function IntegrationClient({ initialIntegrations }: { initialIntegrations
             </div>
 
             <form onSubmit={handleSaveConfig} style={{ display: "grid", gap: "14px" }}>
+              <div>
+                <label style={{ display: "block", fontSize: "12px", fontWeight: 700, marginBottom: "4px" }}>
+                  Marka logosu / ikon
+                </label>
+                <input accept="image/png,image/jpeg,image/webp,image/svg+xml" disabled={saving} onChange={(event) => handleLogoUpload(event.target.files?.[0] || null)} type="file" />
+                <small style={{ display: "block", marginTop: 5, color: "var(--admin-text-muted)" }}>PNG, JPG, WebP veya güvenli SVG. En fazla 400 KB.</small>
+              </div>
+
               <div>
                 <label style={{ display: "block", fontSize: "12px", fontWeight: 700, marginBottom: "4px" }}>
                   API Anahtarı / Mağaza Kodu (Merchant Key / ID)

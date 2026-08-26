@@ -8,7 +8,20 @@ export function validateAdminOrigin(request) {
   const origin = request.headers.get("origin");
   if (!origin) return null;
   try {
-    if (new URL(origin).origin !== new URL(request.url).origin) {
+    const forwardedProto = request.headers.get("x-forwarded-proto")?.split(",").at(-1)?.trim();
+    const forwardedHost = request.headers.get("x-forwarded-host")?.split(",").at(-1)?.trim();
+    const host = forwardedHost || request.headers.get("host")?.trim();
+    const expected = host && (forwardedProto === "https" || forwardedProto === "http")
+      ? `${forwardedProto}://${host}`
+      : new URL(request.url).origin;
+    const incomingUrl = new URL(origin);
+    const expectedUrl = new URL(expected);
+    const webProtocol = (value) => value === "http:" || value === "https:";
+    const sameOrigin = incomingUrl.origin === expectedUrl.origin;
+    const sameWebHost = incomingUrl.hostname === expectedUrl.hostname
+      && webProtocol(incomingUrl.protocol)
+      && webProtocol(expectedUrl.protocol);
+    if (!sameOrigin && !sameWebHost) {
       return failure(403, "İstek kaynağı doğrulanamadı.");
     }
   } catch {
@@ -73,4 +86,3 @@ export async function readAdminJsonObject(request) {
     return failure(400, "İstek verisi okunamadı.");
   }
 }
-

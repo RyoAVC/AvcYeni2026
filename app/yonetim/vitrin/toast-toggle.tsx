@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { withBasePath } from "../../base-path";
 
 export function ToastToggle({
   id,
@@ -32,7 +33,7 @@ export function ToastToggle({
     setMessage("Kaydediliyor…");
 
     try {
-      const response = await fetch(`/api/yonetim/vitrin/bildirimler/${id}`, {
+      const response = await fetch(withBasePath(`/api/yonetim/vitrin/bildirimler/${id}`), {
         method: "PATCH",
         credentials: "same-origin",
         headers: { "content-type": "application/json" },

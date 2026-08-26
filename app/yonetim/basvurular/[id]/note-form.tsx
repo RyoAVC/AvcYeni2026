@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import type { FormEvent } from "react";
+import { withBasePath } from "../../../base-path";
 
 export function NoteForm({ leadId }: { leadId: number }) {
   const router = useRouter();
@@ -21,7 +22,7 @@ export function NoteForm({ leadId }: { leadId: number }) {
     setMessage("Kaydediliyor…");
 
     try {
-      const response = await fetch(`/api/yonetim/basvurular/${leadId}/notlar`, {
+      const response = await fetch(withBasePath(`/api/yonetim/basvurular/${leadId}/notlar`), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ content, requestKey: requestKeyRef.current }),

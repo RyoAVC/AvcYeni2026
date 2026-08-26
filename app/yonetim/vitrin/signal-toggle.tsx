@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { withBasePath } from "../../base-path";
 
 export function SignalToggle({
   id,
@@ -32,7 +33,7 @@ export function SignalToggle({
     setMessage("Kaydediliyor…");
 
     try {
-      const response = await fetch(`/api/yonetim/vitrin/${id}`, {
+      const response = await fetch(withBasePath(`/api/yonetim/vitrin/${id}`), {
         method: "PATCH",
         credentials: "same-origin",
         headers: { "content-type": "application/json" },

@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import {
   customerIntegrationInstances, customerModuleInstances, customerPortalDocuments, customerPortalProfiles, portalNotifications, tofyExperiments,
   commerceLicenseInstallations,
@@ -49,6 +49,15 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       };
       if (profile) await db.update(customerPortalProfiles).set(values).where(eq(customerPortalProfiles.customerId, customerId));
       else await db.insert(customerPortalProfiles).values({ customerId, ...values, createdAt: now });
+    } else if (action === "commerce-license-status") {
+      const licenseId = clamp(data.licenseId, 1, 1_000_000_000, 0);
+      const status = ["active", "suspended", "revoked"].includes(String(data.status)) ? String(data.status) : "";
+      if (!licenseId || !status) return json({ ok: false, error: "Lisans ve durum seçin." }, 400);
+      const [license] = await db.select({ id: commerceLicenseInstallations.id }).from(commerceLicenseInstallations).where(and(eq(commerceLicenseInstallations.id, licenseId), eq(commerceLicenseInstallations.customerId, customerId))).limit(1);
+      if (!license) return json({ ok: false, error: "Lisans bulunamadı." }, 404);
+      await db.update(commerceLicenseInstallations).set({ status, updatedAt: now }).where(and(eq(commerceLicenseInstallations.id, licenseId), eq(commerceLicenseInstallations.customerId, customerId)));
+      await logAdminAction(db, { userEmail: admin.user.email, action: "commerce_license_status", entity: "commerce_license_installation", entityId: String(licenseId), details: { customerId, status } });
+      return json({ ok: true });
     } else if (action === "commerce-license") {
       const storeKey = text(data.storeKey, 96);
       const installationId = text(data.installationId, 96);
