@@ -1,302 +1,61 @@
 "use client";
 
-import { useState } from "react";
-import type { FormEvent } from "react";
+import { useState, type FormEvent } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { withBasePath } from "../../base-path";
 
-type IntegrationItem = {
-  id: number;
-  providerKey: string;
-  category: string;
-  name: string;
-  status: string;
-  config: string;
-  lastSyncAt: string;
-};
-
-const CATEGORY_NAMES: Record<string, string> = {
-  payment: "💳 Ödeme Sistemleri & Sanal POS",
-  shipping: "🚚 Kargo & Lojistik",
-  marketplace: "🛍️ Pazaryerleri",
-  erp: "📊 Muhasebe & E-Fatura (ERP)",
-  sms: "📱 İletişim & SMS Servisleri",
-};
+type IntegrationItem = { id: number; providerKey: string; category: string; name: string; status: string; lastSyncAt: string; customerActiveCount: number; customerTotalCount: number; activeDomains: string[] };
+const CATEGORY_NAMES: Record<string, string> = { payment: "Ödeme sistemleri ve sanal POS", shipping: "Kargo ve lojistik", marketplace: "Pazaryerleri", erp: "Muhasebe ve ERP", sms: "İletişim ve SMS servisleri" };
 
 export function IntegrationClient({ initialIntegrations }: { initialIntegrations: IntegrationItem[] }) {
   const router = useRouter();
-  const [modalOpen, setModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<IntegrationItem | null>(null);
-  const [apiKey, setApiKey] = useState("");
-  const [secretKey, setSecretKey] = useState("");
-  const [isTestMode, setIsTestMode] = useState(true);
-  const [status, setStatus] = useState("active");
+  const [status, setStatus] = useState("passive");
   const [saving, setSaving] = useState(false);
   const [logoVersion, setLogoVersion] = useState(0);
+  const [message, setMessage] = useState("");
+  const grouped = initialIntegrations.reduce((result, item) => { (result[item.category] ||= []).push(item); return result; }, {} as Record<string, IntegrationItem[]>);
 
-  function openConfigModal(item: IntegrationItem) {
-    setSelectedItem(item);
-    setStatus(item.status);
+  function openEditor(item: IntegrationItem) { setSelectedItem(item); setStatus(item.status); setMessage(""); }
+  async function updateCatalog(item: IntegrationItem, nextStatus: string) {
+    setSaving(true); setMessage("");
     try {
-      const conf = JSON.parse(item.config || "{}");
-      setApiKey(conf.apiKey || conf.merchantId || conf.username || "");
-      setSecretKey(conf.secretKey || conf.password || conf.companyId || "");
-      setIsTestMode(conf.mode === "test" || conf.mode === "sandbox");
-    } catch {
-      setApiKey("");
-      setSecretKey("");
-      setIsTestMode(true);
-    }
-    setModalOpen(true);
+      const response = await fetch(withBasePath(`/api/yonetim/entegrasyonlar/${item.id}`), { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: nextStatus }) });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(typeof result.error === "string" ? result.error : "Katalog güncellenemedi.");
+      setSelectedItem(null); router.refresh();
+    } catch (error) { setMessage(error instanceof Error ? error.message : "Katalog güncellenemedi."); }
+    finally { setSaving(false); }
   }
-
-  async function handleToggleStatus(item: IntegrationItem) {
-    const nextStatus = item.status === "active" ? "passive" : "active";
-    try {
-      const res = await fetch(withBasePath(`/api/yonetim/entegrasyonlar/${item.id}`), {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: nextStatus }),
-      });
-      if (res.ok) router.refresh();
-    } catch {
-      alert("Ağ hatası oluştu.");
-    }
-  }
-
-  async function handleSaveConfig(e: FormEvent) {
-    e.preventDefault();
-    if (!selectedItem || saving) return;
-    setSaving(true);
-
-    const configObj = {
-      apiKey,
-      secretKey,
-      mode: isTestMode ? "test" : "live",
-    };
-
-    try {
-      const res = await fetch(withBasePath(`/api/yonetim/entegrasyonlar/${selectedItem.id}`), {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status, config: configObj }),
-      });
-      if (res.ok) {
-        setModalOpen(false);
-        setSaving(false);
-        router.refresh();
-      } else {
-        alert("Entegrasyon ayarları kaydedilemedi.");
-        setSaving(false);
-      }
-    } catch {
-      alert("Ağ hatası oluştu.");
-      setSaving(false);
-    }
-  }
-
-  async function handleLogoUpload(file: File | null) {
+  async function submit(event: FormEvent) { event.preventDefault(); if (selectedItem) await updateCatalog(selectedItem, status); }
+  async function uploadLogo(file: File | null) {
     if (!selectedItem || !file) return;
-    const form = new FormData();
-    form.set("logo", file);
-    setSaving(true);
-    const response = await fetch(withBasePath(`/api/yonetim/entegrasyonlar/${selectedItem.id}/logo`), { method: "POST", body: form });
-    const result = await response.json().catch(() => ({}));
-    setSaving(false);
-    if (!response.ok) return alert(typeof result.error === "string" ? result.error : "Logo yüklenemedi.");
-    setLogoVersion((value) => value + 1);
+    const form = new FormData(); form.set("logo", file); setSaving(true); setMessage("");
+    try {
+      const response = await fetch(withBasePath(`/api/yonetim/entegrasyonlar/${selectedItem.id}/logo`), { method: "POST", body: form });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(typeof result.error === "string" ? result.error : "Logo yüklenemedi.");
+      setLogoVersion((value) => value + 1); setMessage("Logo kaydedildi.");
+    } catch (error) { setMessage(error instanceof Error ? error.message : "Logo yüklenemedi."); }
+    finally { setSaving(false); }
   }
 
-  const grouped = initialIntegrations.reduce((acc, curr) => {
-    acc[curr.category] = acc[curr.category] || [];
-    acc[curr.category].push(curr);
-    return acc;
-  }, {} as Record<string, IntegrationItem[]>);
-
-  return (
-    <div style={{ display: "grid", gap: "28px" }}>
-      {Object.entries(grouped).map(([category, items]) => (
-        <div key={category}>
-          <h2 style={{ fontSize: "15px", fontWeight: 750, color: "var(--admin-text-main)", marginBottom: "14px" }}>
-            {CATEGORY_NAMES[category] || category.toUpperCase()}
-          </h2>
-
-          <div className="integration-admin-grid">
-            {items.map((item) => (
-              <div className={`admin-card integration-admin-card ${item.status === "active" ? "is-active" : "is-passive"}`} key={item.id}>
-                <div>
-                  <div className="integration-admin-head">
-                    <span className="integration-admin-logo"><img alt="" onError={(event) => { event.currentTarget.style.display = "none"; }} src={withBasePath(`/api/yonetim/entegrasyonlar/${item.id}/logo?v=${logoVersion}`)} /><b>{item.name.slice(0, 2).toUpperCase()}</b></span>
-                    <strong>{item.name}</strong>
-                    <span className={`admin-badge ${item.status === "active" ? "admin-badge--success" : "admin-badge--neutral"}`}>
-                      {item.status === "active" ? "Bağlı" : "Pasif"}
-                    </span>
-                  </div>
-                  <span style={{ fontSize: "11px", color: "var(--admin-text-muted)", display: "block" }}>
-                    Sağlayıcı Kodu: <code style={{ fontSize: "11px" }}>{item.providerKey}</code>
-                  </span>
-                  <span style={{ fontSize: "11px", color: "var(--admin-text-muted)", display: "block", marginTop: "4px" }}>
-                    Son Senkronizasyon: {item.lastSyncAt ? new Date(item.lastSyncAt).toLocaleDateString("tr-TR") : "Henüz yapılmadı"}
-                  </span>
-                </div>
-
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    paddingTop: "14px",
-                    marginTop: "16px",
-                    borderTop: "1px solid var(--admin-border-subtle)",
-                  }}
-                >
-                  <button
-                    className="admin-btn admin-btn-secondary admin-btn-sm"
-                    onClick={() => openConfigModal(item)}
-                    type="button"
-                  >
-                    ⚙️ API & Ayarlar
-                  </button>
-
-                  <button
-                    className={`admin-btn admin-btn-sm ${item.status === "active" ? "admin-btn-secondary" : "admin-btn-primary"}`}
-                    onClick={() => handleToggleStatus(item)}
-                    type="button"
-                  >
-                    {item.status === "active" ? "Pasife Al" : "Aktif Et"}
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      ))}
-
-      {/* Modal Drawer */}
-      {modalOpen && selectedItem && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            background: "rgba(15, 23, 42, 0.6)",
-            backdropFilter: "blur(4px)",
-            zIndex: 100,
-            display: "grid",
-            placeItems: "center",
-            padding: "20px",
-          }}
-        >
-          <div
-            className="admin-card"
-            style={{
-              width: "100%",
-              maxWidth: "520px",
-              boxShadow: "var(--admin-shadow-lg)",
-            }}
-          >
-            <div className="admin-card-header">
-              <h3 className="admin-card-title">{selectedItem.name} Entegrasyon Ayarları</h3>
-              <button
-                onClick={() => setModalOpen(false)}
-                style={{ border: 0, background: "transparent", fontSize: "20px", cursor: "pointer" }}
-                type="button"
-              >
-                ✕
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveConfig} style={{ display: "grid", gap: "14px" }}>
-              <div>
-                <label style={{ display: "block", fontSize: "12px", fontWeight: 700, marginBottom: "4px" }}>
-                  Marka logosu / ikon
-                </label>
-                <input accept="image/png,image/jpeg,image/webp,image/svg+xml" disabled={saving} onChange={(event) => handleLogoUpload(event.target.files?.[0] || null)} type="file" />
-                <small style={{ display: "block", marginTop: 5, color: "var(--admin-text-muted)" }}>PNG, JPG, WebP veya güvenli SVG. En fazla 400 KB.</small>
-              </div>
-
-              <div>
-                <label style={{ display: "block", fontSize: "12px", fontWeight: 700, marginBottom: "4px" }}>
-                  API Anahtarı / Mağaza Kodu (Merchant Key / ID)
-                </label>
-                <input
-                  className="admin-select"
-                  onChange={(e) => setApiKey(e.target.value)}
-                  placeholder="Örn: 987654 veya pk_live_..."
-                  style={{ width: "100%", fontFamily: "monospace" }}
-                  type="text"
-                  value={apiKey}
-                />
-              </div>
-
-              <div>
-                <label style={{ display: "block", fontSize: "12px", fontWeight: 700, marginBottom: "4px" }}>
-                  Gizli Anahtar / Şifre (Secret Key)
-                </label>
-                <input
-                  className="admin-select"
-                  onChange={(e) => setSecretKey(e.target.value)}
-                  placeholder="Örn: sk_live_... veya şifre"
-                  style={{ width: "100%", fontFamily: "monospace" }}
-                  type="password"
-                  value={secretKey}
-                />
-              </div>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-                <div>
-                  <label style={{ display: "block", fontSize: "12px", fontWeight: 700, marginBottom: "4px" }}>
-                    Çalışma Modu
-                  </label>
-                  <select
-                    className="admin-select"
-                    onChange={(e) => setIsTestMode(e.target.value === "test")}
-                    style={{ width: "100%" }}
-                    value={isTestMode ? "test" : "live"}
-                  >
-                    <option value="test">🧪 Test / Sandbox Modu</option>
-                    <option value="live">🚀 Canlı (Production) Modu</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label style={{ display: "block", fontSize: "12px", fontWeight: 700, marginBottom: "4px" }}>
-                    Entegrasyon Durumu
-                  </label>
-                  <select
-                    className="admin-select"
-                    onChange={(e) => setStatus(e.target.value)}
-                    style={{ width: "100%" }}
-                    value={status}
-                  >
-                    <option value="active">Aktif</option>
-                    <option value="passive">Pasif</option>
-                  </select>
-                </div>
-              </div>
-
-              <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "12px" }}>
-                <button
-                  className="admin-btn admin-btn-secondary"
-                  onClick={() => setModalOpen(false)}
-                  type="button"
-                >
-                  İptal
-                </button>
-                <button
-                  className="admin-btn admin-btn-primary"
-                  disabled={saving}
-                  type="submit"
-                >
-                  {saving ? "Kaydediliyor..." : "Ayarları Kaydet & Test Et"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+  return <div className="integration-admin-stack">
+    <aside className="integration-catalog-note"><div><span>GENEL KATALOG</span><strong>Bu ekran müşteride çalışan bağlantıları değil, Avcı E‑Ticaret’in sunduğu entegrasyon kataloğunu yönetir.</strong></div><p>“Sitede yayınlanıyor” kayıtları Avcı vitrininin Entegrasyonlar sayfasında görünür. Bir müşteri ve domaine gerçek aktivasyon atamak için Müşteri Sistemleri’ni kullanın.</p><Link className="admin-btn admin-btn-secondary" href="/yonetim/sistemler">Müşteri sistemlerine git</Link></aside>
+    {Object.entries(grouped).map(([category, items]) => <section className="integration-admin-group" key={category}><header><span>{String(items.length).padStart(2, "0")}</span><h2>{CATEGORY_NAMES[category] || category}</h2></header><div className="integration-admin-grid">
+      {items.map((item) => <article className={`admin-card integration-admin-card ${item.status === "active" ? "is-active" : "is-passive"}`} key={item.id}>
+        <div className="integration-admin-head"><span className="integration-admin-logo"><img alt={`${item.name} logosu`} onError={(event) => { event.currentTarget.style.display = "none"; }} src={withBasePath(`/api/yonetim/entegrasyonlar/${item.id}/logo?v=${logoVersion}`)} /><b>{item.name.slice(0, 2).toUpperCase()}</b></span><div><strong>{item.name}</strong><small>{item.providerKey}</small></div><span className={`admin-badge ${item.status === "active" ? "admin-badge--success" : "admin-badge--neutral"}`}>{item.status === "active" ? "Sitede yayında" : "Taslak"}</span></div>
+        <div className="integration-usage"><div><strong>{item.customerActiveCount}</strong><span>aktif müşteri</span></div><div><strong>{item.activeDomains.length}</strong><span>aktif domain</span></div><div><strong>{item.customerTotalCount}</strong><span>toplam atama</span></div></div>
+        <p className="integration-domains">{item.activeDomains.length ? item.activeDomains.slice(0, 3).join(" · ") : "Henüz bir müşteri domaininde aktif değil."}</p>
+        <div className="integration-admin-actions"><button className="admin-btn admin-btn-secondary admin-btn-sm" onClick={() => openEditor(item)} type="button">Katalog kaydını düzenle</button><button className={`admin-btn admin-btn-sm ${item.status === "active" ? "admin-btn-secondary" : "admin-btn-primary"}`} disabled={saving} onClick={() => updateCatalog(item, item.status === "active" ? "passive" : "active")} type="button">{item.status === "active" ? "Yayından kaldır" : "Sitede yayınla"}</button></div>
+      </article>)}
+    </div></section>)}
+    {selectedItem && <div className="integration-modal-backdrop"><div aria-labelledby="integration-editor-title" aria-modal="true" className="admin-card integration-modal" role="dialog"><header className="admin-card-header"><div><span className="kicker">KATALOG KAYDI</span><h3 className="admin-card-title" id="integration-editor-title">{selectedItem.name}</h3></div><button aria-label="Kapat" className="integration-modal-close" onClick={() => setSelectedItem(null)} type="button">×</button></header><form onSubmit={submit}>
+      <label className="integration-field"><span>Marka logosu / ikon</span><input accept="image/png,image/jpeg,image/webp,image/svg+xml" autoComplete="off" disabled={saving} onChange={(event) => uploadLogo(event.target.files?.[0] || null)} type="file" /><small>PNG, JPG, WebP veya güvenli SVG; en fazla 400 KB.</small></label>
+      <label className="integration-field"><span>Avcı sitesi katalog durumu</span><select className="admin-select" onChange={(event) => setStatus(event.target.value)} value={status}><option value="active">Sitede yayınlanıyor</option><option value="passive">Taslak / gizli</option></select></label>
+      <aside className="integration-security-note"><strong>Müşteri bağlantı bilgileri burada tutulmaz.</strong><span>API anahtarı ve gizli şifre, ilgili müşterinin Avcı Commerce kurulumunda şifreli olarak yönetilmelidir.</span></aside>{message && <p className="integration-message" role="status">{message}</p>}
+      <footer><button className="admin-btn admin-btn-secondary" onClick={() => setSelectedItem(null)} type="button">İptal</button><button className="admin-btn admin-btn-primary" disabled={saving} type="submit">{saving ? "Kaydediliyor…" : "Katalog durumunu kaydet"}</button></footer>
+    </form></div></div>}
+  </div>;
 }

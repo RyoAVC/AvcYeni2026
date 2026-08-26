@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { asc, eq } from "drizzle-orm";
+import { integrations } from "../../db/schema";
+import { withBasePath } from "../base-path";
 import { HeaderCtaCluster } from "../header-cta-cluster";
 import { SiteBrand } from "../site-brand";
+import "./catalog-live.css";
 
 export const dynamic = "force-dynamic";
 
@@ -25,7 +29,17 @@ const steps = [
   ["04", "İzler ve geliştiririz", "Hata kayıtları, tekrar deneme davranışı ve operasyon görünürlüğünü takip ederiz."],
 ];
 
-export default function IntegrationsPage() {
+async function loadPublishedCatalog() {
+  try {
+    const { getDb } = await import("../../db");
+    return await getDb().select({ id: integrations.id, name: integrations.name, category: integrations.category }).from(integrations).where(eq(integrations.status, "active")).orderBy(asc(integrations.category), asc(integrations.name));
+  } catch { return []; }
+}
+
+const categoryLabels: Record<string, string> = { marketplace: "Pazaryeri", payment: "Ödeme", shipping: "Kargo", erp: "Muhasebe / ERP", sms: "İletişim / SMS" };
+
+export default async function IntegrationsPage() {
+  const publishedCatalog = await loadPublishedCatalog();
   return (
     <main className="catalog-page integrations-page">
       <a className="skip-link" href="#baglantilar">Bağlantı türlerine geç</a>
@@ -34,6 +48,8 @@ export default function IntegrationsPage() {
       <section className="catalog-hero integration-hero"><div><span className="kicker kicker-light">TİCARET ÇEKİRDEĞİNE BAĞLI AKIŞLAR</span><h1>Sistemleriniz konuşsun.<br /><em>Ekibiniz hızlansın.</em></h1></div><p>AVC mağazasındaki katalog ve sipariş akışını pazaryeri, ödeme, kargo ve muhasebe sistemleriyle güvenli ve izlenebilir biçimde bağlayın.</p></section>
 
       <section className="integration-groups" id="baglantilar">{groups.map((group) => <article key={group.number}><header><span>{group.number}</span><h2>{group.title}</h2></header><p>{group.text}</p><div>{group.examples.map((example) => <span key={example}>{example}</span>)}</div></article>)}</section>
+
+      <section className="live-integration-catalog"><div className="section-heading"><div><span className="kicker">AVCI MODÜL KATALOĞU</span><h2>Yayınlanan entegrasyonlar</h2></div><p>Bu liste Avcı yönetimindeki genel katalogdan gelir. Müşteri hesabında kullanım, lisans ve domain atamasına göre ayrıca açılır.</p></div>{publishedCatalog.length ? <div className="live-integration-grid">{publishedCatalog.map((item) => <article key={item.id}><span className="live-integration-logo"><img alt={`${item.name} logosu`} src={withBasePath(`/api/entegrasyonlar/${item.id}/logo`)} /><b>{item.name.slice(0, 2).toUpperCase()}</b></span><div><small>{categoryLabels[item.category] || item.category}</small><h3>{item.name}</h3><p>Avcı Commerce için lisanslanabilir bağlantı modülü</p></div></article>)}</div> : <div className="live-integration-empty"><strong>Katalog hazırlanıyor.</strong><p>Yönetimde yayına alınan entegrasyonlar burada otomatik görünecek.</p></div>}</section>
 
       <section className="integration-contract"><div><span className="kicker kicker-light">GÜVENLİ SÖZLEŞME</span><h2>Bağlamak kadar,<br />doğru bağlamak önemli.</h2></div><div>{["Yetki ve erişim sınırları", "Alan ve veri eşlemeleri", "Hata ve tekrar deneme akışı", "Kayıt ve izlenebilirlik", "Sürüm değişikliği planı", "Canlıya geçiş kontrolü"].map((item) => <span key={item}>✓ {item}</span>)}</div></section>
 

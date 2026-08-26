@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { asc } from "drizzle-orm";
-import { integrations } from "../../../db/schema";
+import { customerIntegrationInstances, integrations } from "../../../db/schema";
 import { chatGPTSignOutPath } from "../../chatgpt-auth";
 import { requireAdminUser } from "../../admin-auth";
 import { AdminShell } from "../admin-shell";
@@ -44,28 +44,47 @@ export default async function IntegrationsPage() {
       category: integrations.category,
       name: integrations.name,
       status: integrations.status,
-      config: integrations.config,
       lastSyncAt: integrations.lastSyncAt,
     })
     .from(integrations)
     .orderBy(asc(integrations.category), asc(integrations.name));
+
+  const assignmentRows = await db.select({
+    integrationId: customerIntegrationInstances.integrationId,
+    status: customerIntegrationInstances.status,
+    targetDomain: customerIntegrationInstances.targetDomain,
+  }).from(customerIntegrationInstances);
+  const integrationUsage = new Map<number, { total: number; active: number; domains: Set<string> }>();
+  for (const assignment of assignmentRows) {
+    const usage = integrationUsage.get(assignment.integrationId) || { total: 0, active: 0, domains: new Set<string>() };
+    usage.total += 1;
+    if (assignment.status === "active") {
+      usage.active += 1;
+      if (assignment.targetDomain) usage.domains.add(assignment.targetDomain);
+    }
+    integrationUsage.set(assignment.integrationId, usage);
+  }
+  const catalogRows = integrationRows.map((item) => {
+    const usage = integrationUsage.get(item.id);
+    return { ...item, customerActiveCount: usage?.active || 0, customerTotalCount: usage?.total || 0, activeDomains: [...(usage?.domains || [])] };
+  });
 
   return (
     <AdminShell current="entegrasyonlar" displayName={admin.user.displayName}>
       <section className="admin-main">
         <header className="admin-heading" style={{ marginBottom: "24px" }}>
           <div>
-            <span className="kicker">BAĞLANTILAR VE API MERKEZİ</span>
+            <span className="kicker">AVCI ENTEGRASYON KATALOĞU</span>
             <h1 style={{ fontSize: "clamp(24px, 2.5vw, 36px)", letterSpacing: "-0.04em", margin: "8px 0 4px" }}>
               Entegrasyon Merkezi
             </h1>
             <p style={{ margin: 0, color: "var(--admin-text-muted)", fontSize: "13px" }}>
-              PayTR, iyzico, Yurtiçi Kargo, Trendyol, Hepsiburada, Paraşüt ve SMS servis bağlantılarınızı tek merkezden yönetin.
+              Sunulan bağlantıları yayınlayın; müşteri ve domain bazındaki gerçek kullanım sayılarını tek bakışta izleyin.
             </p>
           </div>
         </header>
 
-        <IntegrationClient initialIntegrations={integrationRows} />
+        <IntegrationClient initialIntegrations={catalogRows} />
       </section>
     </AdminShell>
   );

@@ -218,6 +218,13 @@
       "when": 1787739000000,
       "tag": "0030_assignment_target_domains",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "6",
+      "when": 1787742000000,
+      "tag": "0031_secure_integration_catalog",
+      "breakpoints": true
     }
   ]
 }

@@ -28,7 +28,7 @@ export async function PATCH(
 
   const data = parsedPayload.value as Record<string, unknown>;
   const status = String(data.status || "passive");
-  const config = typeof data.config === "object" ? JSON.stringify(data.config) : String(data.config || "{}");
+  if (!["active", "passive"].includes(status)) return json({ ok: false, error: "Geçersiz katalog durumu." }, 400);
 
   try {
     const { getDb } = await import("../../../../../db");
@@ -37,8 +37,6 @@ export async function PATCH(
 
     await db.update(integrations).set({
       status,
-      config,
-      lastSyncAt: now,
       updatedAt: now,
     }).where(eq(integrations.id, integrationId));
 
@@ -47,7 +45,7 @@ export async function PATCH(
       action: "update",
       entity: "integration",
       entityId: String(integrationId),
-      details: `Entegrasyon ayarları güncellendi (${status})`,
+      details: `Entegrasyon katalog durumu güncellendi (${status})`,
     });
 
     return json({ ok: true }, 200);
