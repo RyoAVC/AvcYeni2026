@@ -1,7 +1,11 @@
-import { isSameRequestOrigin } from "../../../request-origin";
-import { eq } from "drizzle-orm";
-import { adminLoginAttempts } from "../../../../db/schema";
 import { normalizeEmailAddress } from "../../../email-normalization.mjs";
+import { isSameRequestOrigin } from "../../../request-origin";
+import {
+  readFormFields,
+  readRuntimeEnv,
+  redirectResponse,
+  requestIsHttps,
+} from "../../../form-post.mjs";
 import {
   ADMIN_LOGIN_MAX_FAILURES,
   ADMIN_LOGIN_WINDOW_MS,
@@ -14,11 +18,8 @@ import {
   secretsMatch,
 } from "../../../admin-session.mjs";
 
-function redirectTo(request: Request, path: string, cookie?: string) {
-  const headers = new Headers({ Location: new URL(path, request.url).toString(), "Cache-Control": "no-store" });
-  if (cookie) headers.append("Set-Cookie", cookie);
-  return new Response(null, { status: 303, headers });
-}
+type LoginAttempt = { failCount: number; windowStart: number };
+const loginAttempts = new Map<string, LoginAttempt>();
 
 function failPath(next: string, reason: "hata" | "kilit" | "ayar") {
   const params = new URLSearchParams();
@@ -28,89 +29,67 @@ function failPath(next: string, reason: "hata" | "kilit" | "ayar") {
 }
 
 export async function POST(request: Request) {
-  const origin = request.headers.get("origin");
-  if (origin) {
-    try {
-      if (!isSameRequestOrigin(request, origin)) {
-        return redirectTo(request, failPath("/yonetim", "hata"));
+  try {
+    const origin = request.headers.get("origin");
+    if (origin) {
+      try {
+        if (!isSameRequestOrigin(request, origin)) {
+          return redirectResponse(request, failPath("/yonetim", "hata"));
+        }
+      } catch {
+        return redirectResponse(request, failPath("/yonetim", "hata"));
       }
-    } catch {
-      return redirectTo(request, failPath("/yonetim", "hata"));
     }
-  }
 
-  const contentType = request.headers.get("content-type") ?? "";
-  if (!contentType.includes("application/x-www-form-urlencoded") && !contentType.includes("multipart/form-data")) {
-    return redirectTo(request, failPath("/yonetim", "hata"));
-  }
+    const contentType = request.headers.get("content-type") ?? "";
+    if (!contentType.includes("application/x-www-form-urlencoded") && !contentType.includes("multipart/form-data")) {
+      return redirectResponse(request, failPath("/yonetim", "hata"));
+    }
 
-  let form: FormData;
-  try {
-    form = await request.formData();
-  } catch {
-    return redirectTo(request, failPath("/yonetim", "hata"));
-  }
+    const form = await readFormFields(request);
+    const next = safeAdminNextPath(String(form.get("next") ?? "/yonetim"));
+    if (String(form.get("website") ?? "").trim()) {
+      return redirectResponse(request, failPath(next, "hata"));
+    }
 
-  const next = safeAdminNextPath(String(form.get("next") ?? "/yonetim"));
-  if (String(form.get("website") ?? "").trim()) {
-    return redirectTo(request, failPath(next, "hata"));
-  }
+    const env = await readRuntimeEnv();
+    const config = getAdminLoginConfig(env);
+    if (!config.ready) return redirectResponse(request, failPath(next, "ayar"));
 
-  const { env } = await import("cloudflare:workers");
-  const config = getAdminLoginConfig(env as Record<string, unknown>);
-  if (!config.ready) return redirectTo(request, failPath(next, "ayar"));
-
-  const email = normalizeEmailAddress(String(form.get("email") ?? ""));
-  const password = typeof form.get("password") === "string" ? String(form.get("password")) : "";
-  const attemptKey = await loginAttemptKey(config.secret, email || "bos", clientAddress(request));
-  const now = new Date();
-  const nowIso = now.toISOString();
-
-  try {
-    const { getDb } = await import("../../../../db");
-    const db = getDb();
-    const [attempt] = await db.select().from(adminLoginAttempts).where(eq(adminLoginAttempts.attemptKey, attemptKey)).limit(1);
-    const windowStart = attempt ? new Date(attempt.windowStart) : now;
-    const inWindow = now.getTime() - windowStart.getTime() < ADMIN_LOGIN_WINDOW_MS;
+    const email = normalizeEmailAddress(String(form.get("email") ?? ""));
+    const password = typeof form.get("password") === "string" ? String(form.get("password")) : "";
+    const attemptKey = await loginAttemptKey(config.secret, email || "bos", clientAddress(request));
+    const now = Date.now();
+    const attempt = loginAttempts.get(attemptKey);
+    const windowStart = attempt?.windowStart ?? now;
+    const inWindow = now - windowStart < ADMIN_LOGIN_WINDOW_MS;
     const failCount = inWindow ? Number(attempt?.failCount ?? 0) : 0;
 
     if (failCount >= ADMIN_LOGIN_MAX_FAILURES) {
-      return redirectTo(request, failPath(next, "kilit"));
+      return redirectResponse(request, failPath(next, "kilit"));
     }
 
     const emailOk = await secretsMatch(config.secret, email, config.email);
     const passwordOk = await secretsMatch(config.secret, password, config.password);
     if (!emailOk || !passwordOk) {
-      await db
-        .insert(adminLoginAttempts)
-        .values({
-          attemptKey,
-          failCount: failCount + 1,
-          windowStart: inWindow && attempt ? attempt.windowStart : nowIso,
-          updatedAt: nowIso,
-        })
-        .onConflictDoUpdate({
-          target: adminLoginAttempts.attemptKey,
-          set: {
-            failCount: failCount + 1,
-            windowStart: inWindow && attempt ? attempt.windowStart : nowIso,
-            updatedAt: nowIso,
-          },
-        });
-      return redirectTo(request, failPath(next, failCount + 1 >= ADMIN_LOGIN_MAX_FAILURES ? "kilit" : "hata"));
+      loginAttempts.set(attemptKey, {
+        failCount: failCount + 1,
+        windowStart: inWindow ? windowStart : now,
+      });
+      return redirectResponse(request, failPath(next, failCount + 1 >= ADMIN_LOGIN_MAX_FAILURES ? "kilit" : "hata"));
     }
 
     if (attempt) {
-      await db.delete(adminLoginAttempts).where(eq(adminLoginAttempts.attemptKey, attemptKey));
+      loginAttempts.delete(attemptKey);
     }
 
     const token = await createAdminSessionToken(config.secret, {
       email: config.email,
       displayName: "Avcı Yönetici",
     });
-    return redirectTo(request, next, adminSessionCookie(token, new URL(request.url).protocol === "https:"));
+    return redirectResponse(request, next, adminSessionCookie(token, requestIsHttps(request)));
   } catch (cause) {
     console.error("Admin login failed", cause);
-    return redirectTo(request, failPath(next, "hata"));
+    return redirectResponse(request, failPath("/yonetim", "hata"));
   }
 }
