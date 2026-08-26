@@ -6,7 +6,7 @@ import { withBasePath } from "./base-path";
 const PARAM = "onizleme";
 const VALUE = "logo";
 const ATTR = "data-theme-preview";
-const LOGO_LIGHT = withBasePath("/brand/avci-logo-light-transparent.png");
+const LOGO_LIGHT = withBasePath("/brand/avci-logo-fx.webp");
 const LOGO_DARK = withBasePath("/brand/avci-logo-dark-transparent.png");
 
 function isLogoPreview(search: string) {

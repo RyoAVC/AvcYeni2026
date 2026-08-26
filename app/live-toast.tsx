@@ -62,7 +62,9 @@ export function LiveToast({ items }: { items: LiveToastItem[] }) {
     };
   }, [pathname, items]);
 
-  if (isAdminPath(pathname) || motionOff || !shown || !items.length) return null;
+  const isPortalPath = pathname.startsWith("/demo-portal") || pathname.startsWith("/musteri-panel") || pathname.startsWith("/onizleme/musteri-portali");
+
+  if (isAdminPath(pathname) || isPortalPath || motionOff || !shown || !items.length) return null;
 
   const toast = items[index % items.length];
   if (!toast) return null;

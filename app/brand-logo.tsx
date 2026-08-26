@@ -1,3 +1,5 @@
+import { withBasePath } from "./base-path";
+
 type BrandLogoProps = {
   variant?: "light" | "dark";
   animated?: boolean;
@@ -6,8 +8,8 @@ type BrandLogoProps = {
 };
 
 /**
- * Gerçek logo PNG + yumuşak giriş / shine.
- * light = koyu zemin, dark = açık zemin.
+ * Avcı marka logosu.
+ * light = koyu zemin (gece), dark = açık zemin (gündüz).
  */
 export function BrandLogo({
   variant = "light",
@@ -15,14 +17,13 @@ export function BrandLogo({
   className = "",
   title = "avci e-ticaret.com",
 }: BrandLogoProps) {
-  const src =
-    variant === "light"
-      ? "/brand/avci-logo-light-transparent.png"
-      : "/brand/avci-logo-dark-transparent.png";
+  const src = withBasePath(
+    variant === "light" ? "/brand/avci-logo-fx.webp" : "/brand/avci-logo-dark-transparent.png",
+  );
 
   const classes = [
     "avci-logo-wrap",
-    animated ? "avci-logo-wrap--animated" : "",
+    animated ? "brand-logo-fx" : "",
     variant === "dark" ? "avci-logo-wrap--on-light" : "",
     className,
   ]
@@ -30,18 +31,20 @@ export function BrandLogo({
     .join(" ");
 
   return (
-    <span className={classes} aria-label={title}>
-      <span className="avci-logo-glow" aria-hidden="true" />
-      <span className="avci-logo-shine" aria-hidden="true" />
+    <span
+      className={classes}
+      aria-label={title}
+      style={{ ["--logo-mask" as string]: `url("${withBasePath("/brand/avci-logo-fx.webp")}")` }}
+    >
       <img
-        className="avci-logo-img"
+        className={`avci-logo-img brand-logo-img ${variant === "light" ? "brand-logo-img--night" : "brand-logo-img--day"}`}
         src={src}
         alt=""
         width={420}
         height={95}
         decoding="async"
+        style={{ position: "relative", opacity: 1, visibility: "visible" }}
       />
-      <span className="avci-logo-spark" aria-hidden="true" />
     </span>
   );
 }

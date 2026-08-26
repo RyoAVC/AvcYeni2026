@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { isLocalAdminBypassEnabled } from "./local-admin-identity.mjs";
 import { isCustomerPortalPreviewEnabled } from "./customer-portal-preview.mjs";
 
-const SCHEMA_GEN = 26;
+const SCHEMA_GEN = 27;
 let appliedGen = 0;
 let pending = null;
 
@@ -836,6 +836,31 @@ async function ensureIntegrationsTable(db) {
   }
 }
 
+async function ensureCustomerPortalProductTables(db) {
+  await addColumnIfMissing(db, "ALTER TABLE support_tickets ADD COLUMN priority text DEFAULT 'normal' NOT NULL");
+  await addColumnIfMissing(db, "ALTER TABLE support_tickets ADD COLUMN first_responded_at text DEFAULT '' NOT NULL");
+  await addColumnIfMissing(db, "ALTER TABLE support_tickets ADD COLUMN closed_at text DEFAULT '' NOT NULL");
+  const statements = [
+    `CREATE TABLE IF NOT EXISTS customer_portal_profiles (id integer PRIMARY KEY AUTOINCREMENT NOT NULL, customer_id integer NOT NULL, company_name text DEFAULT '' NOT NULL, logo_url text DEFAULT '' NOT NULL, monogram text DEFAULT '' NOT NULL, theme text DEFAULT 'avci' NOT NULL, color_mode text DEFAULT 'day' NOT NULL, ssl_warning_days integer DEFAULT 30 NOT NULL, tofy_click_threshold_bps integer DEFAULT 1000 NOT NULL, marketplace_setup_days integer DEFAULT 7 NOT NULL, onboarding_status text DEFAULT 'not_started' NOT NULL, onboarding_progress integer DEFAULT 0 NOT NULL, created_at text DEFAULT CURRENT_TIMESTAMP NOT NULL, updated_at text DEFAULT CURRENT_TIMESTAMP NOT NULL)`,
+    `CREATE UNIQUE INDEX IF NOT EXISTS idx_customer_portal_profiles_customer ON customer_portal_profiles (customer_id)`,
+    `CREATE TABLE IF NOT EXISTS customer_module_instances (id integer PRIMARY KEY AUTOINCREMENT NOT NULL, customer_id integer NOT NULL, module_id integer NOT NULL, status text DEFAULT 'planned' NOT NULL, coverage text DEFAULT '' NOT NULL, enabled_at text DEFAULT '' NOT NULL, expires_at text DEFAULT '' NOT NULL, note text DEFAULT '' NOT NULL, created_at text DEFAULT CURRENT_TIMESTAMP NOT NULL, updated_at text DEFAULT CURRENT_TIMESTAMP NOT NULL)`,
+    `CREATE UNIQUE INDEX IF NOT EXISTS idx_customer_module_instances_unique ON customer_module_instances (customer_id, module_id)`,
+    `CREATE INDEX IF NOT EXISTS idx_customer_module_instances_status ON customer_module_instances (customer_id, status)`,
+    `CREATE TABLE IF NOT EXISTS customer_integration_instances (id integer PRIMARY KEY AUTOINCREMENT NOT NULL, customer_id integer NOT NULL, integration_id integer NOT NULL, status text DEFAULT 'planned' NOT NULL, setup_progress integer DEFAULT 0 NOT NULL, health_score integer DEFAULT 0 NOT NULL, last_sync_at text DEFAULT '' NOT NULL, last_error_summary text DEFAULT '' NOT NULL, public_metadata text DEFAULT '{}' NOT NULL, created_at text DEFAULT CURRENT_TIMESTAMP NOT NULL, updated_at text DEFAULT CURRENT_TIMESTAMP NOT NULL)`,
+    `CREATE UNIQUE INDEX IF NOT EXISTS idx_customer_integration_instances_unique ON customer_integration_instances (customer_id, integration_id)`,
+    `CREATE INDEX IF NOT EXISTS idx_customer_integration_instances_status ON customer_integration_instances (customer_id, status)`,
+    `CREATE TABLE IF NOT EXISTS customer_metric_snapshots (id integer PRIMARY KEY AUTOINCREMENT NOT NULL, customer_id integer NOT NULL, metric_key text NOT NULL, value integer DEFAULT 0 NOT NULL, unit text DEFAULT 'count' NOT NULL, source text DEFAULT 'system' NOT NULL, period_start text DEFAULT '' NOT NULL, period_end text DEFAULT '' NOT NULL, metadata text DEFAULT '{}' NOT NULL, created_at text DEFAULT CURRENT_TIMESTAMP NOT NULL)`,
+    `CREATE INDEX IF NOT EXISTS idx_customer_metric_snapshots_lookup ON customer_metric_snapshots (customer_id, metric_key, period_end)`,
+    `CREATE TABLE IF NOT EXISTS portal_notifications (id integer PRIMARY KEY AUTOINCREMENT NOT NULL, customer_id integer NOT NULL, type text DEFAULT 'info' NOT NULL, title text NOT NULL, body text DEFAULT '' NOT NULL, priority integer DEFAULT 0 NOT NULL, target_section text DEFAULT 'ozet' NOT NULL, status text DEFAULT 'active' NOT NULL, source text DEFAULT 'admin' NOT NULL, visible_at text DEFAULT '' NOT NULL, expires_at text DEFAULT '' NOT NULL, created_at text DEFAULT CURRENT_TIMESTAMP NOT NULL, updated_at text DEFAULT CURRENT_TIMESTAMP NOT NULL)`,
+    `CREATE INDEX IF NOT EXISTS idx_portal_notifications_visible ON portal_notifications (customer_id, status, visible_at)`,
+    `CREATE TABLE IF NOT EXISTS tofy_experiments (id integer PRIMARY KEY AUTOINCREMENT NOT NULL, customer_id integer NOT NULL, name text NOT NULL, kind text DEFAULT 'copy' NOT NULL, status text DEFAULT 'draft' NOT NULL, control_label text DEFAULT 'Kontrol' NOT NULL, variant_label text DEFAULT 'Varyant' NOT NULL, result_summary text DEFAULT '' NOT NULL, starts_at text DEFAULT '' NOT NULL, ends_at text DEFAULT '' NOT NULL, created_at text DEFAULT CURRENT_TIMESTAMP NOT NULL, updated_at text DEFAULT CURRENT_TIMESTAMP NOT NULL)`,
+    `CREATE INDEX IF NOT EXISTS idx_tofy_experiments_customer_status ON tofy_experiments (customer_id, status)`,
+    `CREATE TABLE IF NOT EXISTS customer_portal_documents (id integer PRIMARY KEY AUTOINCREMENT NOT NULL, customer_id integer NOT NULL, title text NOT NULL, category text DEFAULT 'document' NOT NULL, url text DEFAULT '' NOT NULL, status text DEFAULT 'active' NOT NULL, created_at text DEFAULT CURRENT_TIMESTAMP NOT NULL, updated_at text DEFAULT CURRENT_TIMESTAMP NOT NULL)`,
+    `CREATE INDEX IF NOT EXISTS idx_customer_portal_documents_customer ON customer_portal_documents (customer_id, status)`,
+  ];
+  for (const statement of statements) await db.prepare(statement).run();
+}
+
 async function seedDemoCustomerPortal(db) {
   if (!(await tableExists(db, "customers"))) return;
   const existing = await db.prepare(
@@ -902,6 +927,38 @@ async function seedDemoCustomerPortal(db) {
   `).bind(customerId, now, now).run();
 }
 
+async function seedDemoCustomerPortalProductData(db) {
+  const customer = await db.prepare("SELECT id FROM customers WHERE email = ? LIMIT 1").bind("musteri@ornek.local").first();
+  if (!customer?.id) return;
+  const customerId = Number(customer.id);
+  const now = new Date().toISOString();
+  await db.prepare(`INSERT OR IGNORE INTO customer_portal_profiles (customer_id, company_name, monogram, theme, color_mode, onboarding_status, onboarding_progress) VALUES (?, 'BasBitir Atölyesi', 'BA', 'avci', 'day', 'in_progress', 3)`).bind(customerId).run();
+
+  for (const slug of ["trendyol", "paytr", "yurtici-kargo"]) {
+    const moduleRow = await db.prepare("SELECT id FROM modules WHERE slug = ? LIMIT 1").bind(slug).first();
+    if (moduleRow?.id) await db.prepare(`INSERT OR IGNORE INTO customer_module_instances (customer_id, module_id, status, coverage, enabled_at, note) VALUES (?, ?, 'active', 'Scale kapsamı', ?, 'Yerel örnek müşteri kaydı')`).bind(customerId, moduleRow.id, now).run();
+  }
+  for (const [providerKey, status, progress, score, metadata] of [
+    ["trendyol", "setup", 72, 74, JSON.stringify({ setupStartedAt: "2026-08-01", scope: "stok ve sipariş" })],
+    ["paytr", "active", 100, 98, JSON.stringify({ scope: "ödeme servis sağlığı" })],
+    ["yurtici", "active", 100, 96, JSON.stringify({ scope: "etiket ve takip" })],
+  ]) {
+    const integration = await db.prepare("SELECT id FROM integrations WHERE provider_key = ? LIMIT 1").bind(providerKey).first();
+    if (integration?.id) await db.prepare(`INSERT OR IGNORE INTO customer_integration_instances (customer_id, integration_id, status, setup_progress, health_score, last_sync_at, public_metadata) VALUES (?, ?, ?, ?, ?, ?, ?)`).bind(customerId, integration.id, status, progress, score, now, metadata).run();
+  }
+  const metricCount = await db.prepare("SELECT COUNT(*) AS total FROM customer_metric_snapshots WHERE customer_id = ?").bind(customerId).first();
+  if (Number(metricCount?.total ?? 0) === 0) {
+    for (const [key, value, unit] of [
+      ["tofy_recommendation_views", 18420, "count"], ["tofy_click_rate_bps", 840, "basis_points"],
+      ["tofy_cart_additions", 186, "count"], ["tofy_cross_sell", 34, "count"],
+      ["tofy_quality_ready", 412, "count"], ["tofy_quality_needs_work", 38, "count"],
+      ["tofy_quality_blocked", 7, "count"], ["service_health_score", 94, "score"],
+      ["sla_first_response_minutes", 28, "minutes"],
+    ]) await db.prepare(`INSERT INTO customer_metric_snapshots (customer_id, metric_key, value, unit, source, period_start, period_end) VALUES (?, ?, ?, ?, 'demo_seed', '2026-08-16', '2026-08-23')`).bind(customerId, key, value, unit).run();
+  }
+  await db.prepare(`INSERT OR IGNORE INTO tofy_experiments (id, customer_id, name, kind, status, control_label, variant_label, result_summary, starts_at) VALUES (100001, ?, 'Ürün kartı öneri metni', 'copy', 'active', 'Klasik öneri', 'İhtiyaca göre öneri', 'Sonuç oluşması bekleniyor · demo', '2026-08-20')`).bind(customerId).run();
+}
+
 async function applyLocalD1Schema(env) {
   if (!isLocalAdminBypassEnabled(env) || !env.DB) return;
 
@@ -926,8 +983,10 @@ async function applyLocalD1Schema(env) {
     await ensureCouponsTable(env.DB);
     await ensureAuditLogsTable(env.DB);
     await ensureIntegrationsTable(env.DB);
+    await ensureCustomerPortalProductTables(env.DB);
     await seedDemoLeads(env.DB);
     await seedDemoCustomerPortal(env.DB);
+    await seedDemoCustomerPortalProductData(env.DB);
     return;
   }
 
@@ -964,8 +1023,10 @@ async function applyLocalD1Schema(env) {
   await ensureCouponsTable(env.DB);
   await ensureAuditLogsTable(env.DB);
   await ensureIntegrationsTable(env.DB);
+  await ensureCustomerPortalProductTables(env.DB);
   await seedDemoLeads(env.DB);
   await seedDemoCustomerPortal(env.DB);
+  await seedDemoCustomerPortalProductData(env.DB);
 }
 
 export function ensureLocalD1Schema(env) {
@@ -993,7 +1054,10 @@ async function applyCustomerPortalPreviewData(env) {
   await ensureSoftwareOrdersTable(env.DB);
   await ensureSupportTicketsTable(env.DB);
   await ensureSoftwareInvoicesTable(env.DB);
+  await ensureIntegrationsTable(env.DB);
+  await ensureCustomerPortalProductTables(env.DB);
   await seedDemoCustomerPortal(env.DB);
+  await seedDemoCustomerPortalProductData(env.DB);
 }
 
 export function ensureCustomerPortalPreviewData(env) {

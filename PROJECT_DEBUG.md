@@ -1,6 +1,6 @@
 # AVC E-Ticaret — Kalıcı Proje Hafızası ve Debug/Devir Kaydı
 
-Son güncelleme: 22 Ağustos 2026
+Son güncelleme: 25 Ağustos 2026
 
 Bu dosya projenin tek yetkili debug/devir kaydıdır. Yeni bir Codex/ChatGPT oturumu önce bu dosyayı okumalı, mevcut kaynakları korumalı ve yalnızca aktif iş için gerekli dosyalara hedefli bakmalıdır. Gizli anahtar, parola, token ve gerçek müşteri verisi bu dosyaya yazılmaz.
 
@@ -1273,6 +1273,14 @@ Dürüst sınır:
 - `/teklif` header’ına aynı sayfa menüsü eklendi. “Ana sayfaya dön” tek başına menünün yerini tutmuyordu.
 - 1100 px altında teklif menüsü de katalogdaki gibi gizlenir; logo ve ana sayfa CTA kalır.
 - Değişen kaynaklar: `app/teklif/page.tsx`, `app/globals.css`, `tests/rendered-html.test.mjs`, `PROJECT_DEBUG.md`.
+
+### v162 — Demo portal Tofy tema okunabilirliği
+
+- Tofy Performans Merkezi içindeki alt bilgi satırının genel site `footer` kurallarıyla çakışması giderildi.
+- İç bileşen semantik sayfa footer'ı yerine `role="note"` taşıyan, CSS module ile izole edilmiş bilgi satırı kullanır; gece/gündüz renkleri ve mobil kolon düzeni artık panel token'larını korur.
+- Değişen kaynaklar: `app/demo-portal/portal-tofy-performance-center.tsx`, `app/demo-portal/portal-tofy-performance-center.module.css`, `PROJECT_DEBUG.md`.
+- Doğrulama: hedefli ESLint başarılı; `tests/customer-portal-tofy.test.mjs` içindeki 4 test başarılı. Geniş `tests/rendered-html.test.mjs`, bu değişiklikten bağımsız eski `/cozum-senaryolari/peynir` bağlantısı beklentisi nedeniyle başarısız ve ayrıca ele alınmalıdır.
+- Yerel sunucu `127.0.0.1:4115` üzerinde başlatıldı; `/demo-portal` HTTP 200 doğrulandı. Deploy yapılmadı.
 
 ## 6. Güvenlik ve veri bütünlüğü kararları
 

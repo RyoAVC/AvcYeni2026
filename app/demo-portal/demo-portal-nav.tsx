@@ -47,7 +47,12 @@ export function DemoPortalNavProvider({
 
   useEffect(() => {
     const fromHash = readHashSection(items);
-    if (fromHash) setActiveId(fromHash);
+    let cancelled = false;
+    if (fromHash) {
+      queueMicrotask(() => {
+        if (!cancelled) setActiveId(fromHash);
+      });
+    }
 
     const onHashChange = () => {
       const next = readHashSection(items);
@@ -57,7 +62,10 @@ export function DemoPortalNavProvider({
       }
     };
     window.addEventListener("hashchange", onHashChange);
-    return () => window.removeEventListener("hashchange", onHashChange);
+    return () => {
+      cancelled = true;
+      window.removeEventListener("hashchange", onHashChange);
+    };
   }, [items]);
 
   const selectSection = useCallback(

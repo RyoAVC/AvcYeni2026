@@ -6,11 +6,14 @@ export const LOGO_KINDS = {
   legacy: "logo",
 };
 
-/** Gece (koyu zemin) = beyaz logo; gündüz (açık zemin) = koyu logo. */
+/** Gece = koyu zemin için açık/renkli logo; gündüz = açık zemin için koyu logo. */
 export const STATIC_BRAND_LOGOS = {
-  night: "/brand/avci-logo-light-transparent.png",
+  night: "/brand/avci-logo-fx.webp",
   day: "/brand/avci-logo-dark-transparent.png",
 };
+
+/** Işık taraması maskesi — şeffaf orijinal geometri. */
+export const STATIC_BRAND_LOGO_MASK = "/brand/avci-logo-fx.webp";
 
 export function brandLogoSrc(theme, meta) {
   const kind = theme === "day" ? "day" : "night";

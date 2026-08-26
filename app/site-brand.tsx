@@ -1,6 +1,7 @@
 import Link from "next/link";
+import { BrandLogoFx } from "./brand-logo-fx";
 import { withBasePath } from "./base-path";
-import { brandLogoSrc } from "./site-logo.mjs";
+import { brandLogoSrc, STATIC_BRAND_LOGO_MASK } from "./site-logo.mjs";
 import { loadSiteLogoMetas, loadSiteSettings } from "./site-settings.mjs";
 
 type SiteBrandProps = {
@@ -27,27 +28,42 @@ export async function SiteBrand({
   const showMark = !showLogo;
   const showCopy = settings.showWordmark && (uploaded || Boolean(title || subtitle));
   const classes = [className, `brand--scale-${settings.logoScale}`].filter(Boolean).join(" ");
+  const nightSrc = withBasePath(brandLogoSrc("night", logos.night));
+  const daySrc = withBasePath(brandLogoSrc("day", logos.day));
+  const maskUrl = withBasePath(STATIC_BRAND_LOGO_MASK);
+  const logoStackClass = uploaded ? "brand-logo-stack" : "brand-logo-stack brand-logo-fx";
+
+  const logoImages = (
+    <>
+      <img
+        className="brand-logo-img brand-logo-img--night"
+        src={nightSrc}
+        alt=""
+        width={220}
+        height={50}
+        decoding="async"
+      />
+      <img
+        className="brand-logo-img brand-logo-img--day"
+        src={daySrc}
+        alt=""
+        width={220}
+        height={50}
+        decoding="async"
+      />
+    </>
+  );
+
   const inner = (
     <>
       {showLogo ? (
-        <span className="brand-logo-stack">
-          <img
-            className="brand-logo-img brand-logo-img--night"
-            src={withBasePath(brandLogoSrc("night", logos.night))}
-            alt=""
-            width={220}
-            height={50}
-            decoding="async"
-          />
-          <img
-            className="brand-logo-img brand-logo-img--day"
-            src={withBasePath(brandLogoSrc("day", logos.day))}
-            alt=""
-            width={220}
-            height={50}
-            decoding="async"
-          />
-        </span>
+        uploaded ? (
+          <span className={logoStackClass}>{logoImages}</span>
+        ) : (
+          <BrandLogoFx className={logoStackClass} maskUrl={maskUrl} interactive={false}>
+            {logoImages}
+          </BrandLogoFx>
+        )
       ) : null}
       {showMark ? <span className="brand-mark">A</span> : null}
       {showCopy ? (

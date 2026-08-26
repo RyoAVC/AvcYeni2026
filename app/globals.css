@@ -58,15 +58,137 @@ button, a, summary { -webkit-tap-highlight-color: transparent; touch-action: man
 .brand-copy small { font-size: 8.5px; letter-spacing: .3em; color: rgba(255,255,255,.6); font-weight: 600; }
 .brand-logo-stack { position: relative; display: block; height: clamp(2rem, 2.2vw + 1.15rem, 2.65rem); min-width: 8.5rem; }
 .brand-logo-img { display: block; width: auto; height: 100%; object-fit: contain; }
-.brand-logo-stack .brand-logo-img { position: absolute; left: 0; top: 0; height: 100%; width: auto; opacity: 0; }
-.brand-logo-stack .brand-logo-img--night { opacity: 1; }
-html[data-theme="day"] .brand-logo-stack .brand-logo-img--night { opacity: 0; }
-html[data-theme="day"] .brand-logo-stack .brand-logo-img--day { opacity: 1; }
+.brand-logo-stack .brand-logo-img {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: auto;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 180ms ease, visibility 180ms ease;
+}
+.brand-logo-stack .brand-logo-img--night {
+  opacity: 1;
+  visibility: visible;
+}
+html[data-theme="day"] .brand-logo-stack .brand-logo-img--night {
+  opacity: 0;
+  visibility: hidden;
+}
+html[data-theme="day"] .brand-logo-stack .brand-logo-img--day {
+  opacity: 1;
+  visibility: visible;
+}
 .brand--scale-small .brand-logo-stack { height: clamp(1.55rem, 1.6vw + 1rem, 2.05rem); }
 .brand--scale-large .brand-logo-stack { height: clamp(2.35rem, 2.8vw + 1.3rem, 3.4rem); }
 .footer-brand .brand-logo-stack { height: clamp(1.7rem, 1.8vw + 1rem, 2.25rem); }
 .footer-brand.brand--scale-small .brand-logo-stack { height: clamp(1.4rem, 1.4vw + .9rem, 1.85rem); }
 .footer-brand.brand--scale-large .brand-logo-stack { height: clamp(2rem, 2.2vw + 1.1rem, 2.7rem); }
+
+/* Koyu paneller (giriş / yönetim / portal): her zaman gece logosu */
+.admin-login-page .brand-logo-stack .brand-logo-img--night,
+.admin-access-page .brand-logo-stack .brand-logo-img--night,
+.admin-sidebar .brand-logo-stack .brand-logo-img--night,
+.customer-login-page .brand-logo-stack .brand-logo-img--night,
+.customer-portal-login-page .brand-logo-stack .brand-logo-img--night,
+.cp-page .cp-sidebar .brand-logo-stack .brand-logo-img--night,
+html[data-theme="day"] .admin-login-page .brand-logo-stack .brand-logo-img--night,
+html[data-theme="day"] .admin-access-page .brand-logo-stack .brand-logo-img--night,
+html[data-theme="day"] .admin-sidebar .brand-logo-stack .brand-logo-img--night,
+html[data-theme="day"] .customer-login-page .brand-logo-stack .brand-logo-img--night,
+html[data-theme="day"] .customer-portal-login-page .brand-logo-stack .brand-logo-img--night,
+html[data-theme="day"] .cp-page .cp-sidebar .brand-logo-stack .brand-logo-img--night {
+  opacity: 1;
+  visibility: visible;
+}
+.admin-login-page .brand-logo-stack .brand-logo-img--day,
+.admin-access-page .brand-logo-stack .brand-logo-img--day,
+.admin-sidebar .brand-logo-stack .brand-logo-img--day,
+.customer-login-page .brand-logo-stack .brand-logo-img--day,
+.customer-portal-login-page .brand-logo-stack .brand-logo-img--day,
+.cp-page .cp-sidebar .brand-logo-stack .brand-logo-img--day,
+html[data-theme="day"] .admin-login-page .brand-logo-stack .brand-logo-img--day,
+html[data-theme="day"] .admin-access-page .brand-logo-stack .brand-logo-img--day,
+html[data-theme="day"] .admin-sidebar .brand-logo-stack .brand-logo-img--day,
+html[data-theme="day"] .customer-login-page .brand-logo-stack .brand-logo-img--day,
+html[data-theme="day"] .customer-portal-login-page .brand-logo-stack .brand-logo-img--day,
+html[data-theme="day"] .cp-page .cp-sidebar .brand-logo-stack .brand-logo-img--day {
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* Hafif hover ışıması — sürekli nabız yok (kaybolma yapıyordu) */
+.brand-logo-fx {
+  isolation: isolate;
+  overflow: visible;
+}
+.brand-logo-fx::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(
+    108deg,
+    transparent 32%,
+    color-mix(in srgb, var(--brand-red) 70%, white) 46%,
+    var(--white) 50%,
+    color-mix(in srgb, var(--brand-red) 70%, white) 54%,
+    transparent 68%
+  );
+  background-size: 260% 100%;
+  background-position: 180% 0;
+  opacity: 0;
+  -webkit-mask: var(--logo-mask) left center / contain no-repeat;
+  mask: var(--logo-mask) left center / contain no-repeat;
+}
+.brand-logo-fx .brand-logo-img--night,
+.brand-logo-fx .brand-logo-img--day {
+  transform: translateZ(0);
+  filter: drop-shadow(0 0 0 transparent);
+  transition: transform 420ms cubic-bezier(.2, .8, .2, 1), filter 420ms ease;
+}
+.brand:hover .brand-logo-fx .brand-logo-img--night,
+.brand:focus-visible .brand-logo-fx .brand-logo-img--night,
+html[data-theme="day"] .brand:hover .brand-logo-fx .brand-logo-img--day,
+html[data-theme="day"] .brand:focus-visible .brand-logo-fx .brand-logo-img--day {
+  transform: scale(1.03);
+  filter:
+    drop-shadow(0 0 5px color-mix(in srgb, var(--brand-red) 55%, transparent))
+    drop-shadow(0 0 12px color-mix(in srgb, var(--brand-red) 28%, transparent));
+}
+.brand:hover .brand-logo-fx::after,
+.brand:focus-visible .brand-logo-fx::after {
+  opacity: 1;
+  animation: brandLogoSweep 1.15s cubic-bezier(.2, .8, .2, 1) both;
+}
+.admin-login-page .brand-logo-stack,
+.admin-access-page .brand-logo-stack,
+.customer-login-page .brand-logo-stack,
+.customer-portal-login-page .brand-logo-stack {
+  min-width: 12rem;
+}
+@keyframes brandLogoSweep {
+  from { background-position: 180% 0; }
+  to { background-position: -80% 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .brand-logo-fx .brand-logo-img--night,
+  .brand-logo-fx .brand-logo-img--day,
+  .brand:hover .brand-logo-fx .brand-logo-img--night,
+  .brand:hover .brand-logo-fx .brand-logo-img--day {
+    transition-duration: 0.01ms;
+    transform: none;
+    filter: none;
+  }
+  .brand:hover .brand-logo-fx::after,
+  .brand:focus-visible .brand-logo-fx::after {
+    animation: none;
+    opacity: .2;
+  }
+}
 .header-cta-cluster { display: inline-flex; align-items: center; justify-self: end; gap: clamp(0.9rem, 1.4vw, 1.35rem); }
 .theme-toggle { position: static; display: inline-flex; padding: 4px; border: 1px solid rgba(255,255,255,.14); border-radius: 999px; background: rgba(14,16,21,.7); backdrop-filter: blur(16px); }
 .theme-toggle button { display: grid; place-items: center; width: clamp(2rem, 1.4vw + 1.55rem, 2.35rem); height: clamp(2rem, 1.4vw + 1.55rem, 2.35rem); border: 0; border-radius: 999px; padding: 0; color: rgba(255,255,255,.7); background: transparent; cursor: pointer; }
@@ -2314,6 +2436,21 @@ footer > small { color: rgba(255,255,255,.28); font-size: 8px; }
   color: var(--muted);
   font-size: 11px;
 }
+.cp-stats-commerce-link {
+  color: var(--cyan);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.35;
+  text-decoration: none;
+}
+.cp-stats-commerce-link:hover {
+  color: var(--mint);
+  text-decoration: underline;
+}
+.cp-stats-commerce-link:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+}
 .cp-notices {
   margin-bottom: 22px;
   padding: 20px 18px;
@@ -3496,14 +3633,6 @@ footer > small { color: rgba(255,255,255,.28); font-size: 8px; }
 .admin-login-page .brand { justify-content: center; margin-bottom: 28px; }
 .admin-login-page .brand-logo-stack { height: clamp(2.6rem, 3.2vw + 1.3rem, 3.5rem); min-width: 11rem; }
 .admin-sidebar .brand-logo-stack { height: clamp(1.55rem, 1.4vw + 1rem, 1.95rem); min-width: 0; width: min(100%, 10.5rem); }
-.admin-sidebar .brand-logo-stack .brand-logo-img--night,
-.admin-access-page .brand-logo-stack .brand-logo-img--night { opacity: 1; }
-.admin-sidebar .brand-logo-stack .brand-logo-img--day,
-.admin-access-page .brand-logo-stack .brand-logo-img--day { opacity: 0; }
-html[data-theme="day"] .admin-sidebar .brand-logo-stack .brand-logo-img--night,
-html[data-theme="day"] .admin-access-page .brand-logo-stack .brand-logo-img--night { opacity: 1; }
-html[data-theme="day"] .admin-sidebar .brand-logo-stack .brand-logo-img--day,
-html[data-theme="day"] .admin-access-page .brand-logo-stack .brand-logo-img--day { opacity: 0; }
 .admin-login-page h1 { font-size: clamp(2.4rem, 4vw + .6rem, 4.2rem); }
 .admin-login-error { max-width: none; margin: 18px 0 0; padding: 12px 14px; border: 1px solid rgba(255,255,255,.16); border-radius: 9px; color: rgba(255,255,255,.86); background: rgba(255,255,255,.04); font-size: 13px; }
 .admin-login-form { display: grid; gap: 14px; margin-top: 28px; text-align: left; }
@@ -9210,3 +9339,260 @@ html[data-theme-preview="logo"] .mobile-bottom-nav-sheet .mobile-bottom-nav-cta 
   }
 }
 
+/* Demo portal kabuk düzeltmeleri — geniş ekran, marka ve güven kimliği */
+body:has(.cp-page) .avc-header,
+body:has(.cp-page) .avc-side,
+body:has(.cp-page) .live-toast {
+  display: none !important;
+}
+
+.cp-grid.cp-panel-single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.cp-panel.is-active,
+.cp-panel.is-active > .cp-card,
+.cp-panel-card.is-active {
+  width: 100%;
+  max-width: none;
+}
+
+.cp-sidebar > .brand {
+  min-height: 48px;
+  overflow: visible;
+}
+
+.cp-sidebar .brand-logo-stack {
+  min-width: 136px;
+  height: 42px;
+}
+
+.cp-sidebar .brand-logo-stack:empty {
+  display: none;
+}
+
+.cp-sidebar > .brand .brand-copy strong { font-size: 15px; }
+.cp-sidebar > .brand .brand-copy small { font-size: 9px; }
+
+.cp-customer-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  margin-bottom: 13px;
+}
+
+.cp-customer-logo {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border: 1px solid color-mix(in srgb, var(--mint) 42%, var(--line));
+  border-radius: 14px;
+  color: var(--white);
+  background:
+    radial-gradient(circle at 25% 20%, color-mix(in srgb, var(--mint) 42%, transparent), transparent 42%),
+    var(--dark);
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--ink) 14%, transparent);
+  font-size: 12px;
+  font-weight: 850;
+  letter-spacing: .04em;
+}
+
+.cp-customer-brand > span:last-child {
+  display: grid;
+  gap: 2px;
+}
+
+.cp-customer-brand small {
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 820;
+  letter-spacing: .12em;
+}
+
+.cp-customer-brand strong {
+  font-size: 14px;
+  letter-spacing: -.025em;
+}
+
+.cp-topbar-actions {
+  align-items: center;
+}
+
+.cp-trust-badge {
+  position: relative;
+}
+
+.cp-trust-badge summary {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 52px;
+  padding: 7px 11px;
+  border: 1px solid color-mix(in srgb, var(--mint) 38%, var(--line));
+  border-radius: 15px;
+  color: var(--white);
+  background: var(--dark);
+  box-shadow: 0 12px 30px color-mix(in srgb, var(--ink) 15%, transparent);
+  cursor: pointer;
+  list-style: none;
+}
+
+.cp-trust-badge summary::-webkit-details-marker { display: none; }
+
+.cp-trust-badge summary > span:first-child {
+  display: grid;
+  place-items: center;
+  width: 31px;
+  height: 31px;
+  border: 1px solid color-mix(in srgb, var(--mint) 54%, transparent);
+  border-radius: 10px;
+  color: var(--mint);
+  font-weight: 900;
+}
+
+.cp-trust-badge summary > span:last-child {
+  display: grid;
+  gap: 1px;
+}
+
+.cp-trust-badge summary b {
+  font-size: 10px;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+
+.cp-trust-badge summary small {
+  color: rgba(255,255,255,.55);
+  font-size: 8px;
+}
+
+.cp-trust-badge > div {
+  position: absolute;
+  z-index: 4;
+  top: calc(100% + 8px);
+  right: 0;
+  width: min(290px, calc(100vw - 32px));
+  padding: 16px;
+  border: 1px solid color-mix(in srgb, var(--mint) 32%, transparent);
+  border-radius: 16px;
+  color: var(--white);
+  background: var(--dark);
+  box-shadow: 0 22px 60px color-mix(in srgb, var(--ink) 26%, transparent);
+}
+
+.cp-trust-badge > div strong { font-size: 13px; }
+.cp-trust-badge > div p { margin: 7px 0 0; color: rgba(255,255,255,.62); font-size: 10px; line-height: 1.55; }
+
+@media (min-width: 1600px) {
+  .cp-shell { grid-template-columns: 260px minmax(0, 1fr); }
+  .cp-main { padding-right: clamp(34px, 4vw, 72px); padding-left: clamp(34px, 4vw, 72px); }
+  .cp-tofy-showcase { grid-template-columns: minmax(340px, .82fr) minmax(520px, 1.18fr); }
+}
+
+@media (max-width: 720px) {
+  body:has(.cp-page) .mobile-bottom-nav { display: none; }
+  body:has(.cp-page) { padding-bottom: 0 !important; }
+  .cp-main { padding: 18px 14px 90px; }
+  .cp-sidebar { align-items: stretch; }
+  .cp-sidebar > .brand { min-height: 38px; }
+  .cp-sidebar .brand-logo-stack { min-width: 112px; height: 34px; }
+  .cp-sidebar-badge { display: none; }
+  .cp-topbar { gap: 16px; }
+  .cp-topbar-actions { display: grid; grid-template-columns: 1fr 1fr; width: 100%; }
+  .cp-topbar-actions .button { min-width: 0; min-height: 44px; padding: 0 12px; font-size: 11px; }
+  .cp-trust-badge { grid-column: 1 / -1; }
+  .cp-trust-badge summary { width: 100%; }
+  .cp-trust-badge > div { right: auto; left: 0; }
+  .cp-customer-brand { margin-bottom: 7px; }
+  .cp-customer-logo { width: 42px; height: 42px; }
+  .cp-card { padding: 17px 14px; }
+  .cp-tofy-showcase { gap: 14px; }
+  .cp-tofy-visual { padding: 14px; }
+  .cp-tofy-picks { padding: 14px; }
+  .demo-portal-boundary { padding-bottom: 20px; }
+}
+
+
+.portal-admin-editor {
+  display: grid;
+  gap: 14px;
+}
+
+.portal-admin-editor details {
+  border: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--mint) 8%, var(--surface-raised));
+  box-shadow: 0 14px 36px color-mix(in srgb, var(--ink) 8%, transparent);
+  overflow: clip;
+}
+
+.portal-admin-editor summary {
+  cursor: pointer;
+  padding: 18px 20px;
+  color: var(--ink);
+  font-weight: 800;
+}
+
+.portal-admin-editor form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  padding: 0 20px 20px;
+}
+
+.portal-admin-editor label {
+  display: grid;
+  gap: 7px;
+  color: color-mix(in srgb, var(--ink) 76%, transparent);
+  font-size: .82rem;
+  font-weight: 750;
+}
+
+.portal-admin-editor input,
+.portal-admin-editor select,
+.portal-admin-editor textarea {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid color-mix(in srgb, var(--ink) 18%, transparent);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--mint) 3%, var(--surface-raised));
+  color: var(--ink);
+  padding: 10px 12px;
+  font: inherit;
+}
+
+.portal-admin-editor textarea { min-height: 88px; resize: vertical; }
+.portal-admin-editor form .button { align-self: end; justify-self: start; }
+.portal-admin-editor details > p { margin: 0; padding: 0 20px 20px; color: color-mix(in srgb, var(--ink) 68%, transparent); }
+.portal-admin-feedback { margin: 0; color: color-mix(in srgb, var(--ink) 76%, transparent); }
+
+.cp-real-customer-brand { display: flex; align-items: center; gap: 10px; margin: 14px 0; padding: 12px; border: 1px solid color-mix(in srgb, var(--mint) 20%, transparent); border-radius: 14px; }
+.cp-real-customer-brand > span { display: grid; place-items: center; width: 40px; height: 40px; overflow: hidden; border-radius: 12px; background: color-mix(in srgb, var(--mint) 20%, transparent); color: var(--mint); font-weight: 900; }
+.cp-real-customer-brand img { width: 100%; height: 100%; object-fit: contain; }
+.cp-real-customer-brand div { display: grid; min-width: 0; }
+.cp-real-customer-brand small, .cp-real-customer-brand em { color: color-mix(in srgb, var(--mint) 68%, transparent); font-size: .62rem; font-style: normal; }
+.cp-real-customer-brand strong { overflow: hidden; color: var(--mint); text-overflow: ellipsis; white-space: nowrap; }
+.cp-onboarding-progress { height: 9px; margin: 18px 0; overflow: hidden; border-radius: 999px; background: color-mix(in srgb, var(--ink) 10%, transparent); }
+.cp-onboarding-progress span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--cyan), var(--lime)); }
+.cp-real-weekly { display: grid; grid-template-columns: minmax(220px, .7fr) 1.3fr; gap: 18px; margin-top: 22px; padding: 20px; border: 1px solid color-mix(in srgb, var(--cyan) 22%, transparent); border-radius: 18px; background: color-mix(in srgb, var(--cyan) 7%, transparent); }
+.cp-real-weekly h2 { margin: 6px 0; }
+.cp-real-weekly ul { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
+.cp-real-weekly li { display: grid; gap: 4px; padding: 13px; border-radius: 14px; background: color-mix(in srgb, var(--mint) 6%, var(--surface-raised)); }
+.cp-real-weekly strong { font-size: 1.3rem; }
+.cp-upgrade-scope { margin-top: 16px; padding: 16px; border: 1px dashed color-mix(in srgb, var(--lime) 42%, transparent); border-radius: 15px; background: color-mix(in srgb, var(--lime) 8%, transparent); }
+.cp-upgrade-scope p { margin: 6px 0 0; }
+.cp-tofy-quality { display: grid; grid-template-columns: 1fr 1.25fr; gap: 14px; margin-top: 16px; padding: 16px; border: 1px solid color-mix(in srgb, var(--cyan) 22%, transparent); border-radius: 16px; background: color-mix(in srgb, var(--cyan) 6%, transparent); }
+.cp-tofy-quality p { margin: 5px 0 0; }
+.cp-tofy-quality ul { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 0; padding: 0; list-style: none; }
+.cp-tofy-quality li { display: grid; gap: 4px; padding: 12px; border-radius: 12px; background: color-mix(in srgb, var(--mint) 6%, var(--surface-raised)); border-left: 3px solid var(--cyan); }
+.cp-tofy-quality li[data-tone="healthy"] { border-left-color: var(--lime); }
+.cp-tofy-quality li[data-tone="critical"] { border-left-color: var(--ink); }
+.cp-tofy-quality li strong { font-size: 1.25rem; }
+
+@media (max-width: 720px) {
+  .portal-admin-editor form { grid-template-columns: 1fr; }
+  .cp-real-weekly { grid-template-columns: 1fr; }
+  .cp-real-weekly ul { grid-template-columns: 1fr; }
+  .cp-tofy-quality { grid-template-columns: 1fr; }
+}

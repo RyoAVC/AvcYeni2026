@@ -191,6 +191,9 @@ export const supportTickets = sqliteTable(
     message: text("message").notNull().default(""),
     note: text("note").notNull().default(""),
     status: text("status").notNull().default("open"),
+    priority: text("priority").notNull().default("normal"),
+    firstRespondedAt: text("first_responded_at").notNull().default(""),
+    closedAt: text("closed_at").notNull().default(""),
     createdByEmail: text("created_by_email").notNull().default(""),
     createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
     updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
@@ -430,4 +433,137 @@ export const integrations = sqliteTable(
     uniqueIndex("idx_integrations_provider_key").on(table.providerKey),
     index("idx_integrations_category_status").on(table.category, table.status),
   ],
+);
+
+export const customerPortalProfiles = sqliteTable(
+  "customer_portal_profiles",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    customerId: integer("customer_id").notNull(),
+    companyName: text("company_name").notNull().default(""),
+    logoUrl: text("logo_url").notNull().default(""),
+    monogram: text("monogram").notNull().default(""),
+    theme: text("theme").notNull().default("avci"),
+    colorMode: text("color_mode").notNull().default("day"),
+    sslWarningDays: integer("ssl_warning_days").notNull().default(30),
+    tofyClickThresholdBps: integer("tofy_click_threshold_bps").notNull().default(1000),
+    marketplaceSetupDays: integer("marketplace_setup_days").notNull().default(7),
+    onboardingStatus: text("onboarding_status").notNull().default("not_started"),
+    onboardingProgress: integer("onboarding_progress").notNull().default(0),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [uniqueIndex("idx_customer_portal_profiles_customer").on(table.customerId)],
+);
+
+export const customerModuleInstances = sqliteTable(
+  "customer_module_instances",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    customerId: integer("customer_id").notNull(),
+    moduleId: integer("module_id").notNull(),
+    status: text("status").notNull().default("planned"),
+    coverage: text("coverage").notNull().default(""),
+    enabledAt: text("enabled_at").notNull().default(""),
+    expiresAt: text("expires_at").notNull().default(""),
+    note: text("note").notNull().default(""),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    uniqueIndex("idx_customer_module_instances_unique").on(table.customerId, table.moduleId),
+    index("idx_customer_module_instances_status").on(table.customerId, table.status),
+  ],
+);
+
+export const customerIntegrationInstances = sqliteTable(
+  "customer_integration_instances",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    customerId: integer("customer_id").notNull(),
+    integrationId: integer("integration_id").notNull(),
+    status: text("status").notNull().default("planned"),
+    setupProgress: integer("setup_progress").notNull().default(0),
+    healthScore: integer("health_score").notNull().default(0),
+    lastSyncAt: text("last_sync_at").notNull().default(""),
+    lastErrorSummary: text("last_error_summary").notNull().default(""),
+    publicMetadata: text("public_metadata").notNull().default("{}"),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    uniqueIndex("idx_customer_integration_instances_unique").on(table.customerId, table.integrationId),
+    index("idx_customer_integration_instances_status").on(table.customerId, table.status),
+  ],
+);
+
+export const customerMetricSnapshots = sqliteTable(
+  "customer_metric_snapshots",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    customerId: integer("customer_id").notNull(),
+    metricKey: text("metric_key").notNull(),
+    value: integer("value").notNull().default(0),
+    unit: text("unit").notNull().default("count"),
+    source: text("source").notNull().default("system"),
+    periodStart: text("period_start").notNull().default(""),
+    periodEnd: text("period_end").notNull().default(""),
+    metadata: text("metadata").notNull().default("{}"),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [index("idx_customer_metric_snapshots_lookup").on(table.customerId, table.metricKey, table.periodEnd)],
+);
+
+export const portalNotifications = sqliteTable(
+  "portal_notifications",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    customerId: integer("customer_id").notNull(),
+    type: text("type").notNull().default("info"),
+    title: text("title").notNull(),
+    body: text("body").notNull().default(""),
+    priority: integer("priority").notNull().default(0),
+    targetSection: text("target_section").notNull().default("ozet"),
+    status: text("status").notNull().default("active"),
+    source: text("source").notNull().default("admin"),
+    visibleAt: text("visible_at").notNull().default(""),
+    expiresAt: text("expires_at").notNull().default(""),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [index("idx_portal_notifications_visible").on(table.customerId, table.status, table.visibleAt)],
+);
+
+export const tofyExperiments = sqliteTable(
+  "tofy_experiments",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    customerId: integer("customer_id").notNull(),
+    name: text("name").notNull(),
+    kind: text("kind").notNull().default("copy"),
+    status: text("status").notNull().default("draft"),
+    controlLabel: text("control_label").notNull().default("Kontrol"),
+    variantLabel: text("variant_label").notNull().default("Varyant"),
+    resultSummary: text("result_summary").notNull().default(""),
+    startsAt: text("starts_at").notNull().default(""),
+    endsAt: text("ends_at").notNull().default(""),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [index("idx_tofy_experiments_customer_status").on(table.customerId, table.status)],
+);
+
+export const customerPortalDocuments = sqliteTable(
+  "customer_portal_documents",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    customerId: integer("customer_id").notNull(),
+    title: text("title").notNull(),
+    category: text("category").notNull().default("document"),
+    url: text("url").notNull().default(""),
+    status: text("status").notNull().default("active"),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [index("idx_customer_portal_documents_customer").on(table.customerId, table.status)],
 );

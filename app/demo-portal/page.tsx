@@ -13,6 +13,24 @@ import {
   DemoPortalPanel,
   type DemoPortalNavItem,
 } from "./demo-portal-nav";
+import { DemoPortalSuccessCenter } from "./demo-portal-success-center";
+import { DemoPortalThemeWidget } from "./demo-portal-theme-widget";
+import { DemoPortalTofyGrowth } from "./demo-portal-tofy-growth";
+import { DemoPortalTrustBadge } from "./demo-portal-trust-badge";
+import { buildCommerceHealthReport } from "./commerce-health";
+import { DemoPortalIntegrationMap } from "./demo-portal-integration-map";
+import { DemoPortalCustomerBrand } from "./demo-portal-customer-brand";
+import { DemoPortalCommerceBridge } from "./demo-portal-commerce-bridge";
+import { demoPortalBrand } from "./demo-portal-brand";
+import {
+  DemoPortalCommerceBenchmark,
+  DemoPortalModulePortfolio,
+  DemoPortalSlaCenter,
+  DemoPortalSmartNotifications,
+  DemoPortalWeeklyReport,
+} from "./demo-portal-intelligence";
+import { createDemoPortalSnapshot } from "./demo-portal-snapshot";
+import { PortalTofyPerformanceCenter } from "./portal-tofy-performance-center";
 
 export const metadata: Metadata = {
   title: "Demo Müşteri Paneli V2 | Avcı E-Ticaret",
@@ -47,12 +65,25 @@ const navItems: DemoPortalNavItem[] = [
   { id: "sonraki", label: "Sonraki" },
 ];
 
-const modules = [
-  { name: "E-Ticaret altyapısı", status: "Aktif", note: "Scale çerçevesi · örnek" },
-  { name: "Pazaryeri senkronu", status: "Kurulumda", note: "Trendyol / HB · örnek" },
-  { name: "Tofy Ajan V2", status: "Aktif", note: "Sepet ve öneri · örnek" },
-  { name: "Hosting & SSL", status: "Aktif", note: "Yenileme 2027 · örnek" },
-] as const;
+const demoSnapshot = createDemoPortalSnapshot();
+const modules = demoSnapshot.moduleInstances.map((item) => ({ name: item.name, status: item.status === "active" ? "Aktif" : item.status === "setup" ? "Kurulumda" : "Planlandı", note: item.coverage, category: item.key === "tofy" ? "Yapay zekâ" : item.key === "marketplace" ? "Kanal" : item.key === "hosting" ? "Süreklilik" : "Çekirdek", capability: item.note, coverage: item.status === "setup" ? 71 : item.key === "tofy" ? 88 : item.key === "hosting" ? 96 : 100 }));
+const integrationLogos: Record<string, string> = {
+  trendyol: "https://cdn.dsmcdn.com/web/logo/ty-web.svg",
+  hepsiburada: "https://upload.wikimedia.org/wikipedia/commons/2/20/Hepsiburada_logo_official.svg",
+  paytr: "https://www.paytr.com/wp-content/uploads/logo-1.png",
+  yurtici: "https://www.yurticikargo.com/web_files/yurtici-kargo/assets/img/logo.svg",
+};
+const integrationCards = demoSnapshot.integrationInstances.map((item) => ({
+  id: item.providerKey,
+  name: item.name,
+  category: item.category === "marketplace" ? "Pazaryeri" as const : item.category === "payment" ? "Ödeme" as const : "Kargo" as const,
+  status: item.status === "active" ? "active" as const : item.status === "setup" ? "setup" as const : "attention" as const,
+  statusLabel: item.status === "active" ? "Bağlı" : item.status === "setup" ? "Kurulumda" : "Dikkat",
+  detail: String(item.publicMetadata.scope || "Bağlantı kapsamı"),
+  signal: item.lastSyncAt ? `Son senkron ${item.lastSyncAt} · örnek` : `${item.setupProgress}% tamamlandı · örnek`,
+  progress: item.status === "setup" ? item.setupProgress : undefined,
+  logoSrc: integrationLogos[item.providerKey],
+}));
 
 const accessLinks = [
   { title: "Mağaza vitrini", text: "Müşteriye açık site", href: "https://basbitir.com", external: true },
@@ -71,12 +102,6 @@ const tofyCapabilities = [
 const tofyStorePreview = [
   { role: "visitor" as const, text: "Bu deri cüzdanın kahverengi rengi stokta mı?" },
   { role: "tofy" as const, text: "Evet, stokta. Sepete eklemek veya benzer modellere bakmak ister misiniz?" },
-] as const;
-
-const tofyMetrics = [
-  { label: "Öneri tıklama", value: "%12,4", note: "örnek · son 7 gün" },
-  { label: "Sepete yönlendirme", value: "186", note: "örnek oturum" },
-  { label: "Tamamlayıcı ürün", value: "34", note: "örnek ekleme" },
 ] as const;
 
 const tofyRecommendedProducts = [
@@ -144,25 +169,45 @@ const operationChecks = [
   { label: "Uptime izleme", status: "Aktif", tone: "ok", note: "örnek · 30 gün" },
 ] as const;
 
-const panelNotices = [
-  {
-    title: "Hosting yenileme takvimi",
-    text: "Scale çerçevesi için örnek yenileme penceresi 2027 son çeyrekte planlanır.",
-    when: "örnek · 2 gün önce",
-    tone: "info",
+const commerceHealthReport = buildCommerceHealthReport({
+  infrastructure: {
+    checks: operationChecks.map((item) => ({ healthy: item.tone === "ok" })),
   },
-  {
-    title: "Tofy V2 öneri güncellemesi",
-    text: "Kategori bazlı öneri kuralları örnek vitrinde genişletildi; mağaza verisi değişmez.",
-    when: "örnek · bugün",
-    tone: "live",
+  marketplace: {
+    state: "setup",
+    setupAgeDays: 18,
   },
-  {
-    title: "Planlı bakım penceresi",
-    text: "Gece yedeği sonrası kısa DNS kontrolü örnek olarak işaretlendi; müdahale yok.",
-    when: "örnek · 5 gün sonra",
-    tone: "watch",
+  support: {
+    openCount: supportSnapshot.openCount,
+    waitingCount: 0,
   },
+  tofy: {
+    clickRate: 12.4,
+    targetRate: 15,
+  },
+});
+
+const panelNotices = demoSnapshot.notifications.map((item) => ({ title: item.title, text: item.body, when: "örnek veri", tone: item.tone === "healthy" ? "live" : item.tone === "watch" ? "watch" : "info", target: `#${item.targetSection}`, category: item.targetSection.toLocaleUpperCase("tr-TR") }));
+
+const weeklyMetrics = [
+  { label: "Ticaret sağlığı", value: "81/100", note: "+3 puan · örnek", trend: "up", points: [46, 53, 58, 61, 68, 76, 81] },
+  { label: "Tofy etkileşimi", value: "%12,4", note: "+1,8 puan · örnek", trend: "up", points: [38, 44, 42, 55, 61, 67, 74] },
+  { label: "Entegrasyon ağı", value: "3/5", note: "2 kurulumda · örnek", trend: "watch", points: [42, 42, 49, 55, 55, 60, 60] },
+  { label: "Açık destek", value: "0", note: "kritik kayıt yok · örnek", trend: "steady", points: [72, 72, 72, 74, 74, 76, 76] },
+] as const;
+
+const slaMetrics = [
+  { label: "İlk yanıt", value: "38 dk", target: "hedef < 2 saat · örnek", score: 94, tone: "healthy" },
+  { label: "Ortalama çözüm", value: "5,2 saat", target: "hedef < 8 saat · örnek", score: 86, tone: "healthy" },
+  { label: "Erişilebilirlik", value: "%99,95", target: "hedef %99,9 · örnek", score: 100, tone: "healthy" },
+  { label: "Planlı bakım", value: "1 pencere", target: "5 gün sonra · örnek", score: 78, tone: "watch" },
+] as const;
+
+const benchmarkMetrics = [
+  { label: "Mobil performans", current: 78, target: 85, unit: " puan", note: "teknik deneyim hedefi · örnek" },
+  { label: "Tofy öneri tıklama", current: 12.4, target: 15, unit: "%", note: "mağaza iç hedefi · örnek" },
+  { label: "Altyapı kontrolü", current: 5, target: 6, unit: "/6", note: "sağlıklı kontrol sayısı · örnek" },
+  { label: "Entegrasyon hazırlığı", current: 3, target: 5, unit: "/5", note: "hazır bağlantı sayısı · örnek" },
 ] as const;
 
 const nextSteps = [
@@ -188,6 +233,11 @@ const deliveryNotes = [
 export const dynamic = "force-dynamic";
 
 export default async function DemoPortalPage() {
+  const commerceDemoUrl =
+    process.env.NEXT_PUBLIC_COMMERCE_DEMO_URL?.trim() ||
+    (process.env.NODE_ENV === "development" ? "http://127.0.0.1:4142" : "/iletisim");
+  const commerceDemoExternal =
+    commerceDemoUrl.startsWith("http://") || commerceDemoUrl.startsWith("https://");
   const settings = await loadSiteSettings();
   if (!settings.demoPortalEnabled) {
     return (
@@ -240,11 +290,12 @@ export default async function DemoPortalPage() {
         <div className="cp-shell">
           <aside className="cp-sidebar" aria-label="Müşteri paneli menüsü">
             <SiteBrand href="/demo-portal" subtitle="MÜŞTERİ PANELİ" label="Demo müşteri paneli" />
+            <DemoPortalCustomerBrand brand={demoPortalBrand} placement="sidebar" />
             <p className="cp-sidebar-badge">ÖRNEK VERİ · salt demo</p>
             <DemoPortalNav />
             <div className="cp-sidebar-foot">
               <small>GÜVENLİ DEMO OTURUMU</small>
-              <strong>Örnek Yazılım Müşterisi</strong>
+              <strong>{demoPortalBrand.companyName}</strong>
               <Link href="/musteri-girisi">Gerçek müşteri girişi</Link>
             </div>
           </aside>
@@ -252,13 +303,14 @@ export default async function DemoPortalPage() {
           <div className="cp-main">
             <header className="cp-topbar">
               <div className="cp-topbar-copy">
+                <DemoPortalCustomerBrand brand={demoPortalBrand} />
                 <div className="cp-topbar-meta">
                   <span className="kicker">AVCI MÜŞTERİ PANELİ V2</span>
-                  <span className="cp-account-chip">Murat Bey · örnek hesap</span>
+                  <span className="cp-account-chip">{demoPortalBrand.accountLabel}</span>
                 </div>
                 <DemoPortalMobileToggle />
                 <h1 id="demo-ozeti">
-                  BasBitir Atölyesi
+                  {demoPortalBrand.companyName}
                   <em>örnek işletme görünümü</em>
                 </h1>
                 <p>
@@ -267,6 +319,7 @@ export default async function DemoPortalPage() {
                 </p>
               </div>
               <div className="cp-topbar-actions">
+                <DemoPortalTrustBadge />
                 <Link className="button button-ghost" href="/musteri-merkezi">
                   Portal kapsamı
                 </Link>
@@ -281,7 +334,7 @@ export default async function DemoPortalPage() {
                 <div className="cp-workspace" aria-label="Örnek site özeti">
                   <div>
                     <small>MAĞAZA ADRESİ</small>
-                    <strong>basbitir.com</strong>
+                    <strong>{demoPortalBrand.domain}</strong>
                     <span>örnek müşteri vitrini</span>
                   </div>
                   <div>
@@ -322,33 +375,25 @@ export default async function DemoPortalPage() {
                     <span>ajan aktif · örnek</span>
                   </article>
                   <article>
-                    <small>İşlem yetkisi</small>
-                    <strong>Yok</strong>
-                    <span>salt demo</span>
+                    <small>Portal</small>
+                    <strong>Salt okunur</strong>
+                    <a
+                      className="cp-stats-commerce-link"
+                      href={commerceDemoUrl}
+                      rel={commerceDemoExternal ? "noopener noreferrer" : undefined}
+                      target={commerceDemoExternal ? "_blank" : undefined}
+                    >
+                      Mağaza operasyonları Avcı Commerce&apos;te
+                    </a>
                   </article>
                 </div>
+
+                <DemoPortalSuccessCenter report={commerceHealthReport} />
+                <DemoPortalWeeklyReport metrics={weeklyMetrics} />
               </DemoPortalPanel>
 
               <DemoPortalPanel aria-label="Panel bildirimleri" className="cp-notices" id="bildirimler">
-                <div className="cp-notices-head">
-                  <span className="kicker">BİLDİRİMLER</span>
-                  <h2>Panel duyuruları</h2>
-                  <p>
-                    Yenileme, bakım ve modül notları örnek görünümdür. E-posta gönderimi veya okundu işaretleme bu demoda
-                    çalışmaz.
-                  </p>
-                </div>
-                <ul className="cp-notices-list">
-                  {panelNotices.map((item) => (
-                    <li className={`cp-notice is-${item.tone}`} key={item.title}>
-                      <div className="cp-notice-copy">
-                        <strong>{item.title}</strong>
-                        <p>{item.text}</p>
-                      </div>
-                      <span className="cp-notice-when">{item.when}</span>
-                    </li>
-                  ))}
-                </ul>
+                <DemoPortalSmartNotifications notices={panelNotices} />
               </DemoPortalPanel>
 
               <DemoPortalPanel aria-label="Operasyon kontrol listesi" className="cp-ops-checklist" id="operasyon">
@@ -371,6 +416,8 @@ export default async function DemoPortalPage() {
                     </li>
                   ))}
                 </ul>
+                <DemoPortalCommerceBenchmark metrics={benchmarkMetrics} />
+                <DemoPortalCommerceBridge commerceUrl={commerceDemoUrl} />
               </DemoPortalPanel>
 
               <DemoPortalPanel className="cp-grid cp-panel-single" id="altyapi">
@@ -379,17 +426,8 @@ export default async function DemoPortalPage() {
                     <span className="kicker">AKTİF MODÜLLER</span>
                   </div>
                   <h2>Altyapı özeti</h2>
-                  <ul className="cp-module-list">
-                    {modules.map((item) => (
-                      <li key={item.name}>
-                        <div>
-                          <strong>{item.name}</strong>
-                          <span>{item.note}</span>
-                        </div>
-                        <b className={item.status === "Aktif" ? "cp-pill is-live" : "cp-pill"}>{item.status}</b>
-                      </li>
-                    ))}
-                  </ul>
+                  <DemoPortalModulePortfolio modules={modules} />
+                  <DemoPortalIntegrationMap integrations={integrationCards} />
                 </article>
               </DemoPortalPanel>
 
@@ -432,21 +470,13 @@ export default async function DemoPortalPage() {
                           </li>
                         ))}
                       </ul>
-                      <div className="cp-metric-strip" aria-label="Tofy örnek metrikleri">
-                        {tofyMetrics.map((item) => (
-                          <div key={item.label}>
-                            <small>{item.label}</small>
-                            <strong>{item.value}</strong>
-                            <span>{item.note}</span>
-                          </div>
-                        ))}
-                      </div>
                       <div className="cp-card-actions">
                         <Link href="/yapay-zeka">AI modül kataloğu</Link>
                         <Link href="/avcai">Tofy tanıtımını aç</Link>
                       </div>
                     </div>
                   </div>
+                  <PortalTofyPerformanceCenter snapshot={demoSnapshot.tofy} mode="demo" />
                   <section className="cp-tofy-picks" aria-label="Tofy'nin önerdiği ürünler örnek">
                     <div className="cp-tofy-picks-head">
                       <TofyMark className="cp-tofy-picks-mark" />
@@ -473,6 +503,7 @@ export default async function DemoPortalPage() {
                       ))}
                     </ul>
                   </section>
+                  <DemoPortalTofyGrowth />
                 </article>
               </DemoPortalPanel>
 
@@ -586,6 +617,7 @@ export default async function DemoPortalPage() {
                     </div>
                   </li>
                 </ul>
+                <DemoPortalSlaCenter metrics={slaMetrics} />
               </DemoPortalPanel>
 
               <DemoPortalPanel as="article" className="cp-card cp-panel-card" id="teslim">
@@ -653,6 +685,7 @@ export default async function DemoPortalPage() {
             </aside>
           </div>
         </div>
+        <DemoPortalThemeWidget />
 
         <DemoPortalMobileDrawer />
       </main>

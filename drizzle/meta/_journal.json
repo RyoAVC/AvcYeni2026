@@ -183,6 +183,13 @@
       "when": 1787200000000,
       "tag": "0025_ecommerce_core",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "6",
+      "when": 1787518100682,
+      "tag": "0026_legal_franklin_storm",
+      "breakpoints": true
     }
   ]
 }

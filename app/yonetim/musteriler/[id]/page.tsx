@@ -93,6 +93,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
             <Link href={`/yonetim/faturalar/yeni?musteri=${customer.id}`}>Fatura ekle</Link>
             <Link href={`/yonetim/destek?musteri=${customer.id}`}>Destek</Link>
             <Link href={`/yonetim/destek/yeni?musteri=${customer.id}`}>Destek ekle</Link>
+            <Link href={`/yonetim/musteriler/${customer.id}/portal`}>Portal ürünleşme</Link>
           </div>
         </header>
         <CustomerForm
