@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { isLocalAdminBypassEnabled } from "./local-admin-identity.mjs";
 import { isCustomerPortalPreviewEnabled } from "./customer-portal-preview.mjs";
 
-const SCHEMA_GEN = 27;
+const SCHEMA_GEN = 28;
 let appliedGen = 0;
 let pending = null;
 
@@ -857,6 +857,13 @@ async function ensureCustomerPortalProductTables(db) {
     `CREATE INDEX IF NOT EXISTS idx_tofy_experiments_customer_status ON tofy_experiments (customer_id, status)`,
     `CREATE TABLE IF NOT EXISTS customer_portal_documents (id integer PRIMARY KEY AUTOINCREMENT NOT NULL, customer_id integer NOT NULL, title text NOT NULL, category text DEFAULT 'document' NOT NULL, url text DEFAULT '' NOT NULL, status text DEFAULT 'active' NOT NULL, created_at text DEFAULT CURRENT_TIMESTAMP NOT NULL, updated_at text DEFAULT CURRENT_TIMESTAMP NOT NULL)`,
     `CREATE INDEX IF NOT EXISTS idx_customer_portal_documents_customer ON customer_portal_documents (customer_id, status)`,
+    `CREATE TABLE IF NOT EXISTS commerce_license_installations (id integer PRIMARY KEY AUTOINCREMENT NOT NULL, customer_id integer NOT NULL, store_key text NOT NULL, installation_id text NOT NULL, primary_domain text NOT NULL, plan text DEFAULT 'start' NOT NULL, commerce_version text DEFAULT '1.0.0' NOT NULL, scopes_json text DEFAULT '[]' NOT NULL, limits_json text DEFAULT '{}' NOT NULL, activation_token_hash text NOT NULL, status text DEFAULT 'active' NOT NULL, valid_until text NOT NULL, last_seen_at text DEFAULT '' NOT NULL, last_seen_version text DEFAULT '' NOT NULL, created_at text DEFAULT CURRENT_TIMESTAMP NOT NULL, updated_at text DEFAULT CURRENT_TIMESTAMP NOT NULL)`,
+    `CREATE UNIQUE INDEX IF NOT EXISTS idx_commerce_license_installation_identity ON commerce_license_installations (store_key, installation_id)`,
+    `CREATE UNIQUE INDEX IF NOT EXISTS idx_commerce_license_installation_token ON commerce_license_installations (activation_token_hash)`,
+    `CREATE INDEX IF NOT EXISTS idx_commerce_license_installation_customer ON commerce_license_installations (customer_id, status)`,
+    `CREATE TABLE IF NOT EXISTS commerce_portal_login_codes (id integer PRIMARY KEY AUTOINCREMENT NOT NULL, installation_id integer NOT NULL, customer_id integer NOT NULL, code_hash text NOT NULL, expires_at text NOT NULL, used_at text DEFAULT '' NOT NULL, created_at text DEFAULT CURRENT_TIMESTAMP NOT NULL)`,
+    `CREATE UNIQUE INDEX IF NOT EXISTS idx_commerce_portal_login_code_hash ON commerce_portal_login_codes (code_hash)`,
+    `CREATE INDEX IF NOT EXISTS idx_commerce_portal_login_code_expiry ON commerce_portal_login_codes (expires_at, used_at)`,
   ];
   for (const statement of statements) await db.prepare(statement).run();
 }

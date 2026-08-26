@@ -19,9 +19,15 @@ fi
 
 # v1 slotundan gelen .env dosyaları /v2 derlemesinde basePath'i ezebilir.
 rm -f .env .env.local .env.production .env.production.local 2>/dev/null || true
-if [ -f "${V1_DIR}/.dev.vars" ]; then
-  cp "${V1_DIR}/.dev.vars" "${APP_DIR}/.dev.vars"
+# Lisans imza anahtarı sunucuda bir kez üretilir ve kalıcı v1 sır dosyasında tutulur.
+# Özel anahtar hiçbir zaman repoya veya istemciye çıkmaz.
+touch "${V1_DIR}/.dev.vars"
+if ! grep -q '^COMMERCE_LICENSE_PRIVATE_KEY_PKCS8=' "${V1_DIR}/.dev.vars"; then
+  key_lines="$(node --input-type=module -e "import { generateKeyPairSync } from 'node:crypto'; const {privateKey,publicKey}=generateKeyPairSync('ed25519'); const b=v=>v.toString('base64url'); console.log('COMMERCE_LICENSE_PRIVATE_KEY_PKCS8='+b(privateKey.export({format:'der',type:'pkcs8'}))); console.log('COMMERCE_LICENSE_PUBLIC_KEY='+b(publicKey.export({format:'der',type:'spki'}).subarray(-32)));" )"
+  printf '\n%s\n' "${key_lines}" >> "${V1_DIR}/.dev.vars"
+  chmod 600 "${V1_DIR}/.dev.vars"
 fi
+cp "${V1_DIR}/.dev.vars" "${APP_DIR}/.dev.vars"
 
 # Gizli müşteri paneli önizlemesi — wrangler/vinext .dev.vars okur.
 if [ -f "${APP_DIR}/.dev.vars" ]; then

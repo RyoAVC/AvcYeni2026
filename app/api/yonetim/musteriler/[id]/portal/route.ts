@@ -1,10 +1,12 @@
 import { eq } from "drizzle-orm";
 import {
   customerIntegrationInstances, customerModuleInstances, customerPortalDocuments, customerPortalProfiles, portalNotifications, tofyExperiments,
+  commerceLicenseInstallations,
 } from "../../../../../../db/schema";
 import { getAdminUser } from "../../../../../admin-auth";
 import { readAdminJsonObject, validateAdminMutationRequest } from "../../../../../admin-request.mjs";
 import { logAdminAction } from "../../../../../audit-log.mjs";
+import { createActivationToken, normalizeCommerceDomain, parseLimits, parseScopes, sha256, validCommerceIdentifier } from "../../../../../commerce-license-control-plane.mjs";
 
 const STATUSES = new Set(["planned", "setup", "active", "paused", "expired"]);
 const THEMES = new Set(["avci", "graphite", "energy"]);
@@ -47,6 +49,24 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       };
       if (profile) await db.update(customerPortalProfiles).set(values).where(eq(customerPortalProfiles.customerId, customerId));
       else await db.insert(customerPortalProfiles).values({ customerId, ...values, createdAt: now });
+    } else if (action === "commerce-license") {
+      const storeKey = text(data.storeKey, 96);
+      const installationId = text(data.installationId, 96);
+      const primaryDomain = normalizeCommerceDomain(data.primaryDomain);
+      const plan = text(data.plan, 40).toLowerCase();
+      const commerceVersion = text(data.commerceVersion, 32);
+      const validUntil = new Date(text(data.validUntil, 40));
+      const scopes = parseScopes(data.scopes);
+      let limits: Record<string, number>;
+      try { limits = parseLimits(data.limits); } catch { return json({ ok: false, error: "Kullanım limitleri geçerli JSON olmalı." }, 400); }
+      if (!validCommerceIdentifier(storeKey) || !validCommerceIdentifier(installationId) || !primaryDomain || !/^[a-z0-9][a-z0-9._-]{1,39}$/.test(plan) || !/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(commerceVersion) || !Number.isFinite(validUntil.getTime()) || validUntil <= new Date()) {
+        return json({ ok: false, error: "Mağaza kimliği, domain, sürüm veya lisans tarihi geçersiz." }, 400);
+      }
+      const activationToken = createActivationToken();
+      const values = { customerId, primaryDomain, plan, commerceVersion, scopesJson: JSON.stringify(scopes), limitsJson: JSON.stringify(limits), activationTokenHash: await sha256(activationToken), status: "active", validUntil: validUntil.toISOString(), updatedAt: now };
+      await db.insert(commerceLicenseInstallations).values({ storeKey, installationId, ...values, createdAt: now }).onConflictDoUpdate({ target: [commerceLicenseInstallations.storeKey, commerceLicenseInstallations.installationId], set: values });
+      await logAdminAction(db, { userEmail: admin.user.email, action: "commerce_license_provision", entity: "commerce_license_installation", entityId: customerId, details: { storeKey, installationId, primaryDomain, scopes } });
+      return json({ ok: true, activationToken, publicKeyRequired: true });
     } else if (action === "module") {
       const moduleId = clamp(data.moduleId, 1, 1_000_000, 0);
       const status = STATUSES.has(String(data.status)) ? String(data.status) : "planned";

@@ -567,3 +567,47 @@ export const customerPortalDocuments = sqliteTable(
   },
   (table) => [index("idx_customer_portal_documents_customer").on(table.customerId, table.status)],
 );
+
+export const commerceLicenseInstallations = sqliteTable(
+  "commerce_license_installations",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    customerId: integer("customer_id").notNull(),
+    storeKey: text("store_key").notNull(),
+    installationId: text("installation_id").notNull(),
+    primaryDomain: text("primary_domain").notNull(),
+    plan: text("plan").notNull().default("start"),
+    commerceVersion: text("commerce_version").notNull().default("1.0.0"),
+    scopesJson: text("scopes_json").notNull().default("[]"),
+    limitsJson: text("limits_json").notNull().default("{}"),
+    activationTokenHash: text("activation_token_hash").notNull(),
+    status: text("status").notNull().default("active"),
+    validUntil: text("valid_until").notNull(),
+    lastSeenAt: text("last_seen_at").notNull().default(""),
+    lastSeenVersion: text("last_seen_version").notNull().default(""),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    uniqueIndex("idx_commerce_license_installation_identity").on(table.storeKey, table.installationId),
+    uniqueIndex("idx_commerce_license_installation_token").on(table.activationTokenHash),
+    index("idx_commerce_license_installation_customer").on(table.customerId, table.status),
+  ],
+);
+
+export const commercePortalLoginCodes = sqliteTable(
+  "commerce_portal_login_codes",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    installationId: integer("installation_id").notNull(),
+    customerId: integer("customer_id").notNull(),
+    codeHash: text("code_hash").notNull(),
+    expiresAt: text("expires_at").notNull(),
+    usedAt: text("used_at").notNull().default(""),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    uniqueIndex("idx_commerce_portal_login_code_hash").on(table.codeHash),
+    index("idx_commerce_portal_login_code_expiry").on(table.expiresAt, table.usedAt),
+  ],
+);
