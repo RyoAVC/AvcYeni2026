@@ -99,3 +99,17 @@ if [ "${public_code}" != "200" ]; then
   echo "public v2 health check failed (last code: ${public_code})" >&2
   exit 1
 fi
+
+# Lisans kontrol düzlemi şema/anahtar hatasıyla sessizce 503 vermemeli.
+# Geçersiz fakat biçimsel olarak doğru bir token güvenli biçimde 403 dönmelidir.
+license_probe_body='{"store_key":"deployment-probe","installation_id":"deployment-probe-001","primary_domain":"probe.invalid","commerce_version":"1.0.0"}'
+license_probe_code="$(curl -s -o /tmp/avci-license-probe.json -w "%{http_code}" --max-time 20 \
+  -H 'Content-Type: application/json' -H 'Authorization: Bearer avc_live_deployment_probe_invalid' \
+  --data "${license_probe_body}" http://127.0.0.1:4121/v2/api/v1/commerce/licenses/resolve || echo 000)"
+echo "local_v2_license_probe:${license_probe_code}"
+if [ "${license_probe_code}" != "403" ]; then
+  cat /tmp/avci-license-probe.json 2>/dev/null || true
+  journalctl -u avci-yeni-v2.service -n 60 --no-pager || true
+  echo "v2 license control-plane probe failed" >&2
+  exit 1
+fi
