@@ -72,11 +72,11 @@ export default async function VitrineSignalsPage() {
         <header className="admin-heading">
           <div>
             <span className="kicker">AVCI YÖNETİM</span>
-            <h1>Ana sayfa vitrini</h1>
+            <h1>Vitrin ve Commerce duyuruları</h1>
             <Link className="admin-back-link" href="/yonetim">Panele dön</Link>
           </div>
           <div className="admin-heading-actions">
-            <p>Şerit yalnız ana sayfada. Bildirim tüm tanıtım sayfalarında kayar. İkisini de buradan açıp metnini değiştirirsin. Gerçek CRM değil.</p>
+            <p>Burada “Açık” olan sayfa bildirimleri, sürümlü yayın üzerinden bağlı Avcı Commerce mağazalarının sistem duyuru alanında otomatik görünür.</p>
             <Link href="/yonetim/vitrin/yeni">Yeni şerit</Link>
           </div>
         </header>
@@ -142,7 +142,7 @@ export default async function VitrineSignalsPage() {
 
         <div className="admin-vitrine-block">
         <div className="admin-recent-head">
-          <h2>Sayfa bildirimleri</h2>
+          <h2>Avcı Commerce sistem duyuruları</h2>
           <Link href="/yonetim/vitrin/bildirim/yeni">Yeni bildirim</Link>
         </div>
 
