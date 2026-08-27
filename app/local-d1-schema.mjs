@@ -884,7 +884,11 @@ async function ensureCustomerPortalProductTables(db) {
 // ilk istekte kendi tablolarını hazırlar. Bu, yerel önizleme bayrağına bağlı
 // değildir ve CREATE IF NOT EXISTS dışında veri değiştirmez.
 export async function ensureCommerceLicenseTables(env) {
-  if (!env?.DB) throw new Error("Cloudflare D1 binding `DB` is unavailable.");
+  let binding = env?.DB;
+  if (!binding) {
+    try { binding = (await import("cloudflare:workers")).env?.DB; } catch { binding = null; }
+  }
+  if (!binding) throw new Error("Cloudflare D1 binding `DB` is unavailable.");
   const statements = [
     `CREATE TABLE IF NOT EXISTS commerce_license_installations (id integer PRIMARY KEY AUTOINCREMENT NOT NULL, customer_id integer NOT NULL, store_key text NOT NULL, installation_id text NOT NULL, primary_domain text NOT NULL, plan text DEFAULT 'start' NOT NULL, commerce_version text DEFAULT '1.0.0' NOT NULL, scopes_json text DEFAULT '[]' NOT NULL, limits_json text DEFAULT '{}' NOT NULL, activation_token_hash text NOT NULL, status text DEFAULT 'active' NOT NULL, valid_until text NOT NULL, last_seen_at text DEFAULT '' NOT NULL, last_seen_version text DEFAULT '' NOT NULL, created_at text DEFAULT CURRENT_TIMESTAMP NOT NULL, updated_at text DEFAULT CURRENT_TIMESTAMP NOT NULL)`,
     `CREATE UNIQUE INDEX IF NOT EXISTS idx_commerce_license_installation_identity ON commerce_license_installations (store_key, installation_id)`,
@@ -897,13 +901,13 @@ export async function ensureCommerceLicenseTables(env) {
     `CREATE UNIQUE INDEX IF NOT EXISTS idx_commerce_portal_login_code_hash ON commerce_portal_login_codes (code_hash)`,
     `CREATE INDEX IF NOT EXISTS idx_commerce_portal_login_code_expiry ON commerce_portal_login_codes (expires_at, used_at)`,
   ];
-  for (const statement of statements) await env.DB.prepare(statement).run();
-  const columns = new Set(((await env.DB.prepare("PRAGMA table_info(commerce_license_installations)").all()).results || []).map((item) => item.name));
+  for (const statement of statements) await binding.prepare(statement).run();
+  const columns = new Set(((await binding.prepare("PRAGMA table_info(commerce_license_installations)").all()).results || []).map((item) => item.name));
   for (const [name, statement] of [
     ["product", "ALTER TABLE commerce_license_installations ADD COLUMN product text DEFAULT 'avci-commerce' NOT NULL"],
     ["activation_count", "ALTER TABLE commerce_license_installations ADD COLUMN activation_count integer DEFAULT 0 NOT NULL"],
     ["first_activated_at", "ALTER TABLE commerce_license_installations ADD COLUMN first_activated_at text DEFAULT '' NOT NULL"],
-  ]) if (!columns.has(name)) await env.DB.prepare(statement).run();
+  ]) if (!columns.has(name)) await binding.prepare(statement).run();
 }
 
 async function seedDemoCustomerPortal(db) {
