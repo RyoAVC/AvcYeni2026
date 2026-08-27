@@ -7,6 +7,8 @@ import { getAdminUser } from "../../../../../admin-auth";
 import { readAdminJsonObject, validateAdminMutationRequest } from "../../../../../admin-request.mjs";
 import { logAdminAction } from "../../../../../audit-log.mjs";
 import { createActivationToken, normalizeCommerceDomain, parseLimits, parseScopes, sha256, validCommerceIdentifier } from "../../../../../commerce-license-control-plane.mjs";
+import { ensureCommerceLicenseTables } from "../../../../../local-d1-schema.mjs";
+import { readRuntimeEnv } from "../../../../../runtime-env.mjs";
 
 const STATUSES = new Set(["planned", "setup", "active", "paused", "expired"]);
 const THEMES = new Set(["avci", "graphite", "energy"]);
@@ -41,6 +43,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const now = new Date().toISOString();
 
   try {
+    await ensureCommerceLicenseTables(await readRuntimeEnv());
     const { getDb } = await import("../../../../../../db");
     const db = getDb();
     if (action === "profile" || action === "thresholds") {
@@ -59,12 +62,28 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       else await db.insert(customerPortalProfiles).values({ customerId, ...values, createdAt: now });
     } else if (action === "commerce-license-status") {
       const licenseId = clamp(data.licenseId, 1, 1_000_000_000, 0);
-      const status = ["active", "suspended", "revoked"].includes(String(data.status)) ? String(data.status) : "";
+      const status = ["trial", "active", "suspended", "revoked"].includes(String(data.status)) ? String(data.status) : "";
       if (!licenseId || !status) return json({ ok: false, error: "Lisans ve durum seçin." }, 400);
       const [license] = await db.select({ id: commerceLicenseInstallations.id }).from(commerceLicenseInstallations).where(and(eq(commerceLicenseInstallations.id, licenseId), eq(commerceLicenseInstallations.customerId, customerId))).limit(1);
       if (!license) return json({ ok: false, error: "Lisans bulunamadı." }, 404);
       await db.update(commerceLicenseInstallations).set({ status, updatedAt: now }).where(and(eq(commerceLicenseInstallations.id, licenseId), eq(commerceLicenseInstallations.customerId, customerId)));
       await logAdminAction(db, { userEmail: admin.user.email, action: "commerce_license_status", entity: "commerce_license_installation", entityId: String(licenseId), details: { customerId, status } });
+      return json({ ok: true });
+    } else if (action === "commerce-license-maintenance") {
+      const licenseId = clamp(data.licenseId, 1, 1_000_000_000, 0);
+      const operation = ["renew", "rotate"].includes(String(data.operation)) ? String(data.operation) : "";
+      const [license] = await db.select().from(commerceLicenseInstallations).where(and(eq(commerceLicenseInstallations.id, licenseId), eq(commerceLicenseInstallations.customerId, customerId))).limit(1);
+      if (!license || !operation) return json({ ok: false, error: "Lisans veya bakım işlemi bulunamadı." }, 404);
+      if (operation === "rotate") {
+        const activationToken = createActivationToken();
+        await db.update(commerceLicenseInstallations).set({ activationTokenHash: await sha256(activationToken), activationCount: 0, firstActivatedAt: "", updatedAt: now }).where(eq(commerceLicenseInstallations.id, licenseId));
+        await logAdminAction(db, { userEmail: admin.user.email, action: "commerce_license_key_rotated", entity: "commerce_license_installation", entityId: String(licenseId), details: { customerId, domain: license.primaryDomain, installationId: license.installationId } });
+        return json({ ok: true, activationToken });
+      }
+      const validUntil = new Date(text(data.validUntil, 40));
+      if (!Number.isFinite(validUntil.getTime()) || validUntil <= new Date()) return json({ ok: false, error: "Yeni geçerlilik tarihi gelecekte olmalı." }, 400);
+      await db.update(commerceLicenseInstallations).set({ validUntil: validUntil.toISOString(), status: "active", updatedAt: now }).where(eq(commerceLicenseInstallations.id, licenseId));
+      await logAdminAction(db, { userEmail: admin.user.email, action: "commerce_license_renewed", entity: "commerce_license_installation", entityId: String(licenseId), details: { customerId, validUntil: validUntil.toISOString() } });
       return json({ ok: true });
     } else if (action === "commerce-license") {
       const storeKey = text(data.storeKey, 96);
@@ -80,7 +99,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
         return json({ ok: false, error: "Mağaza kimliği, domain, sürüm veya lisans tarihi geçersiz." }, 400);
       }
       const activationToken = createActivationToken();
-      const values = { customerId, primaryDomain, plan, commerceVersion, scopesJson: JSON.stringify(scopes), limitsJson: JSON.stringify(limits), activationTokenHash: await sha256(activationToken), status: "active", validUntil: validUntil.toISOString(), updatedAt: now };
+      const values = { customerId, primaryDomain, product: "avci-commerce", plan, commerceVersion, scopesJson: JSON.stringify(scopes), limitsJson: JSON.stringify(limits), activationTokenHash: await sha256(activationToken), activationCount: 0, firstActivatedAt: "", status: "active", validUntil: validUntil.toISOString(), updatedAt: now };
       await db.insert(commerceLicenseInstallations).values({ storeKey, installationId, ...values, createdAt: now }).onConflictDoUpdate({ target: [commerceLicenseInstallations.storeKey, commerceLicenseInstallations.installationId], set: values });
       await logAdminAction(db, { userEmail: admin.user.email, action: "commerce_license_provision", entity: "commerce_license_installation", entityId: customerId, details: { storeKey, installationId, primaryDomain, scopes } });
       return json({ ok: true, activationToken, publicKeyRequired: true });

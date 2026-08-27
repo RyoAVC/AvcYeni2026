@@ -890,11 +890,20 @@ export async function ensureCommerceLicenseTables(env) {
     `CREATE UNIQUE INDEX IF NOT EXISTS idx_commerce_license_installation_identity ON commerce_license_installations (store_key, installation_id)`,
     `CREATE UNIQUE INDEX IF NOT EXISTS idx_commerce_license_installation_token ON commerce_license_installations (activation_token_hash)`,
     `CREATE INDEX IF NOT EXISTS idx_commerce_license_installation_customer ON commerce_license_installations (customer_id, status)`,
+    `CREATE TABLE IF NOT EXISTS commerce_license_verification_events (id integer PRIMARY KEY AUTOINCREMENT NOT NULL, license_id integer DEFAULT 0 NOT NULL, customer_id integer DEFAULT 0 NOT NULL, request_hash text NOT NULL, ip_address text DEFAULT '' NOT NULL, outcome text NOT NULL, created_at text DEFAULT CURRENT_TIMESTAMP NOT NULL)`,
+    `CREATE INDEX IF NOT EXISTS idx_commerce_license_verification_rate ON commerce_license_verification_events (request_hash, created_at)`,
+    `CREATE INDEX IF NOT EXISTS idx_commerce_license_verification_license ON commerce_license_verification_events (license_id, created_at)`,
     `CREATE TABLE IF NOT EXISTS commerce_portal_login_codes (id integer PRIMARY KEY AUTOINCREMENT NOT NULL, installation_id integer NOT NULL, customer_id integer NOT NULL, code_hash text NOT NULL, expires_at text NOT NULL, used_at text DEFAULT '' NOT NULL, created_at text DEFAULT CURRENT_TIMESTAMP NOT NULL)`,
     `CREATE UNIQUE INDEX IF NOT EXISTS idx_commerce_portal_login_code_hash ON commerce_portal_login_codes (code_hash)`,
     `CREATE INDEX IF NOT EXISTS idx_commerce_portal_login_code_expiry ON commerce_portal_login_codes (expires_at, used_at)`,
   ];
   for (const statement of statements) await env.DB.prepare(statement).run();
+  const columns = new Set(((await env.DB.prepare("PRAGMA table_info(commerce_license_installations)").all()).results || []).map((item) => item.name));
+  for (const [name, statement] of [
+    ["product", "ALTER TABLE commerce_license_installations ADD COLUMN product text DEFAULT 'avci-commerce' NOT NULL"],
+    ["activation_count", "ALTER TABLE commerce_license_installations ADD COLUMN activation_count integer DEFAULT 0 NOT NULL"],
+    ["first_activated_at", "ALTER TABLE commerce_license_installations ADD COLUMN first_activated_at text DEFAULT '' NOT NULL"],
+  ]) if (!columns.has(name)) await env.DB.prepare(statement).run();
 }
 
 async function seedDemoCustomerPortal(db) {

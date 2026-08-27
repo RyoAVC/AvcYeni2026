@@ -590,8 +590,11 @@ export const commerceLicenseInstallations = sqliteTable(
     scopesJson: text("scopes_json").notNull().default("[]"),
     limitsJson: text("limits_json").notNull().default("{}"),
     activationTokenHash: text("activation_token_hash").notNull(),
+    product: text("product").notNull().default("avci-commerce"),
     status: text("status").notNull().default("active"),
     validUntil: text("valid_until").notNull(),
+    activationCount: integer("activation_count").notNull().default(0),
+    firstActivatedAt: text("first_activated_at").notNull().default(""),
     lastSeenAt: text("last_seen_at").notNull().default(""),
     lastSeenVersion: text("last_seen_version").notNull().default(""),
     createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
@@ -601,6 +604,23 @@ export const commerceLicenseInstallations = sqliteTable(
     uniqueIndex("idx_commerce_license_installation_identity").on(table.storeKey, table.installationId),
     uniqueIndex("idx_commerce_license_installation_token").on(table.activationTokenHash),
     index("idx_commerce_license_installation_customer").on(table.customerId, table.status),
+  ],
+);
+
+export const commerceLicenseVerificationEvents = sqliteTable(
+  "commerce_license_verification_events",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    licenseId: integer("license_id").notNull().default(0),
+    customerId: integer("customer_id").notNull().default(0),
+    requestHash: text("request_hash").notNull(),
+    ipAddress: text("ip_address").notNull().default(""),
+    outcome: text("outcome").notNull(),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    index("idx_commerce_license_verification_rate").on(table.requestHash, table.createdAt),
+    index("idx_commerce_license_verification_license").on(table.licenseId, table.createdAt),
   ],
 );
 

@@ -5,10 +5,13 @@ import { asc, eq } from "drizzle-orm";
 import { commerceLicenseInstallations, customers, integrations, modules } from "../../../../../db/schema";
 import { requireAdminUser } from "../../../../admin-auth";
 import { loadCustomerPortalSnapshot } from "../../../../customer-portal-data.mjs";
+import { ensureCommerceLicenseTables } from "../../../../local-d1-schema.mjs";
+import { readRuntimeEnv } from "../../../../runtime-env.mjs";
 import { AdminShell } from "../../../admin-shell";
 import { PortalEditor } from "./portal-editor";
 import "./portal-admin.css";
 import "./portal-assignments.css";
+import "./portal-license-control.css";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Portal Ürünleşme | Avcı Yönetim", robots: { index: false, follow: false } };
@@ -19,13 +22,14 @@ export default async function CustomerPortalAdminPage({ params }: { params: Prom
   if (!admin.authorized || !admin.user) return <main className="admin-access-page"><section><h1>Bu alan için yetkiniz yok.</h1><Link className="button button-primary" href="/yonetim">Yönetime dön</Link></section></main>;
   const customerId = Number(id);
   if (!Number.isSafeInteger(customerId) || customerId < 1) notFound();
+  await ensureCommerceLicenseTables(await readRuntimeEnv());
   const { getDb } = await import("../../../../../db");
   const db = getDb();
   const [[customer], moduleCatalog, integrationCatalog, licenses] = await Promise.all([
     db.select().from(customers).where(eq(customers.id, customerId)).limit(1),
     db.select({ id: modules.id, name: modules.name, slug: modules.slug, category: modules.category }).from(modules).orderBy(asc(modules.sortOrder)),
     db.select({ id: integrations.id, name: integrations.name, providerKey: integrations.providerKey, category: integrations.category }).from(integrations).orderBy(asc(integrations.category), asc(integrations.name)),
-    db.select({ id: commerceLicenseInstallations.id, storeKey: commerceLicenseInstallations.storeKey, primaryDomain: commerceLicenseInstallations.primaryDomain, plan: commerceLicenseInstallations.plan, status: commerceLicenseInstallations.status, validUntil: commerceLicenseInstallations.validUntil, lastSeenAt: commerceLicenseInstallations.lastSeenAt, lastSeenVersion: commerceLicenseInstallations.lastSeenVersion }).from(commerceLicenseInstallations).where(eq(commerceLicenseInstallations.customerId, customerId)).orderBy(asc(commerceLicenseInstallations.primaryDomain)),
+    db.select({ id: commerceLicenseInstallations.id, storeKey: commerceLicenseInstallations.storeKey, installationId: commerceLicenseInstallations.installationId, primaryDomain: commerceLicenseInstallations.primaryDomain, plan: commerceLicenseInstallations.plan, status: commerceLicenseInstallations.status, validUntil: commerceLicenseInstallations.validUntil, activationCount: commerceLicenseInstallations.activationCount, firstActivatedAt: commerceLicenseInstallations.firstActivatedAt, lastSeenAt: commerceLicenseInstallations.lastSeenAt, lastSeenVersion: commerceLicenseInstallations.lastSeenVersion }).from(commerceLicenseInstallations).where(eq(commerceLicenseInstallations.customerId, customerId)).orderBy(asc(commerceLicenseInstallations.primaryDomain)),
   ]);
   if (!customer) notFound();
   const snapshot = await loadCustomerPortalSnapshot(customer);

@@ -1,0 +1,4 @@
+.portal-admin-feedback{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.portal-admin-feedback span{overflow-wrap:anywhere}
+.portal-admin-feedback .button{flex:0 0 auto}
+@media(max-width:680px){.portal-admin-feedback{align-items:stretch;flex-direction:column}.portal-admin-feedback .button{width:100%}}

@@ -20,3 +20,17 @@ test("portal product migration creates tenant-scoped tables and indexes", () => 
   assert.ok(plan.some((row) => String(row.detail).includes("idx_portal_notifications_visible")));
   db.close();
 });
+
+test("commerce activation migration adds controlled verification state", () => {
+  const db = new DatabaseSync(":memory:");
+  db.exec(migration("0013_customers.sql"));
+  db.exec(migration("0018_support_tickets.sql"));
+  db.exec(migration("0026_legal_franklin_storm.sql"));
+  db.exec(migration("0027_romantic_sebastian_shaw.sql"));
+  db.exec(migration("0035_commerce_license_activation_control.sql"));
+  const columns = new Set(db.prepare("PRAGMA table_info(commerce_license_installations)").all().map((column) => column.name));
+  for (const name of ["product", "activation_count", "first_activated_at"]) assert.ok(columns.has(name), name);
+  const tables = new Set(db.prepare("SELECT name FROM sqlite_master WHERE type = 'table'").all().map((row) => row.name));
+  assert.ok(tables.has("commerce_license_verification_events"));
+  db.close();
+});
