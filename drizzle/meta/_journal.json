@@ -232,6 +232,13 @@
       "when": 1787817600000,
       "tag": "0032_commerce_special_modules",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "6",
+      "when": 1787821200000,
+      "tag": "0033_commerce_module_category",
+      "breakpoints": true
     }
   ]
 }

@@ -50,7 +50,7 @@ const NAV_GROUPS: NavGroup[] = [
     groupTitle: "ÜRÜNLEŞTİRME & LİSANSLAMA",
     items: [
       { id: "paketler", label: "Altyapı Paketleri", href: "/yonetim/paketler", icon: "layers" },
-      { id: "moduller", label: "Eklenti & Modüller", href: "/yonetim/moduller", icon: "grid" },
+      { id: "moduller", label: "Commerce Modülleri", href: "/yonetim/moduller?category=commerce", icon: "grid", badge: "YENİ" },
       { id: "entegrasyonlar", label: "Entegrasyon Kataloğu", href: "/yonetim/entegrasyonlar", icon: "zap" },
     ],
   },

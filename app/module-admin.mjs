@@ -4,6 +4,7 @@ export const MODULE_CATEGORY_OPTIONS = [
   { value: "kargo", label: "Kargo" },
   { value: "erp", label: "ERP / Muhasebe" },
   { value: "ai", label: "AI eklentisi" },
+  { value: "commerce", label: "Commerce / Sektörel" },
   { value: "ozel", label: "Özel geliştirme" },
 ];
 
