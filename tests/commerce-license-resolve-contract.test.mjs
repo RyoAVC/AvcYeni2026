@@ -10,6 +10,13 @@ test("resolve endpoint accepts the v2 installation contract and legacy aliases",
   assert.match(source, /\["active", "trial"\]/);
 });
 
+test("resolve endpoint exposes a safe browser-readable service contract", () => {
+  assert.match(source, /export async function GET/);
+  assert.match(source, /status: "ready"/);
+  assert.match(source, /required_fields/);
+  assert.doesNotMatch(source, /GET\(\)[\s\S]{0,500}privateKey/);
+});
+
 test("resolve endpoint binds tenant identity and returns signed entitlement metadata", () => {
   for (const check of ["customers.status", "installation.customerId", "installation.primaryDomain", "commerceLicenseInstallations.installationId", "commerceLicenseInstallations.storeKey"]) assert.match(source, new RegExp(check.replace(".", "\\.")));
   for (const field of ["signature", "key_id", "issued_at", "expires_at", "public_key"]) assert.match(source, new RegExp(field));

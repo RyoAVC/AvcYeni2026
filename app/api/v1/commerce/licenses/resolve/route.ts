@@ -12,6 +12,18 @@ const noStore = { "Cache-Control": "no-store", "Content-Type": "application/json
 const respond = (value: Record<string, unknown>, status = 200, extra: Record<string, string> = {}) => new Response(JSON.stringify(value), { status, headers: { ...noStore, ...extra } });
 const ipOf = (request: Request) => String(request.headers.get("cf-connecting-ip") || request.headers.get("x-forwarded-for") || "").split(",", 1)[0].trim().slice(0, 80);
 
+export async function GET() {
+  return respond({
+    ok: true,
+    service: "Avcı Commerce License Resolver",
+    status: "ready",
+    method: "POST",
+    product: PRODUCT,
+    format: "avci-commerce-entitlement.v2",
+    required_fields: ["license_key", "domain", "store_key", "installation_id", "product"],
+  }, 200, { Allow: "GET, POST" });
+}
+
 export async function POST(request: Request) {
   if (!(request.headers.get("content-type") ?? "").includes("application/json")) return respond({ ok: false, code: "content_type_required" }, 415);
   const length = Number(request.headers.get("content-length") ?? "0");
