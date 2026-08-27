@@ -7,6 +7,7 @@ import { requireAdminUser } from "../../admin-auth";
 import { AdminShell } from "../admin-shell";
 import { IntegrationClient } from "./integration-client";
 import "./integration-admin.css";
+import "./integration-responsive.css";
 
 export const dynamic = "force-dynamic";
 
