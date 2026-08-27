@@ -106,6 +106,8 @@ curl_close($ch);
 $rawHeaders = substr($response, 0, $headerSize);
 $rawBody = substr($response, $headerSize);
 http_response_code($status > 0 ? $status : 502);
+$publicScheme = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https' : 'http';
+$publicHost = 'yeni.avcieticaret.com';
 
 foreach (preg_split("/\r\n|\n|\r/", $rawHeaders) as $line) {
     if ($line === '' || stripos($line, 'HTTP/') === 0) {
@@ -114,6 +116,15 @@ foreach (preg_split("/\r\n|\n|\r/", $rawHeaders) as $line) {
     $lname = strtolower(strtok($line, ':'));
     if (in_array($lname, ['transfer-encoding', 'connection', 'keep-alive', 'content-length', 'content-encoding'], true)) {
         continue;
+    }
+    if ($lname === 'location') {
+        $location = trim(substr($line, strpos($line, ':') + 1));
+        $location = preg_replace(
+            '#^https?://' . preg_quote($publicHost, '#') . '(?=/|$)#i',
+            $publicScheme . '://' . $publicHost,
+            $location
+        ) ?? $location;
+        $line = 'Location: ' . $location;
     }
     header($line, false);
 }
