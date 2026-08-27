@@ -34,6 +34,9 @@ export const metadata: Metadata = {
   creator: "Avcı E-Ticaret",
   publisher: "Avcı E-Ticaret",
   category: "technology",
+  other: {
+    "strix-verification": "strix-verify-1c5d8cf94638d3c211e876243d570933",
+  },
   formatDetection: { email: false, address: false, telephone: false },
   robots: { index: true, follow: true },
   openGraph: SITE_OPEN_GRAPH,
