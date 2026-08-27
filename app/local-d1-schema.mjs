@@ -885,6 +885,8 @@ async function ensureCustomerPortalProductTables(db) {
 // değildir ve CREATE IF NOT EXISTS dışında veri değiştirmez.
 export async function ensureCommerceLicenseTables(env) {
   let binding = env?.DB;
+  const sqlitePath = String(env?.AVCI_SQLITE_PATH || (typeof process !== "undefined" ? process.env?.AVCI_SQLITE_PATH : "") || "").trim();
+  if (!binding && sqlitePath) binding = await (await import("./node-sqlite-d1.mjs")).createNodeD1Database(sqlitePath);
   if (!binding) {
     try { binding = (await import("cloudflare:workers")).env?.DB; } catch { binding = null; }
   }
