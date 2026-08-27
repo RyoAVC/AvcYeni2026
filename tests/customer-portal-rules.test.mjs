@@ -30,3 +30,10 @@ test("customer snapshot never selects the global integration secret config", () 
     assert.match(source, new RegExp(`eq\\(${table}\\.customerId, customerId\\)`));
   }
 });
+
+test("local portal bootstrap upgrades assignment tables with licensed domains", () => {
+  const source = readFileSync(new URL("../app/local-d1-schema.mjs", import.meta.url), "utf8");
+  assert.match(source, /ALTER TABLE customer_module_instances ADD COLUMN target_domain/);
+  assert.match(source, /ALTER TABLE customer_integration_instances ADD COLUMN target_domain/);
+  assert.match(source, /const SCHEMA_GEN = 34/);
+});

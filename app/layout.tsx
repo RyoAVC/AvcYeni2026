@@ -12,7 +12,6 @@ import { MobileBottomNav } from "./mobile-bottom-nav";
 import { parseSiteTheme } from "./site-theme.mjs";
 import { loadSiteSettings } from "./site-settings.mjs";
 import { SITE_BASE_URL, withBasePath } from "./base-path";
-import { AvcRegistryBadges } from "./avc-registry-badges";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -90,7 +89,6 @@ export default async function RootLayout({
         />
         <MobileBottomNav customerLoginEnabled={settings.customerLoginEnabled} />
         {children}
-        <AvcRegistryBadges />
       </body>
     </html>
   );

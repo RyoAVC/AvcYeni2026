@@ -22,3 +22,12 @@ test("module record slugs names and rejects thin input", () => {
   assert.equal(parseModuleRecord({ name: "A" }).ok, false);
   assert.equal(parseModuleRecord({ name: "!!!" }).ok, false);
 });
+
+test("module package metadata validates runtime and manifest", () => {
+  const parsed = parseModuleRecord({ name: "Özel PHP Modülü", runtime: "php", version: "2.1.0", status: "offline", manifestJson: '{"permissions":["catalog:read"]}' });
+  assert.equal(parsed.ok, true);
+  assert.equal(parsed.value.runtime, "php");
+  assert.equal(parsed.value.status, "offline");
+  assert.match(parsed.value.manifestJson, /catalog:read/);
+  assert.equal(parseModuleRecord({ name: "Bozuk Manifest", manifestJson: "{" }).ok, false);
+});

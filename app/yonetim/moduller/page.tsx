@@ -179,7 +179,7 @@ export default async function ModulesPage({
           <div className="lead-table-wrap">
             <table className="lead-table">
               <caption className="visually-hidden">Yazılım modülleri</caption>
-              <thead><tr><th scope="col">Modül</th><th scope="col">Kategori</th><th scope="col">Fiyat notu</th><th scope="col">Durum</th><th scope="col">Sıra</th></tr></thead>
+              <thead><tr><th scope="col">Modül</th><th scope="col">Kategori</th><th scope="col">Çalışma ortamı</th><th scope="col">Kurulum</th><th scope="col">Durum</th><th scope="col">Sıra</th></tr></thead>
               <tbody>
                 {rows.map((item) => (
                   <tr key={item.id}>
@@ -192,7 +192,8 @@ export default async function ModulesPage({
                       <Link href={`/yonetim/siparisler?modulId=${item.id}`}>Siparişler</Link>
                       <Link href={`/yonetim/siparisler/yeni?modulId=${item.id}`}>Sipariş ekle</Link>
                     </td>
-                    <td>{item.priceNote || "Teklifle belirlenir"}</td>
+                    <td><strong>{item.runtime === "php" ? "PHP" : item.runtime === "node" ? "Node.js" : item.runtime === "browser" ? "JavaScript" : "Harici API"}</strong><small>v{item.version}</small></td>
+                    <td>{item.installStatus === "installed" ? "Kurulu" : item.installStatus === "ready" ? "Hazır" : item.installStatus === "failed" ? "Hata" : "Kurulmadı"}</td>
                     <td>{moduleStatusLabel(item.status)}</td>
                     <td>{item.sortOrder}</td>
                   </tr>

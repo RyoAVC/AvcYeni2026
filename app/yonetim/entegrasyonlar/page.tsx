@@ -73,13 +73,11 @@ export default async function IntegrationsPage() {
   return (
     <AdminShell current="entegrasyonlar" displayName={admin.user.displayName}>
       <section className="admin-main">
-        <header className="admin-heading" style={{ marginBottom: "24px" }}>
+        <header className="admin-heading integration-page-heading">
           <div>
             <span className="kicker">AVCI ENTEGRASYON KATALOĞU</span>
-            <h1 style={{ fontSize: "clamp(24px, 2.5vw, 36px)", letterSpacing: "-0.04em", margin: "8px 0 4px" }}>
-              Entegrasyon Merkezi
-            </h1>
-            <p style={{ margin: 0, color: "var(--admin-text-muted)", fontSize: "13px" }}>
+            <h1>Bağlantı Kataloğu</h1>
+            <p>
               Sunulan bağlantıları yayınlayın; müşteri ve domain bazındaki gerçek kullanım sayılarını tek bakışta izleyin.
             </p>
           </div>

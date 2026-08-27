@@ -105,22 +105,23 @@ export default async function ProviderDashboard() {
   return (
     <AdminShell current="panel" displayName={admin.user.displayName}>
       <section className="admin-main">
-        <header className="admin-heading provider-heading">
-          <div>
-            <span className="kicker">AVCI E-TİCARET SAĞLAYICI YÖNETİMİ</span>
-            <h1>Kontrol Merkezi</h1>
-            <p>Müşteri, teklif, altyapı paketi, modül, lisans ve destek operasyonlarının merkezi.</p>
+        <header className="provider-hero">
+          <div className="provider-hero__copy">
+            <span className="provider-eyebrow"><i /> AVCI OPERASYON MERKEZİ</span>
+            <h1>İşletmenizin tamamı,<br /><em>tek kontrol ekranında.</em></h1>
+            <p>Müşterileri, lisansları, modülleri ve destek süreçlerini aynı güvenli çalışma alanından yönetin.</p>
+            <div className="provider-hero__actions">
+              <Link className="admin-btn admin-btn-primary" href="/yonetim/musteriler/yeni">Yeni müşteri oluştur</Link>
+              <Link className="provider-text-link" href="/yonetim/raporlar">Operasyon raporunu aç <span>→</span></Link>
+            </div>
           </div>
-          <div className="admin-heading-actions">
-            <Link className="admin-btn admin-btn-secondary" href="/yonetim/paketler">Paketleri yönet</Link>
-            <Link className="admin-btn admin-btn-primary" href="/yonetim/musteriler/yeni">Yeni müşteri</Link>
+          <div className="provider-hero__status">
+            <span className="provider-status-label">PLATFORM DURUMU</span>
+            <strong>Tüm servisler çalışıyor</strong>
+            <p>Son kontrol: şimdi</p>
+            <div className="provider-health-list"><span><i />Veritabanı</span><span><i />Lisans servisi</span><span><i />Canlı ortam</span></div>
           </div>
         </header>
-
-        <div className="provider-command-strip">
-          <div><span className="provider-command-icon">A</span><span><strong>Avcı Commerce kontrol düzlemi</strong><small>Lisans, müşteri sistemi ve modül operasyonları tek merkezde</small></span></div>
-          <div className="provider-command-health"><span><i className="is-healthy" />D1 bağlı</span><span><i className="is-healthy" />Lisans servisi aktif</span><span><i className="is-healthy" />Canlı ortam</span></div>
-        </div>
 
         {!data ? (
           <div className="admin-card provider-empty-state">
@@ -130,10 +131,10 @@ export default async function ProviderDashboard() {
         ) : (
           <>
             <div className="admin-kpi-grid">
-              <ProviderMetric icon="users" label="MÜŞTERİ PORTFÖYÜ" value={data.customers} detail={`${data.leads} toplam başvuru`} href="/yonetim/musteriler" tone="mint" />
-              <ProviderMetric icon="license" label="LİSANS & HİZMET" value={data.assignments} detail={`${data.activeModules} aktif modül`} href="/yonetim/siparisler" tone="cyan" />
-              <ProviderMetric icon="support" label="DESTEK & SLA" value={data.openTickets} detail="açık veya bekleyen talep" href="/yonetim/destek" tone="lime" />
-              <ProviderMetric icon="invoice" label="FATURA KAYITLARI" value={data.invoices} detail={`${data.activeIntegrations} katalog entegrasyonu`} href="/yonetim/faturalar" tone="ink" />
+              <ProviderMetric icon="users" label="Müşteri portföyü" value={data.customers} detail={`${data.leads} toplam başvuru`} href="/yonetim/musteriler" />
+              <ProviderMetric icon="license" label="Lisans ve hizmet" value={data.assignments} detail={`${data.activeModules} aktif modül`} href="/yonetim/siparisler" />
+              <ProviderMetric icon="support" label="Açık destek talebi" value={data.openTickets} detail="Yanıt bekleyen kayıtlar" href="/yonetim/destek" alert={data.openTickets > 0} />
+              <ProviderMetric icon="invoice" label="Fatura kaydı" value={data.invoices} detail={`${data.activeIntegrations} aktif entegrasyon`} href="/yonetim/faturalar" />
             </div>
 
             <div className="admin-toolbar">
@@ -153,7 +154,7 @@ export default async function ProviderDashboard() {
                 <DashboardBar label="Lisans ve hizmet ataması" value={data.assignments} max={Math.max(data.customers, data.assignments, data.leads, 1)} />
                 <DashboardBar label="Teklif / başvuru" value={data.leads} max={Math.max(data.customers, data.assignments, data.leads, 1)} />
               </div>
-              <div className="admin-card provider-focus-card"><span className="kicker">BUGÜNÜN ODAĞI</span><h2>Kontrol edilmesi gerekenler</h2><Link href="/yonetim/destek"><span>Açık destek kayıtları</span><strong>{data.openTickets}</strong></Link><Link href="/yonetim/basvurular"><span>Toplam teklif havuzu</span><strong>{data.leads}</strong></Link><Link href="/yonetim/entegrasyonlar"><span>Yayınlanan entegrasyonlar</span><strong>{data.activeIntegrations}</strong></Link></div>
+              <div className="admin-card provider-focus-card"><span className="kicker">ÖNCELİKLİ İŞLER</span><h2>Bugün neye bakmalısınız?</h2><Link href="/yonetim/destek"><span>Açık destek kayıtları</span><strong>{data.openTickets}</strong></Link><Link href="/yonetim/basvurular"><span>Teklif havuzu</span><strong>{data.leads}</strong></Link><Link href="/yonetim/entegrasyonlar"><span>Aktif entegrasyonlar</span><strong>{data.activeIntegrations}</strong></Link></div>
             </div>
 
             <div className="admin-dashboard-row">
@@ -197,14 +198,22 @@ export default async function ProviderDashboard() {
   );
 }
 
-function ProviderMetric({ label, value, detail, href, icon, tone }: { label: string; value: string | number; detail: string; href: string; icon: string; tone: string }) {
+function ProviderMetric({ label, value, detail, href, icon, alert = false }: { label: string; value: string | number; detail: string; href: string; icon: string; alert?: boolean }) {
   return (
-    <Link className={`admin-kpi-card provider-metric is-${tone}`} href={href}>
-      <div className="admin-kpi-head"><span className="provider-metric-icon" aria-hidden="true">{icon === "users" ? "M" : icon === "license" ? "L" : icon === "support" ? "S" : "F"}</span><span className="admin-kpi-label">{label}</span><span className="provider-metric-arrow">↗</span></div>
+    <Link className={`admin-kpi-card provider-metric ${alert ? "is-alert" : ""}`} href={href}>
+      <div className="admin-kpi-head"><span className="provider-metric-icon" aria-hidden="true"><MetricIcon type={icon} /></span><span className="admin-kpi-label">{label}</span><span className="provider-metric-arrow">↗</span></div>
       <div className="admin-kpi-value">{value}</div>
       <div className="admin-kpi-footer"><span className="admin-kpi-subtext">{detail}</span></div>
     </Link>
   );
+}
+
+function MetricIcon({ type }: { type: string }) {
+  const common = { fill: "none", height: 20, stroke: "currentColor", strokeLinecap: "round" as const, strokeLinejoin: "round" as const, strokeWidth: 1.8, viewBox: "0 0 24 24", width: 20 };
+  if (type === "users") return <svg {...common}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>;
+  if (type === "license") return <svg {...common}><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h6M7 16h4"/></svg>;
+  if (type === "support") return <svg {...common}><path d="M4 14a8 8 0 0 1 16 0"/><path d="M18 19c0 1.1-.9 2-2 2h-3"/><rect x="2" y="13" width="4" height="6" rx="2"/><rect x="18" y="13" width="4" height="6" rx="2"/></svg>;
+  return <svg {...common}><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2-1z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>;
 }
 
 function DashboardBar({ label, value, max }: { label: string; value: number; max: number }) {

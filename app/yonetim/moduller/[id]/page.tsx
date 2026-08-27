@@ -92,6 +92,13 @@ export default async function ModuleDetailPage({ params }: { params: Promise<{ i
             priceNote: item.priceNote,
             sortOrder: item.sortOrder,
             status: item.status,
+            runtime: item.runtime,
+            version: item.version,
+            packageUrl: item.packageUrl,
+            packageChecksum: item.packageChecksum,
+            entrypoint: item.entrypoint,
+            manifestJson: item.manifestJson,
+            installStatus: item.installStatus,
             expectedUpdatedAt: item.updatedAt,
           }}
         />

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { withBasePath } from "../base-path";
 import { SiteBrand } from "../site-brand";
 import "./admin-modern.css";
+import "./admin-brand-2026.css";
 
 export type AdminSection =
   | "panel"
@@ -333,15 +334,15 @@ export function AdminShell({
             <svg aria-hidden="true" fill="none" height="15" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="15">
               <circle cx="11" cy="11" r="8" /><line x1="21" x2="16.65" y1="21" y2="16.65" />
             </svg>
-            <input placeholder="Müşteri, teklif, lisans veya modül ara..." type="search" />
+            <input aria-label="Yönetim panelinde ara" placeholder="Müşteri, lisans veya modül ara" type="search" />
             <kbd>⌘K</kbd>
           </div>
 
           <div className="admin-topbar-actions">
             <span className="admin-live-pill"><i />CANLI</span>
             <Link className="admin-ai-badge" href="/avcai">
-              <span className="admin-ai-sparkle">✨</span>
-              <span>Avcı AI Asistan</span>
+              <span className="admin-ai-monogram">T</span>
+              <span>Tofy Asistan</span>
             </Link>
 
             <Link className="admin-quick-add-btn" href="/yonetim/musteriler/yeni">

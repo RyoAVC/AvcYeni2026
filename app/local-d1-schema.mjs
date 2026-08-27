@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { isLocalAdminBypassEnabled } from "./local-admin-identity.mjs";
 import { isCustomerPortalPreviewEnabled } from "./customer-portal-preview.mjs";
 
-const SCHEMA_GEN = 28;
+const SCHEMA_GEN = 34;
 let appliedGen = 0;
 let pending = null;
 
@@ -238,6 +238,14 @@ async function ensureModulesTable(db) {
     await db.prepare("CREATE UNIQUE INDEX idx_modules_slug ON modules (slug)").run();
     await db.prepare("CREATE INDEX idx_modules_status_sort ON modules (status, sort_order)").run();
   }
+
+  await addColumnIfMissing(db, "ALTER TABLE modules ADD COLUMN runtime text DEFAULT 'node' NOT NULL");
+  await addColumnIfMissing(db, "ALTER TABLE modules ADD COLUMN version text DEFAULT '1.0.0' NOT NULL");
+  await addColumnIfMissing(db, "ALTER TABLE modules ADD COLUMN package_url text DEFAULT '' NOT NULL");
+  await addColumnIfMissing(db, "ALTER TABLE modules ADD COLUMN package_checksum text DEFAULT '' NOT NULL");
+  await addColumnIfMissing(db, "ALTER TABLE modules ADD COLUMN entrypoint text DEFAULT '' NOT NULL");
+  await addColumnIfMissing(db, "ALTER TABLE modules ADD COLUMN manifest_json text DEFAULT '{}' NOT NULL");
+  await addColumnIfMissing(db, "ALTER TABLE modules ADD COLUMN install_status text DEFAULT 'not_installed' NOT NULL");
 
   const countRow = await db.prepare("SELECT COUNT(*) AS total FROM modules").first();
   if (Number(countRow?.total ?? 0) > 0) return;
@@ -866,6 +874,10 @@ async function ensureCustomerPortalProductTables(db) {
     `CREATE INDEX IF NOT EXISTS idx_commerce_portal_login_code_expiry ON commerce_portal_login_codes (expires_at, used_at)`,
   ];
   for (const statement of statements) await db.prepare(statement).run();
+  // Existing local preview databases may predate migration 0030. CREATE TABLE
+  // does not evolve an existing table, so align preview DBs before queries run.
+  await addColumnIfMissing(db, "ALTER TABLE customer_module_instances ADD COLUMN target_domain text DEFAULT '' NOT NULL");
+  await addColumnIfMissing(db, "ALTER TABLE customer_integration_instances ADD COLUMN target_domain text DEFAULT '' NOT NULL");
 }
 
 // Commerce lisans uçları canlı D1 veritabanında da güvenli biçimde

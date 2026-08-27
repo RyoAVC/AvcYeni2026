@@ -4,7 +4,7 @@ import { withBasePath } from "../../base-path";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { FormEvent } from "react";
-import { MODULE_CATEGORY_OPTIONS, MODULE_STATUS_OPTIONS } from "../../module-admin.mjs";
+import { MODULE_CATEGORY_OPTIONS, MODULE_RUNTIME_OPTIONS, MODULE_STATUS_OPTIONS } from "../../module-admin.mjs";
 
 type ModuleFormValues = {
   name: string;
@@ -15,6 +15,13 @@ type ModuleFormValues = {
   priceNote: string;
   sortOrder: number;
   status: string;
+  runtime?: string;
+  version?: string;
+  packageUrl?: string;
+  packageChecksum?: string;
+  entrypoint?: string;
+  manifestJson?: string;
+  installStatus?: string;
   expectedUpdatedAt?: string;
 };
 
@@ -48,6 +55,13 @@ export function ModuleForm({
       sortOrder: String(form.get("sortOrder") ?? "0"),
       status: String(form.get("status") ?? "draft"),
       expectedUpdatedAt: initial?.expectedUpdatedAt,
+      runtime: String(form.get("runtime") ?? "node"),
+      version: String(form.get("version") ?? "1.0.0"),
+      packageUrl: String(form.get("packageUrl") ?? ""),
+      packageChecksum: String(form.get("packageChecksum") ?? ""),
+      entrypoint: String(form.get("entrypoint") ?? ""),
+      manifestJson: String(form.get("manifestJson") ?? "{}"),
+      installStatus: String(form.get("installStatus") ?? "not_installed"),
     };
 
     try {
@@ -97,6 +111,9 @@ export function ModuleForm({
           ))}
         </select>
       </label>
+      <label><span>Çalışma ortamı</span><select name="runtime" defaultValue={initial?.runtime ?? "node"}>{MODULE_RUNTIME_OPTIONS.map((option) => <option value={option.value} key={option.value}>{option.label}</option>)}</select></label>
+      <label><span>Sürüm</span><input name="version" maxLength={32} defaultValue={initial?.version ?? "1.0.0"} placeholder="1.0.0" /></label>
+      <label><span>Kurulum durumu</span><select name="installStatus" defaultValue={initial?.installStatus ?? "not_installed"}><option value="not_installed">Kurulmadı</option><option value="ready">Kuruluma hazır</option><option value="installed">Kurulu</option><option value="failed">Kurulum hatası</option></select></label>
       <label>
         <span>Sıra</span>
         <input name="sortOrder" type="number" min={0} max={999} defaultValue={initial?.sortOrder ?? 0} />
@@ -113,6 +130,16 @@ export function ModuleForm({
         <span>Kapsam satırları</span>
         <textarea name="features" maxLength={2000} rows={6} defaultValue={initial?.features ?? ""} placeholder="Her satıra bir madde" />
       </label>
+      <fieldset className="admin-record-wide module-package-panel">
+        <legend>Kurulum paketi</legend>
+        <p>İmzalı ZIP/TGZ paketinin HTTPS adresini ve SHA-256 özetini girin. PHP veya Node kodu yönetim sunucusunda doğrudan çalıştırılmaz; hedef Commerce kurulum aracısı manifesti doğrular.</p>
+        <div className="module-package-grid">
+          <label><span>Paket adresi</span><input name="packageUrl" type="url" maxLength={500} defaultValue={initial?.packageUrl ?? ""} placeholder="https://packages.avcieticaret.com/modul-1.0.0.zip" /></label>
+          <label><span>SHA-256</span><input name="packageChecksum" maxLength={128} defaultValue={initial?.packageChecksum ?? ""} placeholder="Paket doğrulama özeti" /></label>
+          <label><span>Başlangıç dosyası</span><input name="entrypoint" maxLength={180} defaultValue={initial?.entrypoint ?? ""} placeholder="dist/index.js veya public/index.php" /></label>
+        </div>
+        <label><span>Modül manifesti (JSON)</span><textarea className="module-code-field" name="manifestJson" rows={10} spellCheck={false} defaultValue={initial?.manifestJson ?? "{}"} /></label>
+      </fieldset>
       <div className="admin-record-actions">
         <small className={hasError ? "error" : ""} role={hasError ? "alert" : "status"}>{message}</small>
         <button type="submit" disabled={saving}>{saving ? "Kaydediliyor…" : mode === "create" ? "Modülü kaydet" : "Değişiklikleri kaydet"}</button>
