@@ -909,6 +909,13 @@ export async function ensureCommerceLicenseTables(env) {
     ["product", "ALTER TABLE commerce_license_installations ADD COLUMN product text DEFAULT 'avci-commerce' NOT NULL"],
     ["activation_count", "ALTER TABLE commerce_license_installations ADD COLUMN activation_count integer DEFAULT 0 NOT NULL"],
     ["first_activated_at", "ALTER TABLE commerce_license_installations ADD COLUMN first_activated_at text DEFAULT '' NOT NULL"],
+    ["billing_cycle", "ALTER TABLE commerce_license_installations ADD COLUMN billing_cycle text DEFAULT 'annual' NOT NULL"],
+    ["billing_amount", "ALTER TABLE commerce_license_installations ADD COLUMN billing_amount text DEFAULT '' NOT NULL"],
+    ["payment_status", "ALTER TABLE commerce_license_installations ADD COLUMN payment_status text DEFAULT 'pending' NOT NULL"],
+    ["next_payment_at", "ALTER TABLE commerce_license_installations ADD COLUMN next_payment_at text DEFAULT '' NOT NULL"],
+    ["penalty_status", "ALTER TABLE commerce_license_installations ADD COLUMN penalty_status text DEFAULT 'none' NOT NULL"],
+    ["penalty_note", "ALTER TABLE commerce_license_installations ADD COLUMN penalty_note text DEFAULT '' NOT NULL"],
+    ["suspension_reason", "ALTER TABLE commerce_license_installations ADD COLUMN suspension_reason text DEFAULT '' NOT NULL"],
   ]) if (!columns.has(name)) await binding.prepare(statement).run();
 }
 

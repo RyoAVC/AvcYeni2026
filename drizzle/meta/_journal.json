@@ -253,6 +253,13 @@
       "when": 1787828400000,
       "tag": "0035_commerce_license_activation_control",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "6",
+      "when": 1787832000000,
+      "tag": "0036_commerce_license_commercial_terms",
+      "breakpoints": true
     }
   ]
 }

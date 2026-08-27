@@ -85,6 +85,20 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       await db.update(commerceLicenseInstallations).set({ validUntil: validUntil.toISOString(), status: "active", updatedAt: now }).where(eq(commerceLicenseInstallations.id, licenseId));
       await logAdminAction(db, { userEmail: admin.user.email, action: "commerce_license_renewed", entity: "commerce_license_installation", entityId: String(licenseId), details: { customerId, validUntil: validUntil.toISOString() } });
       return json({ ok: true });
+    } else if (action === "commerce-license-commercial") {
+      const licenseId = clamp(data.licenseId, 1, 1_000_000_000, 0);
+      const billingCycle = ["monthly", "annual", "custom"].includes(String(data.billingCycle)) ? String(data.billingCycle) : "annual";
+      const paymentStatus = ["paid", "pending", "overdue", "blocked"].includes(String(data.paymentStatus)) ? String(data.paymentStatus) : "pending";
+      const penaltyStatus = ["none", "warning", "penalty", "legal"].includes(String(data.penaltyStatus)) ? String(data.penaltyStatus) : "none";
+      const status = ["trial", "active", "suspended", "revoked"].includes(String(data.status)) ? String(data.status) : "active";
+      const [license] = await db.select({ id: commerceLicenseInstallations.id }).from(commerceLicenseInstallations).where(and(eq(commerceLicenseInstallations.id, licenseId), eq(commerceLicenseInstallations.customerId, customerId))).limit(1);
+      if (!license) return json({ ok: false, error: "Lisans bulunamadı." }, 404);
+      const nextPaymentRaw = text(data.nextPaymentAt, 40);
+      const nextPayment = nextPaymentRaw ? new Date(nextPaymentRaw) : null;
+      if (nextPayment && !Number.isFinite(nextPayment.getTime())) return json({ ok: false, error: "Ödeme tarihi geçersiz." }, 400);
+      await db.update(commerceLicenseInstallations).set({ billingCycle, billingAmount: text(data.billingAmount, 40), paymentStatus, nextPaymentAt: nextPayment?.toISOString() || "", penaltyStatus, penaltyNote: text(data.penaltyNote, 500), suspensionReason: text(data.suspensionReason, 500), status, updatedAt: now }).where(eq(commerceLicenseInstallations.id, licenseId));
+      await logAdminAction(db, { userEmail: admin.user.email, action: "commerce_license_commercial_update", entity: "commerce_license_installation", entityId: String(licenseId), details: { customerId, billingCycle, paymentStatus, penaltyStatus, status } });
+      return json({ ok: true });
     } else if (action === "commerce-license") {
       const storeKey = text(data.storeKey, 96);
       const installationId = text(data.installationId, 96);
@@ -99,7 +113,11 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
         return json({ ok: false, error: "Mağaza kimliği, domain, sürüm veya lisans tarihi geçersiz." }, 400);
       }
       const activationToken = createActivationToken();
-      const values = { customerId, primaryDomain, product: "avci-commerce", plan, commerceVersion, scopesJson: JSON.stringify(scopes), limitsJson: JSON.stringify(limits), activationTokenHash: await sha256(activationToken), activationCount: 0, firstActivatedAt: "", status: "active", validUntil: validUntil.toISOString(), updatedAt: now };
+      const billingCycle = ["monthly", "annual", "custom"].includes(String(data.billingCycle)) ? String(data.billingCycle) : "annual";
+      const paymentStatus = ["paid", "pending", "overdue", "blocked"].includes(String(data.paymentStatus)) ? String(data.paymentStatus) : "pending";
+      const nextPaymentRaw = text(data.nextPaymentAt, 40);
+      const nextPayment = nextPaymentRaw ? new Date(nextPaymentRaw) : null;
+      const values = { customerId, primaryDomain, product: "avci-commerce", plan, commerceVersion, scopesJson: JSON.stringify(scopes), limitsJson: JSON.stringify(limits), activationTokenHash: await sha256(activationToken), activationCount: 0, firstActivatedAt: "", billingCycle, billingAmount: text(data.billingAmount, 40), paymentStatus, nextPaymentAt: nextPayment && Number.isFinite(nextPayment.getTime()) ? nextPayment.toISOString() : "", penaltyStatus: "none", penaltyNote: "", suspensionReason: "", status: "active", validUntil: validUntil.toISOString(), updatedAt: now };
       await db.insert(commerceLicenseInstallations).values({ storeKey, installationId, ...values, createdAt: now }).onConflictDoUpdate({ target: [commerceLicenseInstallations.storeKey, commerceLicenseInstallations.installationId], set: values });
       await logAdminAction(db, { userEmail: admin.user.email, action: "commerce_license_provision", entity: "commerce_license_installation", entityId: customerId, details: { storeKey, installationId, primaryDomain, scopes } });
       return json({ ok: true, activationToken, publicKeyRequired: true });
