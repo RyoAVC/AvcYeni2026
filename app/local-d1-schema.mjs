@@ -166,6 +166,18 @@ async function ensurePackagesTable(db) {
     await db.prepare("CREATE INDEX idx_packages_status_sort ON packages (status, sort_order)").run();
   }
 
+  // Older installations contain the commercial package catalogue but predate
+  // the deployable runtime metadata now represented by the shared schema.
+  // Drizzle selects every declared column, so upgrade these databases before
+  // any package list/read operation without replacing existing catalogue data.
+  await addColumnIfMissing(db, "ALTER TABLE packages ADD COLUMN runtime text DEFAULT 'node' NOT NULL");
+  await addColumnIfMissing(db, "ALTER TABLE packages ADD COLUMN version text DEFAULT '1.0.0' NOT NULL");
+  await addColumnIfMissing(db, "ALTER TABLE packages ADD COLUMN package_url text DEFAULT '' NOT NULL");
+  await addColumnIfMissing(db, "ALTER TABLE packages ADD COLUMN package_checksum text DEFAULT '' NOT NULL");
+  await addColumnIfMissing(db, "ALTER TABLE packages ADD COLUMN entrypoint text DEFAULT '' NOT NULL");
+  await addColumnIfMissing(db, "ALTER TABLE packages ADD COLUMN manifest_json text DEFAULT '{}' NOT NULL");
+  await addColumnIfMissing(db, "ALTER TABLE packages ADD COLUMN install_status text DEFAULT 'not_installed' NOT NULL");
+
   const countRow = await db.prepare("SELECT COUNT(*) AS total FROM packages").first();
   if (Number(countRow?.total ?? 0) > 0) return;
 
