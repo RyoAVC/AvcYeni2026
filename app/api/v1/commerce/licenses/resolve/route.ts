@@ -68,6 +68,14 @@ export async function POST(request: Request) {
     return new Response(responseBody, { status: 200, headers: { ...noStore, "X-Avci-Activation-Signature": await signActivationResponse(responseBody, licenseKey) } });
   } catch (cause) {
     console.error("Commerce license resolution failed", cause);
-    return respond({ ok: false, code: "license_service_unavailable" }, 503);
+    const message = cause instanceof Error ? cause.message.toLowerCase() : "";
+    const code = message.includes("binding") || message.includes("database")
+      ? "license_database_unavailable"
+      : message.includes("no such table") || message.includes("no such column") || message.includes("duplicate column") || message.includes("pragma")
+        ? "license_schema_unavailable"
+        : message.includes("key") || message.includes("ed25519") || message.includes("pkcs8")
+          ? "license_signer_unavailable"
+          : "license_service_unavailable";
+    return respond({ ok: false, code }, 503);
   }
 }
