@@ -1,0 +1,51 @@
+name: Provision Commerce License
+
+on:
+  workflow_dispatch:
+    inputs:
+      domain:
+        required: true
+        type: string
+      store_key:
+        required: true
+        type: string
+      installation_id:
+        required: true
+        type: string
+      token_hash:
+        required: true
+        type: string
+      valid_until:
+        required: true
+        type: string
+
+jobs:
+  provision:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.V1_DEPLOY_KEY }}
+      - name: Sunucuyu tan
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          ssh-keyscan -H 186.240.158.199 >> ~/.ssh/known_hosts
+      - name: Lisans kaydini uygula
+        env:
+          DOMAIN: ${{ inputs.domain }}
+          STORE_KEY: ${{ inputs.store_key }}
+          INSTALLATION_ID: ${{ inputs.installation_id }}
+          TOKEN_HASH: ${{ inputs.token_hash }}
+          VALID_UNTIL: ${{ inputs.valid_until }}
+        run: |
+          scp scripts/provision-commerce-license.py root@186.240.158.199:/tmp/provision-commerce-license.py
+          ssh root@186.240.158.199 python3 /tmp/provision-commerce-license.py \
+            --database /home/avccom/yeni/data/avci-v2.sqlite \
+            --domain "$DOMAIN" \
+            --store-key "$STORE_KEY" \
+            --installation-id "$INSTALLATION_ID" \
+            --token-hash "$TOKEN_HASH" \
+            --valid-until "$VALID_UNTIL"
+          ssh root@186.240.158.199 rm -f /tmp/provision-commerce-license.py
