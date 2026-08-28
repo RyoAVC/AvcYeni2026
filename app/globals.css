@@ -27,7 +27,7 @@
 
 
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; overflow-x: hidden; }
+html { scroll-behavior: auto; overflow-x: hidden; }
 body {
   margin: 0;
   max-width: 100%;
@@ -9442,4 +9442,78 @@ body:has(.cp-page) .live-toast {
   .cp-real-weekly { grid-template-columns: 1fr; }
   .cp-real-weekly ul { grid-template-columns: 1fr; }
   .cp-tofy-quality { grid-template-columns: 1fr; }
+}
+
+/* Kaydırma performansı: dekoratif katmanlar scroll sırasında yeniden boyanmaz. */
+html.is-page-scrolling .hero::before,
+html.is-page-scrolling .hero-grid,
+html.is-page-scrolling .orb,
+html.is-page-scrolling .stage-glow,
+html.is-page-scrolling .dashboard-window,
+html.is-page-scrolling .hero-slide-frame,
+html.is-page-scrolling .floating-card,
+html.is-page-scrolling .status-dot,
+html.is-page-scrolling .scroll-cue::after,
+html.is-page-scrolling .marquee-track,
+html.is-page-scrolling .start-banner-grid,
+html.is-page-scrolling .start-banner-glow,
+html.is-page-scrolling .start-banner-orb,
+html.is-page-scrolling .start-banner-card-front,
+html.is-page-scrolling .pos-card,
+html.is-page-scrolling .catalog-hero::before,
+html.is-page-scrolling .avcai-nudge {
+  animation-play-state: paused !important;
+}
+
+html.is-page-scrolling .site-header nav,
+html.is-page-scrolling .theme-toggle,
+html.is-page-scrolling .mobile-nav nav,
+html.is-page-scrolling .floating-card,
+html.is-page-scrolling .start-banner-card,
+html.is-page-scrolling .pos-card,
+html.is-page-scrolling .avcai-nudge {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* Uzun vitrin sayfasında ekran dışındaki bölümleri görünene kadar çizme. */
+main#top > section:not(.hero) {
+  content-visibility: auto;
+  contain-intrinsic-block-size: auto 900px;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .hero::before,
+  .hero-grid,
+  .orb,
+  .stage-glow,
+  .dashboard-window,
+  .hero-slide-frame,
+  .floating-card,
+  .scroll-cue::after,
+  .marquee-track,
+  .start-banner-grid,
+  .start-banner-glow,
+  .start-banner-orb,
+  .start-banner-card-front,
+  .pos-card,
+  .catalog-hero::before,
+  .avcai-nudge {
+    animation: none !important;
+  }
+
+  .site-header nav,
+  .theme-toggle,
+  .mobile-nav nav,
+  .floating-card,
+  .start-banner-card,
+  .pos-card,
+  .avcai-nudge {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .hero-slider-shell { filter: none; }
+  .hero-slider-track,
+  .pos-banner-track { will-change: auto; }
 }

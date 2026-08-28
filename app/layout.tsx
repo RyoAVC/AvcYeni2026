@@ -13,6 +13,7 @@ import { parseSiteTheme } from "./site-theme.mjs";
 import { loadSiteSettings } from "./site-settings.mjs";
 import { SITE_BASE_URL, withBasePath } from "./base-path";
 import { SiteFooter } from "./site-footer";
+import { ScrollPerformanceGuard } from "./scroll-performance-guard";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -79,6 +80,7 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemePreviewBanner />
+        <ScrollPerformanceGuard />
         <SiteVisitBeacon />
         <CookieNotice />
         <LiveToastHost />
