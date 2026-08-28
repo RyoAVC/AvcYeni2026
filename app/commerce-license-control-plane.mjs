@@ -31,6 +31,17 @@ export function validCommerceIdentifier(value) {
   return /^[a-z0-9][a-z0-9._-]{2,95}$/.test(String(value ?? ""));
 }
 
+export function resolveCommerceInstallationCandidate(candidates, domain) {
+  const normalizedDomain = normalizeCommerceDomain(domain);
+  const matches = (Array.isArray(candidates) ? candidates : []).filter((candidate) =>
+    ["active", "trial"].includes(String(candidate?.status ?? ""))
+    && normalizeCommerceDomain(candidate?.primaryDomain) === normalizedDomain
+  );
+  if (matches.length === 0) return { outcome: "missing", installation: null };
+  if (matches.length > 1) return { outcome: "ambiguous", installation: null };
+  return { outcome: "resolved", installation: matches[0] };
+}
+
 export function parseScopes(value) {
   const entries = Array.isArray(value) ? value : String(value ?? "").split(/[\s,]+/);
   return [...new Set(entries.map((item) => String(item).trim()).filter((item) => /^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$/.test(item)))].sort();
