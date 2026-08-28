@@ -2,9 +2,10 @@
 
 import { withBasePath } from "../../base-path";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { CUSTOMER_STATUS_OPTIONS } from "../../customer-statuses";
+import { generateCustomerPortalPassword } from "../../customer-password-generator.mjs";
 
 type CustomerFormValues = {
   name: string;
@@ -36,12 +37,29 @@ export function CustomerForm({
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [portalPassword, setPortalPassword] = useState("");
+  const [copied, setCopied] = useState(false);
+  const [createdCustomer, setCreatedCustomer] = useState<{ id: number; email: string; password: string } | null>(null);
+
+  useEffect(() => {
+    if (mode !== "create") return;
+    const timer = window.setTimeout(() => {
+      setPortalPassword((current) => current || generateCustomerPortalPassword());
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [mode]);
 
   function generatePortalPassword() {
-    const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
-    const bytes = crypto.getRandomValues(new Uint8Array(20));
-    const generated = Array.from(bytes, (byte) => alphabet[byte % alphabet.length]).join("");
-    setPortalPassword(`${generated.slice(0, 7)}-${generated.slice(7, 14)}-${generated.slice(14)}9aA`);
+    setPortalPassword(generateCustomerPortalPassword());
+    setCopied(false);
+  }
+
+  async function copyCredentials(email: string, password: string) {
+    try {
+      await navigator.clipboard.writeText(`Avcı E-Ticaret müşteri paneli\nE-posta: ${email}\nPanel parolası: ${password}\nGiriş: ${window.location.origin}${withBasePath("/musteri-panel/giris")}`);
+      setCopied(true);
+    } catch {
+      setCopied(false);
+    }
   }
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
@@ -79,6 +97,10 @@ export function CustomerForm({
       if (!response.ok) throw new Error(result.error || "Kayıt yapılamadı.");
       setMessage("Kaydedildi.");
       const savedId = result.id ?? customerId;
+      if (mode === "create" && savedId) {
+        setCreatedCustomer({ id: savedId, email: payload.email, password: payload.portalPassword });
+        return;
+      }
       router.push(leadId && savedId
         ? `/yonetim/siparisler/yeni?musteri=${savedId}`
         : `/yonetim/musteriler/${savedId}`);
@@ -91,6 +113,26 @@ export function CustomerForm({
   }
 
   const hasError = Boolean(message) && message !== "Kaydediliyor…" && message !== "Kaydedildi.";
+
+  if (createdCustomer) {
+    return (
+      <section className="admin-credential-receipt" aria-live="polite">
+        <span className="kicker">MÜŞTERİ HESABI HAZIR</span>
+        <h2>Panel erişimi oluşturuldu.</h2>
+        <p>Bu parola güvenlik nedeniyle tekrar görüntülenmez. Şimdi kopyalayıp müşteriye güvenli bir kanaldan iletin.</p>
+        <dl>
+          <div><dt>Giriş e-postası</dt><dd>{createdCustomer.email}</dd></div>
+          <div><dt>Panel parolası</dt><dd><code>{createdCustomer.password}</code></dd></div>
+        </dl>
+        <div className="admin-credential-actions">
+          <button className="admin-btn admin-btn-primary" onClick={() => copyCredentials(createdCustomer.email, createdCustomer.password)} type="button">
+            {copied ? "Erişim bilgileri kopyalandı" : "Erişim bilgilerini kopyala"}
+          </button>
+          <a className="admin-btn admin-btn-secondary" href={withBasePath(`/yonetim/musteriler/${createdCustomer.id}`)}>Müşteri kaydına git</a>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <form className="admin-record-form" onSubmit={onSubmit} aria-busy={saving}>
@@ -154,7 +196,7 @@ export function CustomerForm({
           />
           <button className="admin-btn admin-btn-secondary" onClick={generatePortalPassword} type="button">Güçlü parola üret</button>
         </span>
-        <small>Parola yalnız bu ekranda görünür; veritabanına geri döndürülemeyen güvenli özeti kaydedilir.</small>
+        <small>{mode === "create" ? "Güçlü parola otomatik üretildi. Kayıttan sonra tek seferlik kopyalama ekranı açılır." : "Boş bırakırsanız mevcut parola değişmez. Yeni parola kayıttan sonra tekrar gösterilmez."}</small>
       </label>
       <label className="admin-record-wide">
         <span>İç not</span>

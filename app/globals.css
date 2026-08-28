@@ -9524,6 +9524,17 @@ main#top > section:not(.hero) {
   gap: 10px;
 }
 .admin-password-field .admin-btn { min-height: 44px; }
+.admin-credential-receipt { display: grid; gap: 15px; padding: clamp(22px, 3vw, 34px); border: 1px solid color-mix(in srgb, var(--mint) 30%, var(--admin-border)); border-radius: 18px; background: var(--admin-surface); box-shadow: var(--admin-shadow-md); }
+.admin-credential-receipt h2 { margin: 0; font-size: clamp(25px, 3vw, 38px); letter-spacing: -.04em; }
+.admin-credential-receipt > p { max-width: 720px; margin: 0; color: var(--admin-text-muted); }
+.admin-credential-receipt dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 4px 0; }
+.admin-credential-receipt dl > div { min-width: 0; padding: 15px; border: 1px solid var(--admin-border); border-radius: 12px; background: var(--admin-bg); }
+.admin-credential-receipt dt { color: var(--admin-text-muted); font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.admin-credential-receipt dd { margin: 7px 0 0; overflow-wrap: anywhere; font-weight: 800; }
+.admin-credential-receipt code { color: var(--mint); font-family: var(--font-geist-mono), monospace; font-size: 14px; }
+.admin-credential-actions { display: flex; flex-wrap: wrap; gap: 9px; }
 @media (max-width: 620px) {
   .admin-password-field { grid-template-columns: 1fr; }
+  .admin-credential-receipt dl { grid-template-columns: 1fr; }
+  .admin-credential-actions { display: grid; }
 }

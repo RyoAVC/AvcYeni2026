@@ -260,6 +260,20 @@
       "when": 1787832000000,
       "tag": "0036_commerce_license_commercial_terms",
       "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "6",
+      "when": 1787900400000,
+      "tag": "0037_package_runtime_metadata",
+      "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "6",
+      "when": 1787904000000,
+      "tag": "0038_customer_portal_passwords",
+      "breakpoints": true
     }
   ]
 }
