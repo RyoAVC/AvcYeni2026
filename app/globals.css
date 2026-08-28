@@ -9517,3 +9517,13 @@ main#top > section:not(.hero) {
   .hero-slider-track,
   .pos-banner-track { will-change: auto; }
 }
+
+.admin-password-field {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+}
+.admin-password-field .admin-btn { min-height: 44px; }
+@media (max-width: 620px) {
+  .admin-password-field { grid-template-columns: 1fr; }
+}

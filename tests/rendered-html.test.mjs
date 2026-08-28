@@ -531,7 +531,7 @@ test("renders the finished platform landing page", async () => {
   assert.equal(customerLoginResponse.headers.get("x-robots-tag"), "noindex, nofollow, noarchive");
   const customerLoginHtml = await customerLoginResponse.text();
   assert.match(customerLoginHtml, /MÜŞTERİ PORTALI/);
-  assert.match(customerLoginHtml, /parola toplamaz/);
+  assert.match(customerLoginHtml, /panel parolasıyla giriş yapar/);
   assert.match(customerLoginHtml, /Portal bağlantısı hazırlanıyor/);
   assert.match(customerLoginHtml, /href="\/musteri-merkezi"/);
   assert.match(customerLoginHtml, /href="\/musteri-hesap"/);
@@ -667,7 +667,7 @@ test("renders the finished platform landing page", async () => {
   assert.equal(customerPortalLoginResponse.status, 200);
   assert.equal(customerPortalLoginResponse.headers.get("x-robots-tag"), "noindex, nofollow, noarchive");
   const customerPortalLoginHtml = await customerPortalLoginResponse.text();
-  assert.match(customerPortalLoginHtml, /MÜŞTERİ PANELİ · YEREL|Yerel panel girişi kapalı/);
+  assert.match(customerPortalLoginHtml, /MÜŞTERİ PANELİ · YEREL|Müşteri paneli girişi kapalı/);
   assert.match(customerPortalLoginHtml, /salt okunur/);
   assert.doesNotMatch(customerPortalLoginHtml, /type="password"/);
 

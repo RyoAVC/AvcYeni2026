@@ -442,6 +442,27 @@ export const integrations = sqliteTable(
   ],
 );
 
+export const customerPortalCredentials = sqliteTable(
+  "customer_portal_credentials",
+  {
+    customerId: integer("customer_id").primaryKey().references(() => customers.id, { onDelete: "cascade" }),
+    passwordHash: text("password_hash").notNull(),
+    passwordChangedAt: text("password_changed_at").notNull(),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+);
+
+export const customerPortalLoginAttempts = sqliteTable(
+  "customer_portal_login_attempts",
+  {
+    attemptKey: text("attempt_key").primaryKey(),
+    failCount: integer("fail_count").notNull().default(0),
+    windowStart: text("window_start").notNull(),
+    updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+);
+
 export const customerPortalProfiles = sqliteTable(
   "customer_portal_profiles",
   {

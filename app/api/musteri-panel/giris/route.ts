@@ -1,6 +1,7 @@
-import { and, eq } from "drizzle-orm";
-import { commerceLicenseInstallations, customers } from "../../../../db/schema";
-import { sha256 } from "../../../commerce-license-control-plane.mjs";
+import { eq } from "drizzle-orm";
+import { customerPortalCredentials, customerPortalLoginAttempts, customers } from "../../../../db/schema";
+import { clientAddress, loginAttemptKey } from "../../../admin-session.mjs";
+import { verifyCustomerPassword } from "../../../customer-password.mjs";
 import { canUseCustomerPortalLogin } from "../../../customer-portal-dev.mjs";
 import { ensureCommerceLicenseTables } from "../../../local-d1-schema.mjs";
 import { normalizeEmailAddress } from "../../../email-normalization.mjs";
@@ -58,8 +59,8 @@ export async function POST(request: Request) {
     if (!config.ready) return redirectResponse(request, failPath(next, "ayar"));
 
     const email = normalizeEmailAddress(String(form.get("email") ?? ""));
-    const licenseKey = String(form.get("license_key") ?? "").trim();
-    if (!email || !licenseKey.startsWith("avc_live_")) return redirectResponse(request, failPath(next, "hata"));
+    const password = String(form.get("password") ?? "");
+    if (!email || password.length < 1 || password.length > 128) return redirectResponse(request, failPath(next, "hata"));
 
     await ensureCommerceLicenseTables(env);
     const { getDb } = await import("../../../../db");
@@ -70,24 +71,26 @@ export async function POST(request: Request) {
       .where(eq(customers.email, email))
       .limit(1);
 
-    if (!customer || customer.status !== "active") {
-      return redirectResponse(request, failPath(next, "hata"));
-    }
+    const attemptKey = await loginAttemptKey(config.secret, email, clientAddress(request));
+    const [attempt] = await db.select().from(customerPortalLoginAttempts).where(eq(customerPortalLoginAttempts.attemptKey, attemptKey)).limit(1);
+    const now = new Date();
+    const windowStart = new Date(attempt?.windowStart ?? "");
+    const inWindow = Number.isFinite(windowStart.getTime()) && now.getTime() - windowStart.getTime() < 15 * 60 * 1000;
+    if (attempt && inWindow && attempt.failCount >= 5) return redirectResponse(request, failPath(next, "hata"));
 
-    const tokenHash = await sha256(licenseKey);
-    const [installation] = await db
-      .select({ id: commerceLicenseInstallations.id, status: commerceLicenseInstallations.status, validUntil: commerceLicenseInstallations.validUntil })
-      .from(commerceLicenseInstallations)
-      .where(and(
-        eq(commerceLicenseInstallations.customerId, customer.id),
-        eq(commerceLicenseInstallations.activationTokenHash, tokenHash),
-        eq(commerceLicenseInstallations.product, "avci-commerce"),
-      ))
-      .limit(1);
-    const validUntil = new Date(installation?.validUntil ?? "");
-    if (!installation || !["active", "trial"].includes(installation.status) || !Number.isFinite(validUntil.getTime()) || validUntil <= new Date()) {
+    const [credential] = customer
+      ? await db.select().from(customerPortalCredentials).where(eq(customerPortalCredentials.customerId, customer.id)).limit(1)
+      : [];
+    const dummyHash = "pbkdf2-sha256$210000$AAAAAAAAAAAAAAAAAAAAAA$AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+    const passwordOk = await verifyCustomerPassword(password, credential?.passwordHash ?? dummyHash);
+    if (!customer || !["active", "trial"].includes(customer.status) || !credential || !passwordOk) {
+      const nextCount = inWindow ? Number(attempt?.failCount ?? 0) + 1 : 1;
+      const startedAt = inWindow ? (attempt?.windowStart ?? now.toISOString()) : now.toISOString();
+      await db.insert(customerPortalLoginAttempts).values({ attemptKey, failCount: nextCount, windowStart: startedAt, updatedAt: now.toISOString() })
+        .onConflictDoUpdate({ target: customerPortalLoginAttempts.attemptKey, set: { failCount: nextCount, windowStart: startedAt, updatedAt: now.toISOString() } });
       return redirectResponse(request, failPath(next, "hata"));
     }
+    await db.delete(customerPortalLoginAttempts).where(eq(customerPortalLoginAttempts.attemptKey, attemptKey));
 
     const token = await createCustomerSessionToken(config.secret, {
       customerId: customer.id,

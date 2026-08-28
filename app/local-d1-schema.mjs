@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { isLocalAdminBypassEnabled } from "./local-admin-identity.mjs";
 import { isCustomerPortalPreviewEnabled } from "./customer-portal-preview.mjs";
 
-const SCHEMA_GEN = 34;
+const SCHEMA_GEN = 35;
 let appliedGen = 0;
 let pending = null;
 
@@ -861,6 +861,8 @@ async function ensureCustomerPortalProductTables(db) {
   await addColumnIfMissing(db, "ALTER TABLE support_tickets ADD COLUMN first_responded_at text DEFAULT '' NOT NULL");
   await addColumnIfMissing(db, "ALTER TABLE support_tickets ADD COLUMN closed_at text DEFAULT '' NOT NULL");
   const statements = [
+    `CREATE TABLE IF NOT EXISTS customer_portal_credentials (customer_id integer PRIMARY KEY NOT NULL, password_hash text NOT NULL, password_changed_at text NOT NULL, created_at text DEFAULT CURRENT_TIMESTAMP NOT NULL, updated_at text DEFAULT CURRENT_TIMESTAMP NOT NULL, FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE)`,
+    `CREATE TABLE IF NOT EXISTS customer_portal_login_attempts (attempt_key text PRIMARY KEY NOT NULL, fail_count integer DEFAULT 0 NOT NULL, window_start text NOT NULL, updated_at text DEFAULT CURRENT_TIMESTAMP NOT NULL)`,
     `CREATE TABLE IF NOT EXISTS customer_portal_profiles (id integer PRIMARY KEY AUTOINCREMENT NOT NULL, customer_id integer NOT NULL, company_name text DEFAULT '' NOT NULL, logo_url text DEFAULT '' NOT NULL, monogram text DEFAULT '' NOT NULL, theme text DEFAULT 'avci' NOT NULL, color_mode text DEFAULT 'day' NOT NULL, ssl_warning_days integer DEFAULT 30 NOT NULL, tofy_click_threshold_bps integer DEFAULT 1000 NOT NULL, marketplace_setup_days integer DEFAULT 7 NOT NULL, onboarding_status text DEFAULT 'not_started' NOT NULL, onboarding_progress integer DEFAULT 0 NOT NULL, created_at text DEFAULT CURRENT_TIMESTAMP NOT NULL, updated_at text DEFAULT CURRENT_TIMESTAMP NOT NULL)`,
     `CREATE UNIQUE INDEX IF NOT EXISTS idx_customer_portal_profiles_customer ON customer_portal_profiles (customer_id)`,
     `CREATE TABLE IF NOT EXISTS customer_module_instances (id integer PRIMARY KEY AUTOINCREMENT NOT NULL, customer_id integer NOT NULL, module_id integer NOT NULL, status text DEFAULT 'planned' NOT NULL, coverage text DEFAULT '' NOT NULL, enabled_at text DEFAULT '' NOT NULL, expires_at text DEFAULT '' NOT NULL, note text DEFAULT '' NOT NULL, created_at text DEFAULT CURRENT_TIMESTAMP NOT NULL, updated_at text DEFAULT CURRENT_TIMESTAMP NOT NULL)`,
@@ -904,6 +906,8 @@ export async function ensureCommerceLicenseTables(env) {
   }
   if (!binding) throw new Error("Cloudflare D1 binding `DB` is unavailable.");
   const statements = [
+    `CREATE TABLE IF NOT EXISTS customer_portal_credentials (customer_id integer PRIMARY KEY NOT NULL, password_hash text NOT NULL, password_changed_at text NOT NULL, created_at text DEFAULT CURRENT_TIMESTAMP NOT NULL, updated_at text DEFAULT CURRENT_TIMESTAMP NOT NULL, FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE)`,
+    `CREATE TABLE IF NOT EXISTS customer_portal_login_attempts (attempt_key text PRIMARY KEY NOT NULL, fail_count integer DEFAULT 0 NOT NULL, window_start text NOT NULL, updated_at text DEFAULT CURRENT_TIMESTAMP NOT NULL)`,
     `CREATE TABLE IF NOT EXISTS commerce_license_installations (id integer PRIMARY KEY AUTOINCREMENT NOT NULL, customer_id integer NOT NULL, store_key text NOT NULL, installation_id text NOT NULL, primary_domain text NOT NULL, plan text DEFAULT 'start' NOT NULL, commerce_version text DEFAULT '1.0.0' NOT NULL, scopes_json text DEFAULT '[]' NOT NULL, limits_json text DEFAULT '{}' NOT NULL, activation_token_hash text NOT NULL, status text DEFAULT 'active' NOT NULL, valid_until text NOT NULL, last_seen_at text DEFAULT '' NOT NULL, last_seen_version text DEFAULT '' NOT NULL, created_at text DEFAULT CURRENT_TIMESTAMP NOT NULL, updated_at text DEFAULT CURRENT_TIMESTAMP NOT NULL)`,
     `CREATE UNIQUE INDEX IF NOT EXISTS idx_commerce_license_installation_identity ON commerce_license_installations (store_key, installation_id)`,
     `CREATE UNIQUE INDEX IF NOT EXISTS idx_commerce_license_installation_token ON commerce_license_installations (activation_token_hash)`,

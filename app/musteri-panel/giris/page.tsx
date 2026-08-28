@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 };
 
 const ERRORS = {
-  hata: "Müşteri bilgileri veya lisans anahtarı doğrulanamadı.",
+  hata: "E-posta veya panel parolası doğrulanamadı.",
   kapali: "Müşteri paneli girişi şu anda kapalı.",
   ayar: "Oturum anahtarı henüz ayarlanmadı.",
 } as const;
@@ -66,12 +66,12 @@ export default async function CustomerPortalLoginPage({
             <em>güvenli hesap görünümü.</em>
           </h1>
           <p>
-            Yönetimde kayıtlı aktif işletme e-postanız ve size özel lisans anahtarınız birlikte doğrulanır. Panel;
+            Yönetimde kayıtlı aktif işletme e-postanız ve güvenli panel parolanız birlikte doğrulanır. Panel;
             lisans, fatura, destek ve sistem durumunu güvenli biçimde gösterir.
           </p>
           <ul>
             <li>
-              <span>✓</span>Müşteri ve lisans birlikte doğrulanır
+              <span>✓</span>Müşteri hesabı güvenli parola ile doğrulanır
             </li>
             <li>
               <span>✓</span>Sipariş, destek ve fatura: salt okunur
@@ -89,7 +89,7 @@ export default async function CustomerPortalLoginPage({
           {loginOpen ? (
             <>
               <h2>Hesabınıza giriş yapın</h2>
-              <p>Kayıtlı e-postanızı ve Avcı tarafından verilen lisans anahtarınızı kullanın.</p>
+              <p>Kayıtlı e-postanızı ve Avcı tarafından oluşturulan panel parolanızı kullanın.</p>
               {durum ? (
                 <div className="portal-notice" role="status">
                   <strong>{durum}</strong>

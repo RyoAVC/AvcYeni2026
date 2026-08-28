@@ -35,6 +35,14 @@ export function CustomerForm({
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
+  const [portalPassword, setPortalPassword] = useState("");
+
+  function generatePortalPassword() {
+    const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
+    const bytes = crypto.getRandomValues(new Uint8Array(20));
+    const generated = Array.from(bytes, (byte) => alphabet[byte % alphabet.length]).join("");
+    setPortalPassword(`${generated.slice(0, 7)}-${generated.slice(7, 14)}-${generated.slice(14)}9aA`);
+  }
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -57,6 +65,7 @@ export function CustomerForm({
       status: String(form.get("status") ?? "active"),
       expectedUpdatedAt: initial?.expectedUpdatedAt,
       leadId: mode === "create" && leadId ? leadId : undefined,
+      portalPassword: String(form.get("portalPassword") ?? ""),
     };
 
     try {
@@ -128,6 +137,24 @@ export function CustomerForm({
             <option value={option.value} key={option.value}>{option.label}</option>
           ))}
         </select>
+      </label>
+      <label className="admin-record-wide">
+        <span>{mode === "create" ? "Müşteri paneli parolası" : "Yeni müşteri paneli parolası (isteğe bağlı)"}</span>
+        <span className="admin-password-field">
+          <input
+            autoComplete="new-password"
+            minLength={12}
+            maxLength={128}
+            name="portalPassword"
+            onChange={(event) => setPortalPassword(event.target.value)}
+            placeholder={mode === "create" ? "En az 12 karakter" : "Değişmeyecekse boş bırakın"}
+            required={mode === "create"}
+            type="text"
+            value={portalPassword}
+          />
+          <button className="admin-btn admin-btn-secondary" onClick={generatePortalPassword} type="button">Güçlü parola üret</button>
+        </span>
+        <small>Parola yalnız bu ekranda görünür; veritabanına geri döndürülemeyen güvenli özeti kaydedilir.</small>
       </label>
       <label className="admin-record-wide">
         <span>İç not</span>

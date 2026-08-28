@@ -41,17 +41,17 @@ export function CustomerPortalLoginForm({
         required
         type="email"
       />
-      <label className="visually-hidden" htmlFor="customer-portal-license">
-        Lisans anahtarı
+      <label className="visually-hidden" htmlFor="customer-portal-password">
+        Panel parolası
       </label>
       <input
-        autoComplete="off"
-        id="customer-portal-license"
-        name="license_key"
-        pattern="avc_live_[A-Za-z0-9_-]{20,}"
-        placeholder="avc_live_... lisans anahtarınız"
+        autoComplete="current-password"
+        id="customer-portal-password"
+        maxLength={128}
+        minLength={12}
+        name="password"
+        placeholder="Panel parolanız"
         required
-        spellCheck={false}
         type="password"
       />
       <input aria-hidden="true" autoComplete="off" className="visually-hidden" name="website" tabIndex={-1} type="text" />

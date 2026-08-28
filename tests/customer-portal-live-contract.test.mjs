@@ -18,14 +18,12 @@ test("live customer login opens only on HTTPS and can be explicitly disabled", (
   assert.equal(usesInternalCustomerPortal({ LICENSE_PORTAL_URL: "https://license.example" }), false);
 });
 
-test("customer login requires an active Avci Commerce license, not email alone", () => {
-  assert.match(form, /name="license_key"/);
+test("customer login uses a hashed portal password with rate limiting", () => {
+  assert.match(form, /name="password"/);
   assert.match(form, /type="password"/);
-  assert.match(route, /sha256\(licenseKey\)/);
-  assert.match(route, /commerceLicenseInstallations\.customerId/);
-  assert.match(route, /commerceLicenseInstallations\.activationTokenHash/);
+  assert.match(route, /verifyCustomerPassword/);
+  assert.match(route, /customerPortalLoginAttempts/);
   assert.match(route, /\["active", "trial"\]/);
-  assert.match(route, /validUntil <= new Date\(\)/);
 });
 
 test("public pages receive the shared footer and demo header has no trust badge", () => {

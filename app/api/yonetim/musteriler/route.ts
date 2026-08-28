@@ -1,6 +1,10 @@
 import { and, eq, inArray } from "drizzle-orm";
-import { customers, leadActivities, leads } from "../../../../db/schema";
+import { customerPortalCredentials, customers, leadActivities, leads } from "../../../../db/schema";
 import { getAdminUser } from "../../../admin-auth";
+import { logAdminAction } from "../../../audit-log.mjs";
+import { hashCustomerPassword, validateCustomerPassword } from "../../../customer-password.mjs";
+import { readRuntimeEnv } from "../../../form-post.mjs";
+import { ensureCommerceLicenseTables } from "../../../local-d1-schema.mjs";
 import { readAdminJsonObject, validateAdminMutationRequest } from "../../../admin-request.mjs";
 import { parseCustomerLeadId, parseCustomerRecord, shouldQualifyLeadOnCustomerCreate } from "../../../customer-record.mjs";
 
@@ -21,8 +25,13 @@ export async function POST(request: Request) {
 
   const parsed = parseCustomerRecord(parsedPayload.value);
   if (!parsed.ok) return json({ ok: false, error: parsed.error }, 400);
+  const portalPassword = typeof parsedPayload.value.portalPassword === "string" ? parsedPayload.value.portalPassword : "";
+  const passwordValidation = validateCustomerPassword(portalPassword);
+  if (!passwordValidation.ok) return json({ ok: false, error: passwordValidation.error }, 400);
+  const passwordHash = await hashCustomerPassword(portalPassword);
 
   try {
+    await ensureCommerceLicenseTables(await readRuntimeEnv());
     const { getDb } = await import("../../../../db");
     const db = getDb();
     const [existing] = await db.select({ id: customers.id }).from(customers).where(eq(customers.email, parsed.value.email)).limit(1);
@@ -35,6 +44,21 @@ export async function POST(request: Request) {
       createdAt: now,
       updatedAt: now,
     }).returning({ id: customers.id });
+    const customerId = inserted[0]?.id;
+    if (!customerId) throw new Error("Customer insert did not return an id.");
+    try {
+      await db.insert(customerPortalCredentials).values({
+        customerId,
+        passwordHash,
+        passwordChangedAt: now,
+        createdAt: now,
+        updatedAt: now,
+      });
+    } catch (credentialCause) {
+      await db.delete(customers).where(eq(customers.id, customerId));
+      throw credentialCause;
+    }
+    await logAdminAction(db, { userEmail: admin.user.email, action: "customer_portal_password_created", entity: "customer", entityId: String(customerId), details: { customerId } });
 
     const leadId = parseCustomerLeadId(parsedPayload.value);
     if (leadId) {
@@ -65,7 +89,7 @@ export async function POST(request: Request) {
       }
     }
 
-    return json({ ok: true, id: inserted[0]?.id }, 201);
+    return json({ ok: true, id: customerId }, 201);
   } catch (cause) {
     console.error("Customer create failed", cause);
     return json({ ok: false, error: "Müşteri şu anda kaydedilemedi." }, 503);

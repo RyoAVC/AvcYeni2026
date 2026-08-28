@@ -1,6 +1,10 @@
 import { and, eq, ne } from "drizzle-orm";
-import { customers } from "../../../../../db/schema";
+import { customerPortalCredentials, customers } from "../../../../../db/schema";
 import { getAdminUser } from "../../../../admin-auth";
+import { logAdminAction } from "../../../../audit-log.mjs";
+import { hashCustomerPassword, validateCustomerPassword } from "../../../../customer-password.mjs";
+import { readRuntimeEnv } from "../../../../form-post.mjs";
+import { ensureCommerceLicenseTables } from "../../../../local-d1-schema.mjs";
 import { readAdminJsonObject, validateAdminMutationRequest } from "../../../../admin-request.mjs";
 import { parseCustomerRecord } from "../../../../customer-record.mjs";
 
@@ -28,6 +32,11 @@ export async function PATCH(
 
   const parsed = parseCustomerRecord(parsedPayload.value);
   if (!parsed.ok) return json({ ok: false, error: parsed.error }, 400);
+  const portalPassword = typeof parsedPayload.value.portalPassword === "string" ? parsedPayload.value.portalPassword : "";
+  if (portalPassword) {
+    const passwordValidation = validateCustomerPassword(portalPassword);
+    if (!passwordValidation.ok) return json({ ok: false, error: passwordValidation.error }, 400);
+  }
 
   const expectedUpdatedAt = typeof (parsedPayload.value as { expectedUpdatedAt?: unknown }).expectedUpdatedAt === "string"
     ? String((parsedPayload.value as { expectedUpdatedAt?: string }).expectedUpdatedAt).trim()
@@ -37,6 +46,7 @@ export async function PATCH(
   }
 
   try {
+    await ensureCommerceLicenseTables(await readRuntimeEnv());
     const { getDb } = await import("../../../../../db");
     const db = getDb();
     const [existing] = await db.select().from(customers).where(eq(customers.id, id)).limit(1);
@@ -60,6 +70,12 @@ export async function PATCH(
       .returning({ id: customers.id, updatedAt: customers.updatedAt });
 
     if (!updated[0]) return json({ ok: false, error: "Kayıt başka bir yönetici tarafından güncellendi. Sayfayı yenileyin." }, 409);
+    if (portalPassword) {
+      const passwordHash = await hashCustomerPassword(portalPassword);
+      await db.insert(customerPortalCredentials).values({ customerId: id, passwordHash, passwordChangedAt: updatedAt, createdAt: updatedAt, updatedAt })
+        .onConflictDoUpdate({ target: customerPortalCredentials.customerId, set: { passwordHash, passwordChangedAt: updatedAt, updatedAt } });
+      await logAdminAction(db, { userEmail: admin.user.email, action: "customer_portal_password_reset", entity: "customer", entityId: String(id), details: { customerId: id } });
+    }
     return json({ ok: true, id: updated[0].id, updatedAt: updated[0].updatedAt }, 200);
   } catch (cause) {
     console.error("Customer update failed", cause);
