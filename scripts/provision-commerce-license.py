@@ -34,7 +34,7 @@ def main() -> None:
                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
             (
                 "BasBitir Beta", "beta@basbitir.com", "", "", "BasBitir", "", "Avcı Commerce",
-                "Beta kurulum müşterisi", domain, args.valid_until, args.valid_until, "trial",
+                "Beta kurulum müşterisi", domain, args.valid_until, args.valid_until, "active",
                 "license-provisioner@avci.local", now, now,
             ),
         )
@@ -42,7 +42,7 @@ def main() -> None:
     else:
         customer_id = int(customer["id"])
         connection.execute(
-            "UPDATE customers SET domain_name=?, status='trial', updated_at=? WHERE id=?",
+            "UPDATE customers SET domain_name=?, status='active', updated_at=? WHERE id=?",
             (domain, now, customer_id),
         )
 
