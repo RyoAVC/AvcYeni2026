@@ -9226,6 +9226,87 @@ html[data-theme-preview="logo"] .mobile-bottom-nav-sheet .mobile-bottom-nav-cta 
   }
 }
 
+/* Ortak yönetim sayfaları — eski ekranları modern kabukla aynı dile taşır. */
+.admin-page-modern .admin-main {
+  width: 100%;
+  max-width: 1680px;
+  margin: 0 auto;
+  padding: clamp(28px, 4vw, 54px) clamp(20px, 4vw, 52px) 80px;
+}
+.admin-page-modern .admin-heading {
+  align-items: flex-start;
+  margin-bottom: 30px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--admin-border);
+}
+.admin-page-modern .admin-heading h1 {
+  margin-top: 9px;
+  color: var(--admin-text-main);
+  font-size: clamp(30px, 3vw, 46px);
+  font-weight: 760;
+  letter-spacing: -.045em;
+}
+.admin-page-modern .admin-heading > p,
+.admin-page-modern .admin-heading-actions p { max-width: 680px; color: var(--admin-text-muted); font-size: 12px; line-height: 1.65; }
+.admin-page-modern .admin-back-link { display: inline-flex; margin-bottom: 12px; color: var(--admin-text-muted); font-size: 11px; font-weight: 700; }
+.admin-page-modern :is(.admin-card, .admin-recent, .admin-rank-card, .lead-detail-card, .admin-record-form, .admin-empty) {
+  border-color: var(--admin-border);
+  border-radius: var(--admin-radius);
+  background: var(--admin-card-bg);
+  box-shadow: var(--admin-shadow-sm);
+}
+.admin-page-modern :is(.admin-card, .admin-recent, .admin-rank-card, .lead-detail-card):hover { border-color: color-mix(in srgb, var(--admin-border) 65%, var(--admin-text-muted)); box-shadow: var(--admin-shadow-md); }
+.admin-page-modern .admin-record-form { width: 100%; max-width: none; gap: 18px; padding: clamp(20px, 3vw, 30px); }
+.admin-page-modern .admin-record-form label > span { color: var(--admin-text-muted); font-size: 10px; font-weight: 750; }
+.admin-page-modern .admin-record-form :is(input, select, textarea) { border-color: var(--admin-border); border-radius: var(--admin-radius-sm); color: var(--admin-text-main); background: var(--admin-card-bg); font-size: 12px; }
+.admin-page-modern .admin-record-form :is(input, select, textarea):focus { border-color: var(--admin-accent); box-shadow: 0 0 0 3px var(--admin-accent-soft); }
+.admin-page-modern .admin-record-actions { margin-top: 8px; padding-top: 20px; border-top: 1px solid var(--admin-border); }
+.admin-page-modern .admin-record-actions button { min-height: 42px; border-radius: var(--admin-radius-sm); color: var(--white); background: var(--admin-accent-gradient); box-shadow: var(--admin-shadow-sm); }
+.admin-page-modern .admin-filters { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; margin-bottom: 22px; padding: 18px; border-color: var(--admin-border); border-radius: var(--admin-radius); background: var(--admin-card-bg); box-shadow: var(--admin-shadow-sm); }
+.admin-page-modern .admin-filters label:first-child { grid-column: span 2; }
+.admin-page-modern .admin-filters label > span { color: var(--admin-text-muted); font-size: 9px; text-transform: uppercase; }
+.admin-page-modern .admin-filters :is(input, select) { border-color: var(--admin-border); color: var(--admin-text-main); background: var(--admin-bg); font-size: 11px; }
+.admin-page-modern .admin-filters :is(input, select):focus { border-color: var(--admin-accent); box-shadow: 0 0 0 3px var(--admin-accent-soft); }
+.admin-page-modern .admin-filters button { justify-content: center; color: var(--white); background: var(--admin-accent-gradient); }
+.admin-page-modern .admin-stats { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
+.admin-page-modern .admin-stats article { min-height: 132px; padding: 20px; border-color: var(--admin-border); border-radius: var(--admin-radius); background: var(--admin-card-bg); box-shadow: var(--admin-shadow-sm); }
+.admin-page-modern .admin-stats article:hover { transform: translateY(-2px); box-shadow: var(--admin-shadow-md); }
+.admin-page-modern .admin-stats small { color: var(--admin-text-muted); font-size: 10px; font-weight: 700; }
+.admin-page-modern .admin-stats strong { color: var(--admin-text-main); font-size: clamp(30px, 3vw, 40px); }
+.admin-page-modern .admin-stats span { color: var(--admin-text-muted); font-size: 9px; }
+.admin-page-modern .lead-table-wrap { border-color: var(--admin-border); border-radius: var(--admin-radius); background: var(--admin-card-bg); box-shadow: var(--admin-shadow-sm); }
+.admin-page-modern .lead-table thead th { padding: 13px 16px; border-color: var(--admin-border); color: var(--admin-text-muted); background: var(--admin-bg); font-size: 9px; }
+.admin-page-modern .lead-table tbody :is(th, td) { padding: 17px 16px; border-color: var(--admin-border-subtle); color: var(--admin-text-main); font-size: 11px; }
+.admin-page-modern .lead-table tbody tr { transition: background .16s ease; }
+.admin-page-modern .lead-table tbody tr:hover { background: color-mix(in srgb, var(--admin-accent) 2.5%, var(--admin-card-bg)); }
+.admin-page-modern .lead-table tbody :is(th, td) small { color: var(--admin-text-muted); font-size: 9px; }
+.admin-page-modern .lead-table tbody :is(th, td) a { color: var(--admin-text-main); }
+.admin-page-modern .lead-detail-link { color: var(--admin-text-main) !important; font-size: 13px !important; }
+.admin-page-modern .lead-interest { color: var(--admin-success); background: var(--admin-success-soft); font-size: 9px; font-weight: 750; }
+.admin-page-modern .admin-pagination { margin-top: 20px; padding: 14px 16px; border: 1px solid var(--admin-border); border-radius: var(--admin-radius-sm); background: var(--admin-card-bg); }
+.admin-page-modern .admin-pagination a { color: var(--admin-accent); font-size: 11px; }
+.admin-page-modern .admin-empty { min-height: 300px; align-content: center; padding: 48px 24px; }
+.admin-page-modern .admin-empty h2 { color: var(--admin-text-main); font-size: clamp(22px, 2vw, 28px); }
+.admin-page-modern .admin-empty p { max-width: 560px; color: var(--admin-text-muted); line-height: 1.65; }
+.admin-page-modern .lead-contact-actions a { border-color: var(--admin-border); color: var(--admin-text-main); background: var(--admin-bg); }
+.admin-page-modern .lead-contact-actions a:hover { border-color: var(--admin-accent); color: var(--admin-accent); background: var(--admin-accent-soft); }
+@media (max-width: 760px) {
+  .admin-page-modern .admin-main { padding: 24px 16px 64px; }
+  .admin-page-modern .admin-heading { display: grid; gap: 18px; margin-bottom: 22px; }
+  .admin-page-modern .admin-heading-actions { justify-items: start; }
+  .admin-page-modern .admin-record-form { grid-template-columns: 1fr; padding: 18px; }
+  .admin-page-modern .admin-record-wide,
+  .admin-page-modern .admin-record-actions { grid-column: auto; }
+  .admin-page-modern .admin-record-actions { align-items: stretch; flex-direction: column; }
+  .admin-page-modern .admin-filters,
+  .admin-page-modern .admin-filters.is-simple { grid-template-columns: 1fr; }
+  .admin-page-modern .admin-filters label:first-child { grid-column: auto; }
+  .admin-page-modern .admin-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 440px) {
+  .admin-page-modern .admin-stats { grid-template-columns: 1fr; }
+}
+
 /* Demo portal kabuk düzeltmeleri — geniş ekran, marka ve güven kimliği */
 body:has(.cp-page) .live-toast {
   display: none !important;
