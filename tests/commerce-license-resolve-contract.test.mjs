@@ -29,6 +29,12 @@ test("resolve endpoint binds tenant identity and returns signed entitlement meta
   assert.match(source, /license_ambiguous/);
 });
 
+test("resolve endpoint accepts separately licensed subdomain installations", () => {
+  assert.match(source, /normalizeCommerceDomain\(installation\.primaryDomain\) === domain/);
+  assert.doesNotMatch(source, /customers\.domainName/);
+  assert.doesNotMatch(source, /customerDomain === domain/);
+});
+
 test("resolve endpoint records decisions and limits repeated activation", () => {
   assert.match(source, /RATE_LIMIT = 20/);
   assert.match(source, /commerceLicenseVerificationEvents/);

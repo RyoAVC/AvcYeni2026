@@ -66,9 +66,12 @@ export async function POST(request: Request) {
       return respond({ ok: false, code: "license_ambiguous" }, 409);
     }
     const installation = resolved.installation;
-    const customer = installation ? (await db.select({ id: customers.id, status: customers.status, domainName: customers.domainName }).from(customers).where(eq(customers.id, installation.customerId)).limit(1))[0] : undefined;
-    const customerDomain = normalizeCommerceDomain(customer?.domainName);
-    const domainMatches = installation && normalizeCommerceDomain(installation.primaryDomain) === domain && (!customerDomain || customerDomain === domain);
+    const customer = installation ? (await db.select({ id: customers.id, status: customers.status }).from(customers).where(eq(customers.id, installation.customerId)).limit(1))[0] : undefined;
+    // The installation record is the source of truth for licensed domains. A customer can
+    // legitimately own more than one installation (for example basbitir.com and
+    // beta.basbitir.com), so the customer's primary portal domain must not reject a
+    // separately licensed installation domain.
+    const domainMatches = installation && normalizeCommerceDomain(installation.primaryDomain) === domain;
     if (!installation || !customer || customer.status !== "active" || !["active", "trial"].includes(installation.status) || !domainMatches) {
       await db.insert(commerceLicenseVerificationEvents).values({ licenseId: installation?.id || 0, customerId: installation?.customerId || 0, requestHash, ipAddress: ipOf(request), outcome: "denied" });
       return respond({ ok: false, code: "license_denied" }, 403);
