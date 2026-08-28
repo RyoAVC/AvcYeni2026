@@ -188,9 +188,9 @@ export default async function CustomersPage({
 
         {rows.length ? (
           <div className="lead-table-wrap">
-            <table className="lead-table">
+            <table className="lead-table customer-admin-table">
               <caption className="visually-hidden">Yazılım müşterileri</caption>
-              <thead><tr><th scope="col">Müşteri</th><th scope="col">İletişim</th><th scope="col">Paket / modül</th><th scope="col">Durum</th><th scope="col">Kayıt</th></tr></thead>
+              <thead><tr><th scope="col">Müşteri</th><th scope="col">İletişim</th><th scope="col">Paket / modül</th><th scope="col">Durum</th><th scope="col">Kayıt</th><th scope="col">İşlemler</th></tr></thead>
               <tbody>
                 {rows.map((customer) => (
                   <tr key={customer.id}>
@@ -204,15 +204,23 @@ export default async function CustomersPage({
                     </td>
                     <td>
                       <span className="lead-interest">{customer.interest || "—"}</span>
-                      <Link href={`/yonetim/siparisler?musteri=${customer.id}`}>Siparişler</Link>
-                      <Link href={`/yonetim/siparisler/yeni?musteri=${customer.id}`}>Sipariş ekle</Link>
-                      <Link href={`/yonetim/faturalar?musteri=${customer.id}`}>Faturalar</Link>
-                      <Link href={`/yonetim/faturalar/yeni?musteri=${customer.id}`}>Fatura ekle</Link>
-                      <Link href={`/yonetim/destek?musteri=${customer.id}`}>Destek</Link>
-                      <Link href={`/yonetim/destek/yeni?musteri=${customer.id}`}>Destek ekle</Link>
                     </td>
-                    <td>{customerStatusLabel(customer.status)}</td>
+                    <td><span className={`customer-status-pill is-${customer.status}`}>{customerStatusLabel(customer.status)}</span></td>
                     <td><time dateTime={customer.createdAt}>{formatDate(customer.createdAt)}</time></td>
+                    <td>
+                      <div className="customer-row-actions">
+                        <Link className="is-primary" href={`/yonetim/musteriler/${customer.id}`}>Müşteri kartı</Link>
+                        <Link href={`/yonetim/siparisler?musteri=${customer.id}`}>Siparişler</Link>
+                        <Link href={`/yonetim/faturalar?musteri=${customer.id}`}>Faturalar</Link>
+                        <Link href={`/yonetim/destek?musteri=${customer.id}`}>Destek</Link>
+                      </div>
+                      <div className="customer-row-create-actions" aria-label="Yeni kayıt oluştur">
+                        <span>Hızlı ekle</span>
+                        <Link href={`/yonetim/siparisler/yeni?musteri=${customer.id}`}>+ Sipariş</Link>
+                        <Link href={`/yonetim/faturalar/yeni?musteri=${customer.id}`}>+ Fatura</Link>
+                        <Link href={`/yonetim/destek/yeni?musteri=${customer.id}`}>+ Destek</Link>
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>
