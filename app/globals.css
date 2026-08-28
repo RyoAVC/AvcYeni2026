@@ -1645,8 +1645,9 @@ footer > small { color: rgba(255,255,255,.28); font-size: 8px; }
 .footer-contact-actions > a:last-child { color: var(--ink); background: var(--mint); border-color: transparent; font-size: 12px; font-weight: 850; }
 .footer-main { display: grid; grid-template-columns: minmax(240px, .62fr) minmax(700px, 1.38fr); align-items: start; gap: clamp(60px, 8vw, 130px); padding: clamp(65px, 7vw, 96px) 5vw; }
 .footer-intro { display: grid; align-content: start; gap: 22px; }
-.footer-logo-link { width: min(100%, 270px); display: block; }
-.footer-logo-link img { width: 100%; height: auto; display: block; }
+.footer-logo-link { width: min(100%, 270px); display: flex; }
+.footer-logo-link .brand-logo-stack { width: 100%; height: auto; min-height: 42px; }
+.footer-logo-link .brand-logo-img { width: 100%; height: auto; }
 .footer-intro > p { max-width: 360px; margin: 0; color: var(--muted); font-size: 12px; line-height: 1.75; }
 .footer-email { width: fit-content; padding-bottom: 6px; border-bottom: 1px solid color-mix(in srgb, var(--brand-red) 35%, transparent); color: var(--brand-red); font-size: 11px; font-weight: 750; }
 .footer-scope { display: flex; flex-wrap: wrap; gap: 7px; }
@@ -1865,7 +1866,22 @@ footer > small { color: rgba(255,255,255,.28); font-size: 8px; }
   background: rgba(0,0,0,.18);
   font-size: 13px;
 }
-.customer-portal-login-form input[type="email"]::placeholder { color: rgba(255,255,255,.35); }
+.customer-portal-login-form input[type="password"] {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 12px;
+  color: white;
+  background: rgba(0,0,0,.18);
+  font: 12px var(--font-geist-mono), monospace;
+}
+.customer-portal-login-form input::placeholder { color: rgba(255,255,255,.35); }
+.global-site-footer { display: block; }
+body:has(.admin-shell) > .global-site-footer,
+body:has(.admin-access-page) > .global-site-footer,
+body:has(.admin-login-page) > .global-site-footer,
+body:has(.cp-page) > .global-site-footer,
+body:has(.english-page) > .global-site-footer { display: none; }
 .customer-portal-login-form .button { width: 100%; justify-content: center; margin-top: 4px; }
 .portal-help { display: grid; gap: 7px; margin-top: 22px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,.1); }
 .portal-help span { color: rgba(255,255,255,.4); font-size: 8px; }
@@ -6554,6 +6570,12 @@ html[data-theme="day"] .customer-lock {
 html[data-theme="day"] .customer-login-card > small,
 html[data-theme="day"] .customer-login-card > p,
 html[data-theme="day"] .portal-help span { color: var(--muted); }
+html[data-theme="day"] .customer-portal-login-form input {
+  border-color: var(--line);
+  color: var(--ink);
+  background: var(--paper);
+}
+html[data-theme="day"] .customer-portal-login-form input::placeholder { color: var(--muted); }
 html[data-theme="day"] .demo-portal-link,
 html[data-theme="day"] .portal-help a {
   border-bottom-color: var(--line);

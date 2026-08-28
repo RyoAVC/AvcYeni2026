@@ -1,7 +1,5 @@
 import { safeRelativeReturnPath } from "./auth-return-path.mjs";
 import { normalizeEmailAddress } from "./email-normalization.mjs";
-import { isCustomerPortalDevEnabled } from "./customer-portal-dev.mjs";
-import { isCustomerPortalPreviewEnabled } from "./customer-portal-preview.mjs";
 import { runtimeEnvValue } from "./runtime-env.mjs";
 import {
   base64UrlToBytes,
@@ -15,17 +13,13 @@ export const CUSTOMER_SESSION_COOKIE = "avci_customer";
 export const CUSTOMER_SESSION_MAX_AGE = 60 * 60 * 8;
 const encoder = new TextEncoder();
 
-export function getCustomerPortalConfig(env, options = {}) {
+export function getCustomerPortalConfig(env) {
   const secret =
     runtimeEnvValue(env, "CUSTOMER_SESSION_SECRET") ||
     runtimeEnvValue(env, "ADMIN_SESSION_SECRET");
-  const previewAllowed =
-    isCustomerPortalDevEnabled(env) ||
-    isCustomerPortalPreviewEnabled(env) ||
-    options.liveHost === true;
   return {
     secret,
-    ready: secret.length >= 32 && previewAllowed,
+    ready: secret.length >= 32,
   };
 }
 

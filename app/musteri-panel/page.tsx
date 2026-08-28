@@ -86,10 +86,10 @@ export default async function CustomerPortalPage() {
               <span>{snapshot.branding.logoUrl ? <img src={snapshot.branding.logoUrl} alt="" /> : snapshot.branding.monogram}</span>
               <div><small>ÇALIŞMA ALANI</small><strong>{snapshot.branding.companyName}</strong><em>{snapshot.branding.providerLabel}</em></div>
             </div>
-            <p className="cp-sidebar-badge">SALT OKUNUR · yerel oturum</p>
+            <p className="cp-sidebar-badge">SALT OKUNUR · güvenli oturum</p>
             <DemoPortalNav />
             <div className="cp-sidebar-foot">
-              <small>YEREL TEST OTURUMU</small>
+              <small>AKTİF MÜŞTERİ OTURUMU</small>
               <strong>{displayName}</strong>
               <span>{customer.email}</span>
               <Link href="/demo-portal">Demo portalı (örnek veri)</Link>
@@ -125,8 +125,8 @@ export default async function CustomerPortalPage() {
             </header>
 
             <div className="cp-readonly-banner" role="status">
-              <strong>Salt okunur yerel oturum.</strong>
-              <span>Parola toplanmaz. Veri D1 üzerinden okunur; yönetim işlemleri bu panelde açılmaz.</span>
+              <strong>Güvenli salt okunur oturum.</strong>
+              <span>Veri Avcı müşteri kaydınızdan okunur; yönetim işlemleri bu panelde açılmaz.</span>
             </div>
 
             <div className="cp-panels" aria-live="polite">
@@ -275,7 +275,7 @@ export default async function CustomerPortalPage() {
                 </div>
                 <h2>Destek talepleri</h2>
                 <p className="cp-card-lead">
-                  Açık ve kapalı destek kayıtları yalnızca görüntülenir. Yeni talep açma bu yerel panelde yoktur.
+                  Açık ve kapalı destek kayıtları yalnızca görüntülenir. Yeni talep destek merkezi üzerinden açılır.
                 </p>
                 <RecordList emptyLabel="Henüz destek kaydı görünmüyor." items={snapshot.tickets} />
               </DemoPortalPanel>

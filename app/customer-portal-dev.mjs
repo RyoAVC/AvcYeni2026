@@ -8,16 +8,16 @@ export function isCustomerPortalDevEnabled(env) {
 }
 
 export function canUseCustomerPortalLogin(request, env) {
-  if (!isCustomerPortalDevEnabled(env)) return false;
   try {
-    return isLoopbackHostname(new URL(request.url).hostname);
+    const url = new URL(request.url);
+    if (isLoopbackHostname(url.hostname)) return isCustomerPortalDevEnabled(env);
+    return url.protocol === "https:" && env?.CUSTOMER_PORTAL_LIVE !== "0";
   } catch {
     return false;
   }
 }
 
 export function usesInternalCustomerPortal(env) {
-  if (!isCustomerPortalDevEnabled(env)) return false;
   const licenseUrl = typeof env?.LICENSE_PORTAL_URL === "string" ? env.LICENSE_PORTAL_URL.trim() : "";
-  return !licenseUrl;
+  return !licenseUrl && env?.CUSTOMER_PORTAL_LIVE !== "0";
 }

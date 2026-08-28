@@ -38,17 +38,17 @@ export default async function CustomerLoginPage({ searchParams }: { searchParams
       <div className="customer-login-grid" aria-hidden="true" />
       <header><SiteBrand /><HeaderCtaCluster><Link href="/">Ana sayfaya dön</Link></HeaderCtaCluster></header>
       <section id="portal-girisi">
-        <div className="customer-login-copy"><span className="kicker kicker-light">MÜŞTERİ PORTALI</span><h1>Lisans ve faturalarınıza<br /><em>güvenli erişim.</em></h1><p>Bu tanıtım sitesi parola toplamaz. İlk hesap sözleşme sonrası açılır; şifre bağlı lisans platformunda yazılır. Demo yalnız örnek veri gösterir. Mağaza üyeliği ayrıdır.</p><ul><li><span>✓</span>Hesap bu siteden ‘üye ol’ ile açılmaz</li><li><span>✓</span>Şifre unuttum burada form değildir</li><li><span>✓</span>Parola, kart veya e-Fatura bu sitede işlenmez</li></ul><Link className="portal-scope-link" href="/musteri-hesap">Hesap açılışı ve şifre yolunu inceleyin</Link><Link className="portal-scope-link" href="/musteri-merkezi">Portal kapsamını ve güvenlik sınırını inceleyin</Link></div>
+        <div className="customer-login-copy"><span className="kicker kicker-light">MÜŞTERİ PORTALI</span><h1>Lisans ve faturalarınıza<br /><em>güvenli erişim.</em></h1><p>Aktif Avcı E‑Ticaret müşterileri kayıtlı e-posta ve kendilerine verilen lisans anahtarıyla giriş yapar. Demo örnek veridir; mağaza üyeliği bu hesaptan ayrıdır.</p><ul><li><span>✓</span>Müşteri ve lisans kaydı birlikte doğrulanır</li><li><span>✓</span>Lisans, modül, fatura ve destek görünür</li><li><span>✓</span>Kart veya mağaza parolası burada işlenmez</li></ul><Link className="portal-scope-link" href="/musteri-hesap">Hesap ve lisans erişimini inceleyin</Link><Link className="portal-scope-link" href="/musteri-merkezi">Portal kapsamını ve güvenlik sınırını inceleyin</Link></div>
         <aside className="customer-login-card">
           <span className="customer-lock" aria-hidden="true"></span>
           <small>GÜVENLİ GEÇİŞ</small>
           {settings.customerLoginEnabled ? (
             <>
-              <h2>Parola bu sitede yazılmaz</h2>
-              <p>Devam etmek ayrı bir lisans platformuna gider, yalnızca adres bağlandıysa. Bağlı değilse hazırlanıyor uyarısı görünür. Demo örnek veridir.</p>
+              <h2>Müşteri paneliniz hazır</h2>
+              <p>Kayıtlı e-posta ve Avcı lisans anahtarınızla güvenli müşteri paneline geçin.</p>
               {preparing && <div className="portal-notice" role="status"><strong>Portal bağlantısı hazırlanıyor.</strong><span>Şifre kutusu yoktur. Erişim adresini destekten isteyin; parolayı e-postaya yazmayın.</span></div>}
               {!preparing && internalPortal ? (
-                <Link className="button button-primary" href="/musteri-panel/giris">Yerel salt okunur panele geç</Link>
+                <Link className="button button-primary" href="/musteri-panel/giris">Müşteri paneline giriş yap</Link>
               ) : null}
               {!preparing && !internalPortal ? (
                 <a className="button button-primary" href={withBasePath("/musteri-portali")}>Güvenli geçişe devam et</a>
@@ -72,7 +72,6 @@ export default async function CustomerLoginPage({ searchParams }: { searchParams
           )}
         </aside>
       </section>
-      <footer><span>Parolalar yalnızca lisans platformunda işlenir.</span><Link href="/musteri-hesap">Hesap ve şifre</Link><Link href="/gizlilik">Gizlilik</Link></footer>
     </main>
   );
 }

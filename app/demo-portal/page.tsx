@@ -16,7 +16,6 @@ import {
 import { DemoPortalSuccessCenter } from "./demo-portal-success-center";
 import { DemoPortalThemeWidget } from "./demo-portal-theme-widget";
 import { DemoPortalTofyGrowth } from "./demo-portal-tofy-growth";
-import { DemoPortalTrustBadge } from "./demo-portal-trust-badge";
 import { buildCommerceHealthReport } from "./commerce-health";
 import { DemoPortalIntegrationMap } from "./demo-portal-integration-map";
 import { DemoPortalCustomerBrand } from "./demo-portal-customer-brand";
@@ -319,7 +318,6 @@ export default async function DemoPortalPage() {
                 </p>
               </div>
               <div className="cp-topbar-actions">
-                <DemoPortalTrustBadge />
                 <Link className="button button-ghost" href="/musteri-merkezi">
                   Portal kapsamı
                 </Link>

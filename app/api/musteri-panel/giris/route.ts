@@ -1,6 +1,8 @@
-import { eq } from "drizzle-orm";
-import { customers } from "../../../../db/schema";
+import { and, eq } from "drizzle-orm";
+import { commerceLicenseInstallations, customers } from "../../../../db/schema";
+import { sha256 } from "../../../commerce-license-control-plane.mjs";
 import { canUseCustomerPortalLogin } from "../../../customer-portal-dev.mjs";
+import { ensureCommerceLicenseTables } from "../../../local-d1-schema.mjs";
 import { normalizeEmailAddress } from "../../../email-normalization.mjs";
 import {
   readFormFields,
@@ -56,8 +58,10 @@ export async function POST(request: Request) {
     if (!config.ready) return redirectResponse(request, failPath(next, "ayar"));
 
     const email = normalizeEmailAddress(String(form.get("email") ?? ""));
-    if (!email) return redirectResponse(request, failPath(next, "hata"));
+    const licenseKey = String(form.get("license_key") ?? "").trim();
+    if (!email || !licenseKey.startsWith("avc_live_")) return redirectResponse(request, failPath(next, "hata"));
 
+    await ensureCommerceLicenseTables(env);
     const { getDb } = await import("../../../../db");
     const db = getDb();
     const [customer] = await db
@@ -67,6 +71,21 @@ export async function POST(request: Request) {
       .limit(1);
 
     if (!customer || customer.status !== "active") {
+      return redirectResponse(request, failPath(next, "hata"));
+    }
+
+    const tokenHash = await sha256(licenseKey);
+    const [installation] = await db
+      .select({ id: commerceLicenseInstallations.id, status: commerceLicenseInstallations.status, validUntil: commerceLicenseInstallations.validUntil })
+      .from(commerceLicenseInstallations)
+      .where(and(
+        eq(commerceLicenseInstallations.customerId, customer.id),
+        eq(commerceLicenseInstallations.activationTokenHash, tokenHash),
+        eq(commerceLicenseInstallations.product, "avci-commerce"),
+      ))
+      .limit(1);
+    const validUntil = new Date(installation?.validUntil ?? "");
+    if (!installation || !["active", "trial"].includes(installation.status) || !Number.isFinite(validUntil.getTime()) || validUntil <= new Date()) {
       return redirectResponse(request, failPath(next, "hata"));
     }
 

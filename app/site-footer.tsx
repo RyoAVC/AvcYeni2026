@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { loadSiteSettings } from "./site-settings.mjs";
-import { withBasePath } from "./base-path";
+import { SiteBrand } from "./site-brand";
 
 export async function SiteFooter() {
   const settings = await loadSiteSettings();
@@ -21,9 +21,7 @@ export async function SiteFooter() {
 
       <div className="footer-main">
         <div className="footer-intro">
-          <a className="footer-logo-link" href="#top" aria-label="Avcı E-Ticaret sayfa başı">
-            <img src={withBasePath("/brand/avci-logo-dark-transparent.png")} width="1024" height="234" alt="Avcı E-Ticaret" />
-          </a>
+          <SiteBrand className="brand footer-brand footer-logo-link" label="Avcı E-Ticaret ana sayfa" />
           <p>{settings.footerTagline}</p>
           <a className="footer-email" href={`mailto:${settings.contactEmail}`}>{settings.contactEmail}</a>
           <div className="footer-scope" aria-label="Avcı E-Ticaret çözüm kapsamı">

@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { withBasePath } from "../../base-path";
 import { getCustomerUser } from "../../customer-auth";
 import { canUseCustomerPortalLogin } from "../../customer-portal-dev.mjs";
 import { safeCustomerNextPath } from "../../customer-session.mjs";
@@ -17,8 +16,8 @@ export const metadata: Metadata = {
 };
 
 const ERRORS = {
-  hata: "Bu e-posta ile aktif yazılım müşterisi bulunamadı.",
-  kapali: "Yerel müşteri paneli girişi bu ortamda kapalı.",
+  hata: "Müşteri bilgileri veya lisans anahtarı doğrulanamadı.",
+  kapali: "Müşteri paneli girişi şu anda kapalı.",
   ayar: "Oturum anahtarı henüz ayarlanmadı.",
 } as const;
 
@@ -57,19 +56,19 @@ export default async function CustomerPortalLoginPage({
       </header>
       <section id="musteri-panel-giris">
         <div className="customer-login-copy">
-          <span className="kicker kicker-light">MÜŞTERİ PANELİ · YEREL</span>
+          <span className="kicker kicker-light">AVCI MÜŞTERİ PANELİ</span>
           <h1>
             Yazılım müşterisi
             <br />
-            <em>salt okunur görünüm.</em>
+            <em>güvenli hesap görünümü.</em>
           </h1>
           <p>
-            Bu adım parola toplamaz. Yalnızca yerel geliştirmede, yönetimde kayıtlı aktif işletme e-postası ile D1
-            verisini okur. Kart çekimi, e-Fatura veya kayıt değiştirme yoktur.
+            Yönetimde kayıtlı aktif işletme e-postanız ve size özel lisans anahtarınız birlikte doğrulanır. Panel;
+            lisans, fatura, destek ve sistem durumunu güvenli biçimde gösterir.
           </p>
           <ul>
             <li>
-              <span>✓</span>Veri kaynağı: Avcı yönetimindeki yazılım müşterisi
+              <span>✓</span>Müşteri ve lisans birlikte doğrulanır
             </li>
             <li>
               <span>✓</span>Sipariş, destek ve fatura: salt okunur
@@ -83,11 +82,11 @@ export default async function CustomerPortalLoginPage({
           </Link>
         </div>
         <aside className="customer-login-card">
-          <small>YEREL TEST OTURUMU</small>
+          <small>GÜVENLİ MÜŞTERİ OTURUMU</small>
           {loginOpen ? (
             <>
-              <h2>Kayıtlı e-posta ile girin</h2>
-              <p>Yönetimdeki müşteri kartında görünen e-postayı yazın. Şifre kutusu yoktur.</p>
+              <h2>Hesabınıza giriş yapın</h2>
+              <p>Kayıtlı e-postanızı ve Avcı tarafından verilen lisans anahtarınızı kullanın.</p>
               {durum ? (
                 <div className="portal-notice" role="status">
                   <strong>{durum}</strong>
@@ -100,8 +99,8 @@ export default async function CustomerPortalLoginPage({
             </>
           ) : (
             <>
-              <h2>Yerel panel girişi kapalı.</h2>
-              <p>Bu giriş yalnızca yerel geliştirme ve `CUSTOMER_PORTAL_DEV` / `LOCAL_ADMIN_BYPASS` ile açılır.</p>
+              <h2>Müşteri paneli girişi kapalı.</h2>
+              <p>Giriş kanalı geçici olarak kapatılmıştır. Destek ekibinden erişim durumunu öğrenebilirsiniz.</p>
               <Link className="button button-primary" href="/musteri-girisi">
                 Müşteri girişine dön
               </Link>
@@ -109,10 +108,6 @@ export default async function CustomerPortalLoginPage({
           )}
         </aside>
       </section>
-      <footer>
-        <span>Canlıda parola yine ayrı lisans platformunda işlenir.</span>
-        <Link href={withBasePath("/api/musteri-panel/cikis")}>Oturumu kapat</Link>
-      </footer>
     </main>
   );
 }

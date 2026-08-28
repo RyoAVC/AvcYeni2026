@@ -12,7 +12,6 @@ import { SITE_OPEN_GRAPH } from "./site-social-metadata";
 import { HeaderCtaCluster } from "./header-cta-cluster";
 import { SiteBrand } from "./site-brand";
 import { TofyMark } from "./tofy-mark";
-import { SiteFooter } from "./site-footer";
 import { loadSiteSettings } from "./site-settings.mjs";
 
 export const dynamic = "force-dynamic";
@@ -655,7 +654,6 @@ export default async function Home() {
         </div>
       </section>
 
-      <SiteFooter />
     </main>
   );
 }
