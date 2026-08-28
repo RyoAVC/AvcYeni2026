@@ -5,37 +5,497 @@ import Link from "next/link";
 import { withBasePath } from "../../base-path";
 
 type Customer = { id: number; name: string; company: string; email: string };
-type License = { id: number; customerId: number; storeKey: string; installationId: string; primaryDomain: string; plan: string; status: string; validUntil: string; billingCycle: string; billingAmount: string; paymentStatus: string; nextPaymentAt: string; penaltyStatus: string; penaltyNote: string; suspensionReason: string; lastSeenAt: string; activationCount: number; activeModules: number; activeIntegrations: number; openInvoices: number };
+type License = {
+  id: number;
+  customerId: number;
+  storeKey: string;
+  installationId: string;
+  primaryDomain: string;
+  plan: string;
+  status: string;
+  validUntil: string;
+  billingCycle: string;
+  billingAmount: string;
+  paymentStatus: string;
+  nextPaymentAt: string;
+  penaltyStatus: string;
+  penaltyNote: string;
+  suspensionReason: string;
+  lastSeenAt: string;
+  activationCount: number;
+  activeModules: number;
+  activeIntegrations: number;
+  openInvoices: number;
+};
 
-const dayLeft = (value: string) => Math.ceil((new Date(value).getTime() - Date.now()) / 86400000);
-const tr = (value: string) => value ? new Date(value).toLocaleDateString("tr-TR") : "Belirlenmedi";
-const LABELS: Record<string, string> = { active: "Aktif", trial: "Deneme", suspended: "Askıda", revoked: "İptal", monthly: "Aylık", annual: "Yıllık", custom: "Özel", paid: "Ödendi", pending: "Bekliyor", overdue: "Gecikmiş", blocked: "Blokeli", none: "Ceza yok", warning: "Uyarı", penalty: "Cezalı", legal: "Hukuki takip" };
+const dayLeft = (value: string) =>
+  Math.ceil((new Date(value).getTime() - Date.now()) / 86400000);
+const tr = (value: string) =>
+  value ? new Date(value).toLocaleDateString("tr-TR") : "Belirlenmedi";
+const LABELS: Record<string, string> = {
+  active: "Aktif",
+  trial: "Deneme",
+  suspended: "Askıda",
+  revoked: "İptal",
+  monthly: "Aylık",
+  annual: "Yıllık",
+  custom: "Özel",
+  paid: "Ödendi",
+  pending: "Bekliyor",
+  overdue: "Gecikmiş",
+  blocked: "Blokeli",
+  none: "Ceza yok",
+  warning: "Uyarı",
+  penalty: "Cezalı",
+  legal: "Hukuki takip",
+};
 const label = (value: string) => LABELS[value] || value;
 
-export function LicenseCenter({ customers, licenses }: { customers: Customer[]; licenses: License[] }) {
+export function LicenseCenter({
+  customers,
+  licenses,
+}: {
+  customers: Customer[];
+  licenses: License[];
+}) {
   const [feedback, setFeedback] = useState("");
   const [issuedKey, setIssuedKey] = useState("");
   const [query, setQuery] = useState("");
-  const visible = useMemo(() => licenses.filter((item) => `${item.primaryDomain} ${item.storeKey} ${customers.find(c => c.id === item.customerId)?.company || ""}`.toLowerCase().includes(query.toLowerCase())), [customers, licenses, query]);
-  const submit = async (event: FormEvent<HTMLFormElement>, customerId?: number) => {
-    event.preventDefault(); setFeedback("Kaydediliyor…"); setIssuedKey("");
+  const visible = useMemo(
+    () =>
+      licenses.filter((item) =>
+        `${item.primaryDomain} ${item.storeKey} ${customers.find((c) => c.id === item.customerId)?.company || ""}`
+          .toLowerCase()
+          .includes(query.toLowerCase()),
+      ),
+    [customers, licenses, query],
+  );
+  const submit = async (
+    event: FormEvent<HTMLFormElement>,
+    customerId?: number,
+  ) => {
+    event.preventDefault();
+    setFeedback("Kaydediliyor…");
+    setIssuedKey("");
     const body = Object.fromEntries(new FormData(event.currentTarget));
     const id = customerId || Number(body.customerId);
-    const response = await fetch(withBasePath(`/api/yonetim/musteriler/${id}/portal`), { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const response = await fetch(
+      withBasePath(`/api/yonetim/musteriler/${id}/portal`),
+      {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      },
+    );
     const result = await response.json().catch(() => ({}));
-    const key = typeof result?.activationToken === "string" ? result.activationToken : "";
-    setIssuedKey(key); setFeedback(response.ok ? key ? "Kurulum lisansı üretildi. Anahtar yalnız bu oturumda gösterilir." : "Lisans kaydı güncellendi." : result?.error || "İşlem tamamlanamadı.");
+    const key =
+      typeof result?.activationToken === "string" ? result.activationToken : "";
+    setIssuedKey(key);
+    setFeedback(
+      response.ok
+        ? key
+          ? "Kurulum lisansı üretildi. Anahtar yalnız bu oturumda gösterilir."
+          : result?.deleted
+            ? "Kullanılmamış lisans kalıcı olarak silindi."
+            : "Lisans kaydı güncellendi."
+        : result?.error || "İşlem tamamlanamadı.",
+    );
     if (response.ok && !key) setTimeout(() => location.reload(), 500);
   };
-  const active = licenses.filter(item => ["active", "trial"].includes(item.status)).length;
-  const expiring = licenses.filter(item => dayLeft(item.validUntil) <= 30).length;
-  const risky = licenses.filter(item => item.paymentStatus === "overdue" || item.penaltyStatus !== "none" || item.status === "suspended").length;
-  return <section className="admin-main license-center">
-    <header className="admin-heading"><div><span className="kicker">AVCI COMMERCE TİCARİ KONTROL</span><h1>Lisans Yönetimi</h1><p>Lisans, domain, kurulum, süre, ödeme, ceza ve eklenti kapsamını tek merkezden yönetin.</p></div><Link className="admin-btn admin-btn-secondary" href="/yonetim/sistemler">Müşteri sistemleri</Link></header>
-    <div className="license-summary"><article><span>Toplam lisans</span><strong>{licenses.length}</strong></article><article><span>Aktif / deneme</span><strong>{active}</strong></article><article><span>30 gün içinde bitecek</span><strong>{expiring}</strong></article><article><span>Finansal risk</span><strong>{risky}</strong></article></div>
-    <div className="license-feedback" role="status"><span>{feedback || "Yeni lisans üretin veya mevcut sözleşmenin ticari durumunu güncelleyin."}</span>{issuedKey ? <button className="admin-btn admin-btn-primary" onClick={() => navigator.clipboard.writeText(issuedKey)} type="button">Lisans anahtarını kopyala</button> : null}</div>
-    <details className="admin-card license-create"><summary>Yeni kurulum lisansı oluştur</summary><form onSubmit={submit}><label>Müşteri<select name="customerId" required defaultValue=""><option value="" disabled>Müşteri seçin</option>{customers.map(item => <option key={item.id} value={item.id}>{item.company || item.name} · {item.email}</option>)}</select></label><label>Domain<input name="primaryDomain" placeholder="magaza.com" required /></label><label>Mağaza anahtarı<input name="storeKey" placeholder="magaza-store" required /></label><label>Kurulum kimliği<input name="installationId" placeholder="installation-001" required /></label><label>Paket<input name="plan" defaultValue="scale" required /></label><label>Sürüm<input name="commerceVersion" defaultValue="1.0.0" required /></label><label>Geçerlilik<input name="validUntil" type="datetime-local" required /></label><label>Ödeme dönemi<select name="billingCycle"><option value="monthly">Aylık</option><option value="annual">Yıllık</option><option value="custom">Özel</option></select></label><label>Tutar<input name="billingAmount" placeholder="12.000 TL + KDV" /></label><label>Ödeme durumu<select name="paymentStatus"><option value="pending">Bekliyor</option><option value="paid">Ödendi</option><option value="overdue">Gecikmiş</option></select></label><label>Sonraki ödeme<input name="nextPaymentAt" type="datetime-local" /></label><label>Modül kapsamları<textarea name="scopes" defaultValue="core.catalog, core.orders" required /></label><input name="limits" type="hidden" value="{}" /><input name="action" type="hidden" value="commerce-license" /><button className="admin-btn admin-btn-primary">Lisans oluştur</button></form></details>
-    <div className="license-toolbar"><input aria-label="Lisans ara" onChange={event => setQuery(event.target.value)} placeholder="Domain, müşteri veya mağaza anahtarı ara…" value={query} /></div>
-    <div className="license-list">{visible.length ? visible.map(item => { const customer = customers.find(c => c.id === item.customerId); const days = dayLeft(item.validUntil); return <article className={`license-card is-${item.status}`} key={item.id}><header><div><span>{customer?.company || customer?.name || `Müşteri #${item.customerId}`}</span><h2>{item.primaryDomain}</h2><small>{item.storeKey} · {item.installationId}</small></div><b className={`license-pill is-${item.status}`}>{label(item.status)}</b></header><div className="license-metrics"><span><small>Kalan süre</small><strong className={days <= 30 ? "is-risk" : ""}>{days > 0 ? `${days} gün` : "Süresi doldu"}</strong><em>{tr(item.validUntil)}</em></span><span><small>Ödeme planı</small><strong>{label(item.billingCycle)}</strong><em>{item.billingAmount || "Tutar girilmedi"}</em></span><span><small>Ödeme</small><strong>{label(item.paymentStatus)}</strong><em>{tr(item.nextPaymentAt)}</em></span><span><small>Ceza</small><strong>{label(item.penaltyStatus)}</strong><em>{item.penaltyNote || "Kayıt yok"}</em></span></div><div className="license-scope"><span><b>{item.activeModules}</b> aktif modül</span><span><b>{item.activeIntegrations}</b> aktif entegrasyon</span><span><b>{item.openInvoices}</b> açık fatura</span><span><b>{item.activationCount || 0}</b> doğrulama</span></div><form className="license-commercial-form" onSubmit={event => submit(event, item.customerId)}><input name="action" type="hidden" value="commerce-license-commercial" /><input name="licenseId" type="hidden" value={item.id} /><label>Durum<select name="status" defaultValue={item.status}><option value="trial">Deneme</option><option value="active">Aktif</option><option value="suspended">Askıda</option><option value="revoked">İptal</option></select></label><label>Dönem<select name="billingCycle" defaultValue={item.billingCycle}><option value="monthly">Aylık</option><option value="annual">Yıllık</option><option value="custom">Özel</option></select></label><label>Tutar<input name="billingAmount" defaultValue={item.billingAmount} /></label><label>Ödeme<select name="paymentStatus" defaultValue={item.paymentStatus}><option value="paid">Ödendi</option><option value="pending">Bekliyor</option><option value="overdue">Gecikmiş</option><option value="blocked">Blokeli</option></select></label><label>Sonraki ödeme<input name="nextPaymentAt" type="datetime-local" defaultValue={item.nextPaymentAt ? item.nextPaymentAt.slice(0, 16) : ""} /></label><label>Ceza<select name="penaltyStatus" defaultValue={item.penaltyStatus}><option value="none">Ceza yok</option><option value="warning">Uyarı</option><option value="penalty">Cezalı</option><option value="legal">Hukuki takip</option></select></label><label>Ceza notu<input name="penaltyNote" defaultValue={item.penaltyNote} /></label><label>Askı nedeni<input name="suspensionReason" defaultValue={item.suspensionReason} /></label><button className="admin-btn admin-btn-primary">Ticari durumu kaydet</button></form><footer><Link href={`/yonetim/musteriler/${item.customerId}/portal`}>Modül ve entegrasyonları yönet</Link><Link href={`/yonetim/faturalar?musteri=${item.customerId}`}>Fatura ve tahsilatı aç</Link></footer></article>; }) : <div className="admin-card"><p>Aramaya uygun lisans bulunamadı.</p></div>}</div>
-  </section>;
+  const active = licenses.filter((item) =>
+    ["active", "trial"].includes(item.status),
+  ).length;
+  const expiring = licenses.filter(
+    (item) => dayLeft(item.validUntil) <= 30,
+  ).length;
+  const risky = licenses.filter(
+    (item) =>
+      item.paymentStatus === "overdue" ||
+      item.penaltyStatus !== "none" ||
+      item.status === "suspended",
+  ).length;
+  return (
+    <section className="admin-main license-center">
+      <header className="admin-heading">
+        <div>
+          <span className="kicker">AVCI COMMERCE TİCARİ KONTROL</span>
+          <h1>Lisans Yönetimi</h1>
+          <p>
+            Lisans, domain, kurulum, süre, ödeme, ceza ve eklenti kapsamını tek
+            merkezden yönetin.
+          </p>
+        </div>
+        <Link
+          className="admin-btn admin-btn-secondary"
+          href="/yonetim/sistemler"
+        >
+          Müşteri sistemleri
+        </Link>
+      </header>
+      <div className="license-summary">
+        <article>
+          <span>Toplam lisans</span>
+          <strong>{licenses.length}</strong>
+        </article>
+        <article>
+          <span>Aktif / deneme</span>
+          <strong>{active}</strong>
+        </article>
+        <article>
+          <span>30 gün içinde bitecek</span>
+          <strong>{expiring}</strong>
+        </article>
+        <article>
+          <span>Finansal risk</span>
+          <strong>{risky}</strong>
+        </article>
+      </div>
+      <div className="license-feedback" role="status">
+        <span>
+          {feedback ||
+            "Yeni lisans üretin veya mevcut sözleşmenin ticari durumunu güncelleyin."}
+        </span>
+        {issuedKey ? (
+          <button
+            className="admin-btn admin-btn-primary"
+            onClick={() => navigator.clipboard.writeText(issuedKey)}
+            type="button"
+          >
+            Lisans anahtarını kopyala
+          </button>
+        ) : null}
+      </div>
+      <details className="admin-card license-create">
+        <summary>Yeni kurulum lisansı oluştur</summary>
+        <form onSubmit={submit}>
+          <label>
+            Müşteri
+            <select name="customerId" required defaultValue="">
+              <option value="" disabled>
+                Müşteri seçin
+              </option>
+              {customers.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.company || item.name} · {item.email}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Domain
+            <input name="primaryDomain" placeholder="magaza.com" required />
+          </label>
+          <label>
+            Mağaza anahtarı
+            <input name="storeKey" placeholder="magaza-store" required />
+          </label>
+          <label>
+            Kurulum kimliği
+            <input
+              name="installationId"
+              placeholder="installation-001"
+              required
+            />
+          </label>
+          <label>
+            Paket
+            <input name="plan" defaultValue="scale" required />
+          </label>
+          <label>
+            Sürüm
+            <input name="commerceVersion" defaultValue="1.0.0" required />
+          </label>
+          <label>
+            Geçerlilik
+            <input name="validUntil" type="datetime-local" required />
+          </label>
+          <label>
+            Ödeme dönemi
+            <select name="billingCycle">
+              <option value="monthly">Aylık</option>
+              <option value="annual">Yıllık</option>
+              <option value="custom">Özel</option>
+            </select>
+          </label>
+          <label>
+            Tutar
+            <input name="billingAmount" placeholder="12.000 TL + KDV" />
+          </label>
+          <label>
+            Ödeme durumu
+            <select name="paymentStatus">
+              <option value="pending">Bekliyor</option>
+              <option value="paid">Ödendi</option>
+              <option value="overdue">Gecikmiş</option>
+            </select>
+          </label>
+          <label>
+            Sonraki ödeme
+            <input name="nextPaymentAt" type="datetime-local" />
+          </label>
+          <label>
+            Modül kapsamları
+            <textarea
+              name="scopes"
+              defaultValue="core.catalog, core.orders"
+              required
+            />
+          </label>
+          <input name="limits" type="hidden" value="{}" />
+          <input name="action" type="hidden" value="commerce-license" />
+          <button className="admin-btn admin-btn-primary">
+            Lisans oluştur
+          </button>
+        </form>
+      </details>
+      <div className="license-toolbar">
+        <input
+          aria-label="Lisans ara"
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Domain, müşteri veya mağaza anahtarı ara…"
+          value={query}
+        />
+      </div>
+      <div className="license-list">
+        {visible.length ? (
+          visible.map((item) => {
+            const customer = customers.find((c) => c.id === item.customerId);
+            const days = dayLeft(item.validUntil);
+            return (
+              <article
+                className={`license-card is-${item.status}`}
+                key={item.id}
+              >
+                <header>
+                  <div>
+                    <span>
+                      {customer?.company ||
+                        customer?.name ||
+                        `Müşteri #${item.customerId}`}
+                    </span>
+                    <h2>{item.primaryDomain}</h2>
+                    <small>
+                      {item.storeKey} · {item.installationId}
+                    </small>
+                  </div>
+                  <b className={`license-pill is-${item.status}`}>
+                    {label(item.status)}
+                  </b>
+                </header>
+                <div className="license-metrics">
+                  <span>
+                    <small>Kalan süre</small>
+                    <strong className={days <= 30 ? "is-risk" : ""}>
+                      {days > 0 ? `${days} gün` : "Süresi doldu"}
+                    </strong>
+                    <em>{tr(item.validUntil)}</em>
+                  </span>
+                  <span>
+                    <small>Ödeme planı</small>
+                    <strong>{label(item.billingCycle)}</strong>
+                    <em>{item.billingAmount || "Tutar girilmedi"}</em>
+                  </span>
+                  <span>
+                    <small>Ödeme</small>
+                    <strong>{label(item.paymentStatus)}</strong>
+                    <em>{tr(item.nextPaymentAt)}</em>
+                  </span>
+                  <span>
+                    <small>Ceza</small>
+                    <strong>{label(item.penaltyStatus)}</strong>
+                    <em>{item.penaltyNote || "Kayıt yok"}</em>
+                  </span>
+                </div>
+                <div className="license-scope">
+                  <span>
+                    <b>{item.activeModules}</b> aktif modül
+                  </span>
+                  <span>
+                    <b>{item.activeIntegrations}</b> aktif entegrasyon
+                  </span>
+                  <span>
+                    <b>{item.openInvoices}</b> açık fatura
+                  </span>
+                  <span>
+                    <b>{item.activationCount || 0}</b> doğrulama
+                  </span>
+                </div>
+                <form
+                  className="license-commercial-form"
+                  onSubmit={(event) => submit(event, item.customerId)}
+                >
+                  <input
+                    name="action"
+                    type="hidden"
+                    value="commerce-license-commercial"
+                  />
+                  <input name="licenseId" type="hidden" value={item.id} />
+                  <label>
+                    Durum
+                    <select name="status" defaultValue={item.status}>
+                      <option value="trial">Deneme</option>
+                      <option value="active">Aktif</option>
+                      <option value="suspended">Askıda</option>
+                      <option value="revoked">İptal</option>
+                    </select>
+                  </label>
+                  <label>
+                    Dönem
+                    <select
+                      name="billingCycle"
+                      defaultValue={item.billingCycle}
+                    >
+                      <option value="monthly">Aylık</option>
+                      <option value="annual">Yıllık</option>
+                      <option value="custom">Özel</option>
+                    </select>
+                  </label>
+                  <label>
+                    Tutar
+                    <input
+                      name="billingAmount"
+                      defaultValue={item.billingAmount}
+                    />
+                  </label>
+                  <label>
+                    Ödeme
+                    <select
+                      name="paymentStatus"
+                      defaultValue={item.paymentStatus}
+                    >
+                      <option value="paid">Ödendi</option>
+                      <option value="pending">Bekliyor</option>
+                      <option value="overdue">Gecikmiş</option>
+                      <option value="blocked">Blokeli</option>
+                    </select>
+                  </label>
+                  <label>
+                    Sonraki ödeme
+                    <input
+                      name="nextPaymentAt"
+                      type="datetime-local"
+                      defaultValue={
+                        item.nextPaymentAt
+                          ? item.nextPaymentAt.slice(0, 16)
+                          : ""
+                      }
+                    />
+                  </label>
+                  <label>
+                    Ceza
+                    <select
+                      name="penaltyStatus"
+                      defaultValue={item.penaltyStatus}
+                    >
+                      <option value="none">Ceza yok</option>
+                      <option value="warning">Uyarı</option>
+                      <option value="penalty">Cezalı</option>
+                      <option value="legal">Hukuki takip</option>
+                    </select>
+                  </label>
+                  <label>
+                    Ceza notu
+                    <input name="penaltyNote" defaultValue={item.penaltyNote} />
+                  </label>
+                  <label>
+                    Askı nedeni
+                    <input
+                      name="suspensionReason"
+                      defaultValue={item.suspensionReason}
+                    />
+                  </label>
+                  <button className="admin-btn admin-btn-primary">
+                    Ticari durumu kaydet
+                  </button>
+                </form>
+                <details className="license-actions">
+                  <summary>Lisans işlemleri</summary>
+                  <div>
+                    <form onSubmit={(event) => submit(event, item.customerId)}>
+                      <input
+                        name="action"
+                        type="hidden"
+                        value="commerce-license-maintenance"
+                      />
+                      <input name="licenseId" type="hidden" value={item.id} />
+                      <input name="operation" type="hidden" value="rotate" />
+                      <button className="admin-btn admin-btn-secondary">
+                        Kurulum anahtarını yenile
+                      </button>
+                    </form>
+                    <form onSubmit={(event) => submit(event, item.customerId)}>
+                      <input
+                        name="action"
+                        type="hidden"
+                        value="commerce-license-maintenance"
+                      />
+                      <input name="licenseId" type="hidden" value={item.id} />
+                      <input name="operation" type="hidden" value="renew" />
+                      <input
+                        aria-label="Yeni geçerlilik tarihi"
+                        name="validUntil"
+                        type="datetime-local"
+                        required
+                      />
+                      <button className="admin-btn admin-btn-secondary">
+                        Süreyi uzat
+                      </button>
+                    </form>
+                    <form
+                      className="license-delete"
+                      onSubmit={(event) => {
+                        if (
+                          !confirm(
+                            `${item.primaryDomain} lisansını kalıcı silmek istediğinize emin misiniz?`,
+                          )
+                        ) {
+                          event.preventDefault();
+                          return;
+                        }
+                        submit(event, item.customerId);
+                      }}
+                    >
+                      <input
+                        name="action"
+                        type="hidden"
+                        value="commerce-license-delete"
+                      />
+                      <input name="licenseId" type="hidden" value={item.id} />
+                      <label>
+                        Kalıcı silme onayı
+                        <input
+                          name="confirmation"
+                          placeholder={item.primaryDomain}
+                          required
+                        />
+                      </label>
+                      <button className="admin-btn admin-btn-danger">
+                        Lisansı kalıcı sil
+                      </button>
+                      <small>
+                        Yalnız hiç kullanılmamış ve önce İptal edilmiş lisans
+                        silinebilir.
+                      </small>
+                    </form>
+                  </div>
+                </details>
+                <footer>
+                  <Link href={`/yonetim/musteriler/${item.customerId}/portal`}>
+                    Modül ve entegrasyonları yönet
+                  </Link>
+                  <Link href={`/yonetim/faturalar?musteri=${item.customerId}`}>
+                    Fatura ve tahsilatı aç
+                  </Link>
+                </footer>
+              </article>
+            );
+          })
+        ) : (
+          <div className="admin-card">
+            <p>Aramaya uygun lisans bulunamadı.</p>
+          </div>
+        )}
+      </div>
+    </section>
+  );
 }
