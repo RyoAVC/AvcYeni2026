@@ -13,6 +13,8 @@ import {
   type DemoPortalNavItem,
 } from "../demo-portal/demo-portal-nav";
 import { PortalTofyPerformanceCenter } from "../demo-portal/portal-tofy-performance-center";
+import { DemoPortalCustomerBrand } from "../demo-portal/demo-portal-customer-brand";
+import type { DemoPortalBrand } from "../demo-portal/demo-portal-brand";
 
 export const dynamic = "force-dynamic";
 
@@ -67,6 +69,15 @@ export default async function CustomerPortalPage() {
   const snapshot = await loadCustomerPortalSnapshot(customer);
   const displayName = snapshot.branding.companyName;
   const infrastructure = snapshot.infrastructure;
+  const portalBrand: DemoPortalBrand = {
+    companyName: snapshot.branding.companyName,
+    shortName: snapshot.branding.companyName,
+    monogram: snapshot.branding.monogram,
+    workspaceLabel: "Müşteri çalışma alanı",
+    accountLabel: customer.email,
+    domain: infrastructure.domainName === "—" ? "Avcı Commerce" : infrastructure.domainName,
+    logoUrl: snapshot.branding.logoUrl || undefined,
+  };
   const billingRecords = [
     ...snapshot.orders.map((item) => ({ ...item, label: `Lisans · ${item.label}` })),
     ...snapshot.invoices.map((item) => ({ ...item, id: item.id + 1_000_000, label: `Fatura · ${item.label}` })),
@@ -82,10 +93,7 @@ export default async function CustomerPortalPage() {
         <div className="cp-shell">
           <aside className="cp-sidebar" aria-label="Müşteri paneli menüsü">
             <SiteBrand href="/musteri-panel" subtitle="MÜŞTERİ PANELİ" label="Yazılım müşterisi paneli" />
-            <div className="cp-real-customer-brand">
-              <span>{snapshot.branding.logoUrl ? <img src={snapshot.branding.logoUrl} alt="" /> : snapshot.branding.monogram}</span>
-              <div><small>ÇALIŞMA ALANI</small><strong>{snapshot.branding.companyName}</strong><em>{snapshot.branding.providerLabel}</em></div>
-            </div>
+            <DemoPortalCustomerBrand brand={portalBrand} placement="sidebar" />
             <p className="cp-sidebar-badge">SALT OKUNUR · güvenli oturum</p>
             <DemoPortalNav />
             <div className="cp-sidebar-foot">
@@ -100,8 +108,9 @@ export default async function CustomerPortalPage() {
           <div className="cp-main">
             <header className="cp-topbar">
               <div className="cp-topbar-copy">
+                <DemoPortalCustomerBrand brand={portalBrand} />
                 <div className="cp-topbar-meta">
-                  <span className="kicker">AVCI MÜŞTERİ PANELİ</span>
+                  <span className="kicker">AVCI MÜŞTERİ PANELİ V2</span>
                   <span className="cp-account-chip">{customer.email}</span>
                 </div>
                 <DemoPortalMobileToggle />

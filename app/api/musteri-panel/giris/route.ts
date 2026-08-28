@@ -97,7 +97,8 @@ export async function POST(request: Request) {
       email: customer.email,
       displayName: customer.company || customer.name,
     });
-    return redirectResponse(request, next, customerSessionCookie(token, requestIsHttps(request)));
+    const portalTarget = next === "/musteri-panel" ? "/musteri-panel#ozet" : next;
+    return redirectResponse(request, portalTarget, customerSessionCookie(token, requestIsHttps(request)));
   } catch (cause) {
     console.error("Customer portal login failed", cause);
     return redirectResponse(request, failPath("/musteri-panel", "hata"));

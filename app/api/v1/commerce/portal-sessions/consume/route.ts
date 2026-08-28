@@ -24,7 +24,7 @@ export async function GET(request: Request) {
     const result = await db.update(commercePortalLoginCodes).set({ usedAt: now }).where(and(eq(commercePortalLoginCodes.id, record.id), eq(commercePortalLoginCodes.usedAt, "")));
     if (!result.meta?.changes) return failure();
     const token = await createCustomerSessionToken(config.secret, { customerId: customer.id, email: customer.email, displayName: customer.company || customer.name });
-    const headers = new Headers({ Location: new URL(withBasePath("/musteri-panel"), request.url).toString(), "Cache-Control": "no-store" });
+    const headers = new Headers({ Location: new URL(`${withBasePath("/musteri-panel")}#ozet`, request.url).toString(), "Cache-Control": "no-store" });
     headers.append("Set-Cookie", customerSessionCookie(token, new URL(request.url).protocol === "https:"));
     return new Response(null, { status: 303, headers });
   } catch (cause) {

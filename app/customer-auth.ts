@@ -44,7 +44,7 @@ export async function getCustomerUser() {
       .where(eq(customers.id, session.customerId))
       .limit(1);
 
-    if (!customer || customer.status !== "active") {
+    if (!customer || !["active", "trial"].includes(customer.status)) {
       return { customer: null, authorized: false as const };
     }
     if (normalizeEmailAddress(customer.email) !== session.email) {
