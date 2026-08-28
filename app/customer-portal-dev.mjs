@@ -11,7 +11,8 @@ export function canUseCustomerPortalLogin(request, env) {
   try {
     const url = new URL(request.url);
     if (isLoopbackHostname(url.hostname)) return isCustomerPortalDevEnabled(env);
-    return url.protocol === "https:" && env?.CUSTOMER_PORTAL_LIVE !== "0";
+    const forwardedProto = String(request.headers?.get?.("x-forwarded-proto") ?? "").split(",", 1)[0].trim().toLowerCase();
+    return (url.protocol === "https:" || forwardedProto === "https") && env?.CUSTOMER_PORTAL_LIVE !== "0";
   } catch {
     return false;
   }

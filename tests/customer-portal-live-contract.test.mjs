@@ -11,6 +11,8 @@ const demoPortal = readFileSync(new URL("../app/demo-portal/page.tsx", import.me
 test("live customer login opens only on HTTPS and can be explicitly disabled", () => {
   assert.equal(canUseCustomerPortalLogin(new Request("https://yeni.avcieticaret.com/v2/musteri-panel/giris"), {}), true);
   assert.equal(canUseCustomerPortalLogin(new Request("http://yeni.avcieticaret.com/v2/musteri-panel/giris"), {}), false);
+  assert.equal(canUseCustomerPortalLogin(new Request("http://127.0.0.1:4121/v2/musteri-panel/giris", { headers: { "x-forwarded-proto": "https", host: "yeni.avcieticaret.com" } }), {}), false);
+  assert.equal(canUseCustomerPortalLogin(new Request("http://yeni.avcieticaret.com/v2/musteri-panel/giris", { headers: { "x-forwarded-proto": "https" } }), {}), true);
   assert.equal(canUseCustomerPortalLogin(new Request("https://yeni.avcieticaret.com/v2/musteri-panel/giris"), { CUSTOMER_PORTAL_LIVE: "0" }), false);
   assert.equal(usesInternalCustomerPortal({}), true);
   assert.equal(usesInternalCustomerPortal({ LICENSE_PORTAL_URL: "https://license.example" }), false);

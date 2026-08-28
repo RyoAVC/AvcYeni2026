@@ -38,9 +38,12 @@ export default async function CustomerPortalLoginPage({
     env = typeof process !== "undefined" ? process.env : {};
   }
 
-  const host = (await headers()).get("host");
-  const requestUrl = host ? `http://${host}/musteri-panel/giris` : "http://127.0.0.1:4115/musteri-panel/giris";
-  const loginOpen = canUseCustomerPortalLogin(new Request(requestUrl), env);
+  const requestHeaders = await headers();
+  const host = requestHeaders.get("host");
+  const forwardedProto = requestHeaders.get("x-forwarded-proto")?.split(",", 1)[0].trim();
+  const protocol = forwardedProto === "https" ? "https" : "http";
+  const requestUrl = host ? `${protocol}://${host}/musteri-panel/giris` : "http://127.0.0.1:4115/musteri-panel/giris";
+  const loginOpen = canUseCustomerPortalLogin(new Request(requestUrl, { headers: forwardedProto ? { "x-forwarded-proto": forwardedProto } : undefined }), env);
   const durum = typeof params.durum === "string" && params.durum in ERRORS
     ? ERRORS[params.durum as keyof typeof ERRORS]
     : "";
