@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Müşteri Hesabı ve Şifre | Avcı E-Ticaret",
   description:
-    "Yazılım müşterisi hesabı nasıl açılır, şifre nerede yazılır. Avcı tanıtım sitesi parola toplamaz; mağaza üyeliği ayrıdır.",
+    "Avcı yazılım müşterisi hesabının açılması, panel parolası ve güvenli parola sıfırlama süreci.",
   alternates: { canonical: "/musteri-hesap" },
 };
 
@@ -17,17 +17,17 @@ const layers = [
   {
     number: "01",
     title: "İlk hesap",
-    text: "Yazılım müşterisi hesabı bu siteden ‘üye ol’ ile açılmaz. Sözleşme ve teslim sonrası Avcı kaydı oluşur. İlk giriş adresi e-posta veya lisans platformunda durur.",
+    text: "Herkese açık üyelik bulunmaz. Sözleşme ve teslim sonrası Avcı yönetimi müşteri kaydını açar, güvenli panel parolasını oluşturur ve giriş bilgilerini müşteriye iletir.",
   },
   {
     number: "02",
     title: "Şifre",
-    text: "Parola tanıtım sitesine yazılmaz. Bağlı lisans platformunda belirlenir veya sıfırlanır. Avcı /yonetim şifresi sizin mağaza şifreniz değildir.",
+    text: "Müşteri, kayıtlı e-posta ve kendisine verilen panel parolasıyla güvenli giriş ekranında oturum açar. Avcı /yonetim hesabı ve mağaza yönetim hesabı bu paroladan ayrıdır.",
   },
   {
     number: "03",
     title: "Unuttum",
-    text: "Şifre sıfırlama işlemsel e-postadır; kimin alan adından gittiği e-posta teslim sayfasındadır. Bu sayfaya parola yapıştırmayın. Destek kanalına sır yazılmaz.",
+    text: "Parolanızı unuttuğunuzda destek ekibinden sıfırlama talep edin. Kimlik ve müşteri kaydı doğrulandıktan sonra yönetim yeni parola oluşturur. Mevcut parolanızı destek mesajına yazmayın.",
   },
   {
     number: "04",
@@ -40,8 +40,8 @@ const bounds = {
   included: [
     "Sözleşme sonrası yazılım müşterisi kaydı",
     "İlk giriş yolunun yazılı iletilmesi",
-    "Şifre sıfırlamanın lisans platformunda durması (bağlandıysa)",
-    "Bu sitede parola alanı olmaması",
+    "Yönetimden güvenli panel parolası oluşturulması",
+    "Müşteri panelinde e-posta ve parola doğrulaması",
   ],
   separate: [
     "Tanıtım sitesinden herkese açık üye ol formu",
@@ -85,8 +85,8 @@ export default async function CustomerAccountPage() {
           </h1>
         </div>
         <p>
-          Yazılım müşterisi bunu sormadan yayın yapmamalı. Avcı tanıtım sitesi üye ol / şifre formu
-          değildir. Mağaza üyeliği ayrıdır.
+          Müşteri hesabı satış sözleşmesi sonrasında Avcı yönetimi tarafından açılır. Panel girişi,
+          mağaza yöneticisi ve mağaza ziyaretçisi hesaplarından tamamen ayrıdır.
         </p>
       </section>
 
@@ -111,10 +111,10 @@ export default async function CustomerAccountPage() {
             <h2 id="hesap-sinir">
               Hesap teslimde açılır.
               <br />
-              Parola burada yok.
+              Panel erişimi güvenle teslim edilir.
             </h2>
           </div>
-          <p>Kayıt formu vitrin alışverişi değildir. Şifre yalnızca bağlı platformda işlenir.</p>
+          <p>Parola yalnız müşteri paneli girişinde doğrulanır; düz metin olarak saklanmaz ve yönetimden tekrar okunamaz.</p>
         </div>
         <div className="package-scope-grid">
           <article>
@@ -139,7 +139,7 @@ export default async function CustomerAccountPage() {
       <section className="decision-cta">
         <span className="kicker">SONRAKİ ADIM</span>
         <h2>Giriş adresiniz var mı?</h2>
-        <p>Yoksa teklif veya destek yazın. Parolayı bu forma yapıştırmayın.</p>
+        <p>Hesabınız varsa doğrudan giriş yapın. Parolanızı unuttuysanız destekten güvenli sıfırlama isteyin.</p>
         <div>
           {settings.customerLoginEnabled ? (
             <Link className="button button-primary" href="/musteri-girisi">
@@ -153,6 +153,7 @@ export default async function CustomerAccountPage() {
           <Link className="button button-ghost" href="/musteri-merkezi">
             Müşteri merkezi
           </Link>
+          {settings.supportEnabled ? <Link className="button button-ghost" href="/destek">Parola desteği</Link> : null}
         </div>
       </section>
     </main>

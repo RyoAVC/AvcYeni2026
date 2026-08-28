@@ -45,15 +45,15 @@ export default async function CustomerLoginPage({ searchParams }: { searchParams
           {settings.customerLoginEnabled ? (
             <>
               <h2>Müşteri paneliniz hazır</h2>
-              <p>Kayıtlı e-posta ve Avcı lisans anahtarınızla güvenli müşteri paneline geçin.</p>
-              {preparing && <div className="portal-notice" role="status"><strong>Portal bağlantısı hazırlanıyor.</strong><span>Şifre kutusu yoktur. Erişim adresini destekten isteyin; parolayı e-postaya yazmayın.</span></div>}
+              <p>Kayıtlı e-posta adresiniz ve Avcı tarafından oluşturulan panel parolanızla güvenli müşteri paneline geçin.</p>
+              {preparing && <div className="portal-notice" role="status"><strong>Portal bağlantısı hazırlanıyor.</strong><span>Hesabınız oluşturulduysa erişim durumunu destek ekibinden doğrulayabilirsiniz. Parolanızı destek mesajına yazmayın.</span></div>}
               {!preparing && internalPortal ? (
                 <Link className="button button-primary" href="/musteri-panel/giris">Müşteri paneline giriş yap</Link>
               ) : null}
               {!preparing && !internalPortal ? (
                 <a className="button button-primary" href={withBasePath("/musteri-portali")}>Güvenli geçişe devam et</a>
               ) : null}
-              <Link className="demo-portal-link" href="/musteri-hesap#sifre">Şifremi unuttum — yol burada</Link>
+              {settings.supportEnabled ? <a className="demo-portal-link" href={supportMailto}>Parolamı unuttum — destekten sıfırlama iste</a> : <Link className="demo-portal-link" href="/musteri-hesap#sifre">Parola yardımını incele</Link>}
               {settings.demoPortalEnabled && <Link className="demo-portal-link" href="/demo-portal">Demo portalını örnek verilerle inceleyin</Link>}
               {settings.supportEnabled && (
                 <div className="portal-help">
