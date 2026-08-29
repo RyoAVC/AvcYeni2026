@@ -56,6 +56,7 @@ else
 fi
 
 npm ci --include=dev --include=optional
+npm install --no-save --include=dev --include=optional rolldown@1.0.1 @rolldown/binding-linux-x64-gnu@1.0.1
 node --input-type=module -e "await import('rolldown'); console.log('rolldown_dependency:ready')"
 export NODE_ENV="production"
 
