@@ -1,5 +1,5 @@
 import { desc, eq, inArray } from "drizzle-orm";
-import { commerceInstallJobs, commerceLicenseInstallations, customers, supportTickets } from "../../../../../db/schema";
+import { commerceInstallJobEvents, commerceInstallJobs, commerceLicenseInstallations, customers, supportTickets } from "../../../../../db/schema";
 import { authorizeControlDesk, controlDeskJson, hasControlDeskRole } from "../../../../control-desk-auth.mjs";
 import { ensureCommerceLicenseTables } from "../../../../local-d1-schema.mjs";
 
@@ -36,6 +36,11 @@ export async function GET(request: Request) {
         ? db.select({ id: supportTickets.id, customerId: supportTickets.customerId, subject: supportTickets.subject, topic: supportTickets.topic, status: supportTickets.status, priority: supportTickets.priority, firstRespondedAt: supportTickets.firstRespondedAt, createdAt: supportTickets.createdAt, updatedAt: supportTickets.updatedAt }).from(supportTickets).where(eq(supportTickets.customerId, scopedCustomerId)).orderBy(desc(supportTickets.updatedAt)).limit(100)
         : db.select({ id: supportTickets.id, customerId: supportTickets.customerId, subject: supportTickets.subject, topic: supportTickets.topic, status: supportTickets.status, priority: supportTickets.priority, firstRespondedAt: supportTickets.firstRespondedAt, createdAt: supportTickets.createdAt, updatedAt: supportTickets.updatedAt }).from(supportTickets).orderBy(desc(supportTickets.updatedAt)).limit(500),
     ]);
+    const eventRows = jobRows.length
+      ? await db.select({ jobId: commerceInstallJobEvents.jobId, status: commerceInstallJobEvents.status, step: commerceInstallJobEvents.step, safeCode: commerceInstallJobEvents.safeCode, createdAt: commerceInstallJobEvents.createdAt }).from(commerceInstallJobEvents).where(inArray(commerceInstallJobEvents.jobId, jobRows.map((job) => job.jobId))).orderBy(desc(commerceInstallJobEvents.createdAt)).limit(2000)
+      : [];
+    const eventsByJob = new Map<string, typeof eventRows>();
+    for (const event of eventRows) eventsByJob.set(event.jobId, [...(eventsByJob.get(event.jobId) || []), event]);
     const customerMap = new Map(customerRows.map((customer) => [customer.id, customer]));
     const licenses = licenseRows.map((license) => ({
       id: license.id,
@@ -57,7 +62,7 @@ export async function GET(request: Request) {
       customers: customerRows,
       licenses,
       stores: licenses.filter((license) => Boolean(license.lastSeenAt)).map((license) => ({ ...license, health: healthOf(license.lastSeenAt, license.status) })),
-      installJobs: jobRows.map((job) => ({ id: job.id, jobId: job.jobId, customerId: job.customerId, domain: job.targetDomain, storeKey: job.storeKey, status: job.status, step: job.currentStep, safeSummary: job.safeSummary, createdAt: job.createdAt, completedAt: job.completedAt, lastSeenAt: job.updatedAt })),
+      installJobs: jobRows.map((job) => ({ id: job.id, jobId: job.jobId, customerId: job.customerId, domain: job.targetDomain, storeKey: job.storeKey, environment: job.environment, status: job.status, step: job.currentStep, safeSummary: job.safeSummary, createdAt: job.createdAt, completedAt: job.completedAt, lastSeenAt: job.updatedAt, events: eventsByJob.get(job.jobId) || [] })),
       supportTickets: ticketRows,
       viewer: { email: auth.email, displayName: auth.displayName, roles: auth.roles, customerId: auth.customerId || null },
       capabilities: { licenseCreate: hasControlDeskRole(auth,["platform_owner"]), remoteInstall: hasControlDeskRole(auth,["platform_owner","installer","customer_owner"]), signedReleaseAssignment: hasControlDeskRole(auth,["platform_owner","installer"]), auditRead: hasControlDeskRole(auth,["platform_owner","support_operator"]) },
