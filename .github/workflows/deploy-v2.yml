@@ -45,3 +45,24 @@ jobs:
 
       - name: Derle, servisi aç ve sağlığı doğrula
         run: ssh root@186.240.158.199 "bash /home/avccom/yeni/v2/app/scripts/deploy-v2.sh"
+
+      - name: Hostinger read-only API bağlantısını doğrula
+        run: |
+          ssh root@186.240.158.199 'bash -s' <<'REMOTE'
+          set -euo pipefail
+          vars=/home/avccom/yeni/v2/app/.dev.vars
+          token_line="$(grep '^HOSTINGER_API_TOKEN=.' "$vars" | tail -n 1 || true)"
+          if [ -z "$token_line" ]; then
+            echo "HOSTINGER_API_TOKEN sunucuda tanımlı değil." >&2
+            exit 1
+          fi
+          token="${token_line#HOSTINGER_API_TOKEN=}"
+          for endpoint in /api/hosting/v1/websites /api/vps/v1/virtual-machines; do
+            code="$(printf 'header = "Authorization: Bearer %s"\n' "$token" | curl --config - -sS -o /dev/null -w '%{http_code}' --max-time 20 "https://developers.hostinger.com${endpoint}")"
+            echo "hostinger_${endpoint##*/}:${code}"
+            if [ "$code" != "200" ]; then
+              echo "Hostinger read-only API doğrulaması başarısız: ${endpoint}" >&2
+              exit 1
+            fi
+          done
+          REMOTE
