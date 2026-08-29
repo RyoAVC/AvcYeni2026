@@ -20,7 +20,11 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
-          ssh-keyscan -H 186.240.158.199 >> ~/.ssh/known_hosts
+          for attempt in 1 2 3 4 5; do
+            if ssh-keyscan -T 10 -H 186.240.158.199 >> ~/.ssh/known_hosts; then break; fi
+            sleep $((attempt * 2))
+          done
+          test -s ~/.ssh/known_hosts
 
       - name: V2 kaynaklarını kopyala
         run: |
