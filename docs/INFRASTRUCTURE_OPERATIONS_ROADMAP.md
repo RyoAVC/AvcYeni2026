@@ -14,6 +14,13 @@ Hostinger envanteri, lisanslı Commerce mağazaları ve Control Desk'i tek bir m
 6. İzinli görev kataloğuyla denetimli uzaktan müdahale
 7. Hosting/domain yenileme ve maliyet merkezi
 
+## Tamamlanan ikinci adım
+
+- Hostinger web sitesi envanteri yalnız birebir eşleşen aktif/deneme Commerce lisansına bağlanır.
+- Eşleşen domain için HTTP/SSL monitörü otomatik ve tekrarsız oluşturulur.
+- Eşleşmeyen veya birden fazla müşteriye ait görünen domain otomatik atanmaz; güvenli inceleme listesine alınır.
+- VPS kaynakları domain üzerinden tahmin edilmez; yalnız açıkça verilen müşteri kapsamıyla içeri alınır.
+
 ## Değişmez kurallar
 
 - Her monitör ve olay `customer_id` kapsamındadır.
