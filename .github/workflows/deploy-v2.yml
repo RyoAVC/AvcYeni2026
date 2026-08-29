@@ -46,9 +46,10 @@ jobs:
       - name: Hostinger sırrını sunucu kasasına aktar
         env:
           HOSTINGER_API_TOKEN: ${{ secrets.HOSTINGER_API_TOKEN }}
+          INFRASTRUCTURE_WORKER_SECRET: ${{ secrets.INFRASTRUCTURE_WORKER_SECRET }}
         run: |
-          if [ -z "$HOSTINGER_API_TOKEN" ]; then
-            echo "GitHub HOSTINGER_API_TOKEN secret tanımlı değil." >&2
+          if [ -z "$HOSTINGER_API_TOKEN" ] || [ -z "$INFRASTRUCTURE_WORKER_SECRET" ]; then
+            echo "Gerekli altyapı secret değerleri GitHub'da tanımlı değil." >&2
             exit 1
           fi
           secret_file="$(mktemp)"
@@ -57,6 +58,9 @@ jobs:
           printf '%s' "$HOSTINGER_API_TOKEN" > "$secret_file"
           scp "$secret_file" root@186.240.158.199:/tmp/avci-hostinger-token
           ssh root@186.240.158.199 'set -euo pipefail; trap '\''rm -f /tmp/avci-hostinger-token'\'' EXIT; vars=/home/avccom/yeni/v2/app/.dev.vars; touch "$vars"; sed -i '\''/^HOSTINGER_API_TOKEN=/d'\'' "$vars"; printf '\''HOSTINGER_API_TOKEN=%s\n'\'' "$(cat /tmp/avci-hostinger-token)" >> "$vars"; chmod 600 "$vars"'
+          printf '%s' "$INFRASTRUCTURE_WORKER_SECRET" > "$secret_file"
+          scp "$secret_file" root@186.240.158.199:/tmp/avci-infrastructure-worker-secret
+          ssh root@186.240.158.199 'set -euo pipefail; trap '\''rm -f /tmp/avci-infrastructure-worker-secret'\'' EXIT; vars=/home/avccom/yeni/v2/app/.dev.vars; touch "$vars"; sed -i '\''/^INFRASTRUCTURE_WORKER_SECRET=/d'\'' "$vars"; printf '\''INFRASTRUCTURE_WORKER_SECRET=%s\n'\'' "$(cat /tmp/avci-infrastructure-worker-secret)" >> "$vars"; chmod 600 "$vars"'
 
       - name: Derle, servisi aç ve sağlığı doğrula
         run: ssh root@186.240.158.199 "bash /home/avccom/yeni/v2/app/scripts/deploy-v2.sh"
