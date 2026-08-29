@@ -1,0 +1,47 @@
+name: Canli v2
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.V1_DEPLOY_KEY }}
+
+      - name: Sunucuyu tanı
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          ssh-keyscan -H 186.240.158.199 >> ~/.ssh/known_hosts
+
+      - name: V2 kaynaklarını kopyala
+        run: |
+          rsync -az --delete \
+            --exclude node_modules \
+            --exclude .git \
+            --exclude .dev.vars \
+            --exclude yedekler \
+            --exclude .wrangler \
+            --exclude .sites-runtime \
+            --exclude dist \
+            --exclude .vinext \
+            --exclude .next \
+            --exclude .cursor \
+            --exclude .codex \
+            --exclude .codex-runtime \
+            --exclude tmp \
+            --exclude "Avcı E-Ticaret Canlı" \
+            --exclude "*.rar" \
+            --exclude "*.zip" \
+            ./ root@186.240.158.199:/home/avccom/yeni/v2/app/
+
+      - name: Derle, servisi aç ve sağlığı doğrula
+        run: ssh root@186.240.158.199 "bash /home/avccom/yeni/v2/app/scripts/deploy-v2.sh"

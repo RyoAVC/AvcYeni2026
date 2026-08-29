@@ -30,7 +30,14 @@ if ! grep -q '^COMMERCE_LICENSE_PRIVATE_KEY_PKCS8=' "${V1_DIR}/.dev.vars"; then
   printf '\n%s\n' "${key_lines}" >> "${V1_DIR}/.dev.vars"
   chmod 600 "${V1_DIR}/.dev.vars"
 fi
+# V2'ye özel Hostinger sırrını koruyarak ortak kimlik/lisans sırlarını aktar.
+existing_hostinger="$(grep '^HOSTINGER_API_TOKEN=' "${APP_DIR}/.dev.vars" 2>/dev/null || true)"
 cp "${V1_DIR}/.dev.vars" "${APP_DIR}/.dev.vars"
+if [ -n "${existing_hostinger}" ]; then
+  sed -i '/^HOSTINGER_API_TOKEN=/d' "${APP_DIR}/.dev.vars"
+  printf '%s\n' "${existing_hostinger}" >> "${APP_DIR}/.dev.vars"
+fi
+chmod 600 "${APP_DIR}/.dev.vars"
 
 # Gizli müşteri paneli önizlemesi — wrangler/vinext .dev.vars okur.
 if [ -f "${APP_DIR}/.dev.vars" ]; then
