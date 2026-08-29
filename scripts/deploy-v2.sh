@@ -61,7 +61,19 @@ node --input-type=module -e "await import('rolldown'); console.log('rolldown_dep
 export NODE_ENV="production"
 
 echo "Building v2 with NEXT_PUBLIC_BASE_PATH=${NEXT_PUBLIC_BASE_PATH}"
-NEXT_PUBLIC_BASE_PATH="/v2" NEXT_PUBLIC_SITE_ORIGIN="https://yeni.avcieticaret.com" npx vinext build
+build_log="$(mktemp)"
+if ! NEXT_PUBLIC_BASE_PATH="/v2" NEXT_PUBLIC_SITE_ORIGIN="https://yeni.avcieticaret.com" npx vinext build 2>&1 | tee "${build_log}"; then
+  if grep -q "dist/server/ssr/__vite_rsc_assets_manifest.js" "${build_log}" && grep -q "ENOENT" "${build_log}"; then
+    echo "Vinext geçici RSC manifest dizini yarışına girdi; temiz artefaktla bir kez yeniden deneniyor."
+    rm -rf "${APP_DIR}/dist"
+    mkdir -p "${APP_DIR}/dist/server/ssr"
+    NEXT_PUBLIC_BASE_PATH="/v2" NEXT_PUBLIC_SITE_ORIGIN="https://yeni.avcieticaret.com" npx vinext build
+  else
+    rm -f "${build_log}"
+    exit 1
+  fi
+fi
+rm -f "${build_log}"
 
 if ! grep -rq '/v2/assets/' dist/server 2>/dev/null; then
   echo "v2 build artifact is missing /v2 asset prefix" >&2
