@@ -715,6 +715,113 @@ export const commerceInstallJobEvents = sqliteTable(
   (table) => [index("idx_commerce_install_job_events_job").on(table.jobId, table.createdAt)],
 );
 
+export const commerceSolutionBlueprints = sqliteTable(
+  "commerce_solution_blueprints",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    blueprintKey: text("blueprint_key").notNull(),
+    name: text("name").notNull(),
+    sector: text("sector").notNull(),
+    summary: text("summary").notNull().default(""),
+    technologyJson: text("technology_json").notNull().default("[]"),
+    themeKey: text("theme_key").notNull().default(""),
+    moduleKeysJson: text("module_keys_json").notNull().default("[]"),
+    currentVersion: text("current_version").notNull().default("1.0.0"),
+    minimumCommerceVersion: text("minimum_commerce_version").notNull().default("1.0.0"),
+    releaseChannel: text("release_channel").notNull().default("stable"),
+    artifactManifestUrl: text("artifact_manifest_url").notNull().default(""),
+    previewUrl: text("preview_url").notNull().default(""),
+    status: text("status").notNull().default("draft"),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    uniqueIndex("idx_commerce_solution_blueprints_key").on(table.blueprintKey),
+    index("idx_commerce_solution_blueprints_status_sector").on(table.status, table.sector),
+  ],
+);
+
+export const customerSolutionAssignments = sqliteTable(
+  "customer_solution_assignments",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    customerId: integer("customer_id").notNull(),
+    blueprintId: integer("blueprint_id").notNull(),
+    licenseId: integer("license_id").notNull(),
+    storeKey: text("store_key").notNull(),
+    installationId: text("installation_id").notNull(),
+    assignedVersion: text("assigned_version").notNull(),
+    status: text("status").notNull().default("assigned"),
+    note: text("note").notNull().default(""),
+    assignedAt: text("assigned_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    activatedAt: text("activated_at").notNull().default(""),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    uniqueIndex("idx_customer_solution_assignment_installation").on(table.blueprintId, table.installationId),
+    index("idx_customer_solution_assignment_customer").on(table.customerId, table.status),
+  ],
+);
+
+export const controlDeskAppReleases = sqliteTable(
+  "control_desk_app_releases",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    version: text("version").notNull(),
+    channel: text("channel").notNull().default("pilot"),
+    platform: text("platform").notNull(),
+    architecture: text("architecture").notNull().default("x64"),
+    fileUrl: text("file_url").notNull(),
+    sha256: text("sha256").notNull(),
+    sizeBytes: integer("size_bytes").notNull().default(0),
+    signatureStatus: text("signature_status").notNull().default("pending"),
+    signerSubject: text("signer_subject").notNull().default(""),
+    manifestUrl: text("manifest_url").notNull(),
+    manifestSignature: text("manifest_signature").notNull(),
+    releaseNotes: text("release_notes").notNull().default(""),
+    status: text("status").notNull().default("draft"),
+    publishedAt: text("published_at").notNull().default(""),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    uniqueIndex("idx_control_desk_app_release_target").on(table.version, table.channel, table.platform, table.architecture),
+    index("idx_control_desk_app_release_latest").on(table.status, table.channel, table.platform, table.publishedAt),
+  ],
+);
+
+export const avciMobileApps = sqliteTable("avci_mobile_apps", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  appKey: text("app_key").notNull(), name: text("name").notNull(), platform: text("platform").notNull(),
+  bundleId: text("bundle_id").notNull(), currentVersion: text("current_version").notNull().default("1.0.0"),
+  buildNumber: text("build_number").notNull().default("1"), releaseChannel: text("release_channel").notNull().default("production"),
+  storeStatus: text("store_status").notNull().default("draft"), storeUrl: text("store_url").notNull().default(""),
+  healthStatus: text("health_status").notNull().default("unknown"), lastHeartbeatAt: text("last_heartbeat_at").notNull().default(""),
+  minimumOsVersion: text("minimum_os_version").notNull().default(""), notes: text("notes").notNull().default(""),
+  status: text("status").notNull().default("active"), createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`), updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+}, (table) => [uniqueIndex("idx_avci_mobile_apps_key_platform").on(table.appKey, table.platform), index("idx_avci_mobile_apps_status").on(table.status, table.platform)]);
+
+export const customerMobileAppAssignments = sqliteTable("customer_mobile_app_assignments", {
+  id: integer("id").primaryKey({ autoIncrement: true }), customerId: integer("customer_id").notNull(), mobileAppId: integer("mobile_app_id").notNull(),
+  licenseId: integer("license_id").notNull().default(0), brandedName: text("branded_name").notNull().default(""), status: text("status").notNull().default("assigned"),
+  assignedAt: text("assigned_at").notNull().default(sql`CURRENT_TIMESTAMP`), updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+}, (table) => [uniqueIndex("idx_customer_mobile_app_assignment").on(table.customerId, table.mobileAppId), index("idx_customer_mobile_app_status").on(table.customerId, table.status)]);
+
+export const infrastructureResources = sqliteTable("infrastructure_resources", {
+  id: integer("id").primaryKey({ autoIncrement: true }), customerId: integer("customer_id").notNull(), provider: text("provider").notNull().default("hostinger"),
+  providerResourceId: text("provider_resource_id").notNull().default(""), type: text("type").notNull(), name: text("name").notNull(), domain: text("domain").notNull().default(""),
+  status: text("status").notNull().default("unknown"), planName: text("plan_name").notNull().default(""), expiresAt: text("expires_at").notNull().default(""),
+  autoRenew: integer("auto_renew",{mode:"boolean"}).notNull().default(false), region: text("region").notNull().default(""), ipAddress: text("ip_address").notNull().default(""),
+  lastSyncedAt: text("last_synced_at").notNull().default(""), createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`), updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+}, (table)=>[uniqueIndex("idx_infrastructure_provider_resource").on(table.provider,table.providerResourceId,table.customerId),index("idx_infrastructure_customer_type").on(table.customerId,table.type)]);
+export const uptimeMonitors = sqliteTable("uptime_monitors", {
+  id: integer("id").primaryKey({autoIncrement:true}),customerId:integer("customer_id").notNull(),resourceId:integer("resource_id").notNull().default(0),domain:text("domain").notNull(),checkUrl:text("check_url").notNull(),status:text("status").notNull().default("pending"),lastHttpStatus:integer("last_http_status").notNull().default(0),lastResponseMs:integer("last_response_ms").notNull().default(0),sslExpiresAt:text("ssl_expires_at").notNull().default(""),lastCheckedAt:text("last_checked_at").notNull().default(""),consecutiveFailures:integer("consecutive_failures").notNull().default(0),createdAt:text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),updatedAt:text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+},(table)=>[uniqueIndex("idx_uptime_monitor_domain_customer").on(table.customerId,table.domain),index("idx_uptime_monitor_status").on(table.status,table.lastCheckedAt)]);
+export const infrastructureIncidents = sqliteTable("infrastructure_incidents", {
+  id:integer("id").primaryKey({autoIncrement:true}),customerId:integer("customer_id").notNull(),monitorId:integer("monitor_id").notNull().default(0),type:text("type").notNull(),severity:text("severity").notNull().default("warning"),title:text("title").notNull(),safeSummary:text("safe_summary").notNull().default(""),status:text("status").notNull().default("open"),openedAt:text("opened_at").notNull().default(sql`CURRENT_TIMESTAMP`),resolvedAt:text("resolved_at").notNull().default(""),createdAt:text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),updatedAt:text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+},(table)=>[index("idx_infrastructure_incident_customer").on(table.customerId,table.status,table.openedAt)]);
+
 export const controlDeskOAuthCodes = sqliteTable(
   "control_desk_oauth_codes",
   {

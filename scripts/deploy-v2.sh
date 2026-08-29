@@ -9,6 +9,9 @@ NODE_BIN="/opt/node-v22.23.1-linux-x64/bin"
 export PATH="${NODE_BIN}:${PATH}"
 export NEXT_PUBLIC_BASE_PATH="/v2"
 export NEXT_PUBLIC_SITE_ORIGIN="https://yeni.avcieticaret.com"
+export AVCI_DOMAIN_STAGE="temporary"
+export AVCI_TEMPORARY_CONTROL_PLANE_ORIGIN="https://yeni.avcieticaret.com/v2"
+export AVCI_CANONICAL_ORIGIN="https://avcieticaret.com"
 export WRANGLER_LOG_PATH="${APP_DIR}/.wrangler/wrangler.log"
 
 cd "${APP_DIR}"
@@ -56,10 +59,6 @@ cp "${APP_DIR}/.deploy-avci-yeni-v2.service" "${SERVICE_FILE}"
 systemctl daemon-reload
 systemctl enable avci-yeni-v2.service
 
-cp "${APP_DIR}/.deploy-avci-yeni-v2.service" "${SERVICE_FILE}"
-systemctl daemon-reload
-systemctl enable avci-yeni-v2.service
-
 bash "${APP_DIR}/scripts/sync-yeni-proxy.sh" "${APP_DIR}"
 
 chown -R avccom:avccom "${APP_DIR}" "${ROOT_DIR}/index.php" "${ROOT_DIR}/.htaccess" 2>/dev/null || true
@@ -97,6 +96,23 @@ public_code="$(curl -sI -o /dev/null -w "%{http_code}" --max-time 20 https://yen
 echo "public_v2_demo:${public_code}"
 if [ "${public_code}" != "200" ]; then
   echo "public v2 health check failed (last code: ${public_code})" >&2
+  exit 1
+fi
+
+discovery_body="$(curl -fsS --max-time 20 http://127.0.0.1:4121/v2/api/v1/control-desk/discovery)"
+node --input-type=module -e '
+  const body = JSON.parse(process.argv[1]);
+  if (body.format !== "avci-control-plane.discovery.v1") throw new Error("discovery format hatali");
+  if (body.stage !== "temporary") throw new Error("ana domaine erken gecis engellendi");
+  if (body.activeControlPlane !== "https://yeni.avcieticaret.com/v2") throw new Error("aktif merkez hatali");
+  if (body.canonicalOrigin !== "https://avcieticaret.com" || body.canonicalStatus !== "maintenance") throw new Error("ana domain bakim sozlesmesi hatali");
+' "${discovery_body}"
+echo "local_v2_discovery:verified_temporary"
+
+public_discovery_code="$(curl -s -o /tmp/avci-discovery-probe.json -w "%{http_code}" --max-time 20 https://yeni.avcieticaret.com/v2/api/v1/control-desk/discovery || echo 000)"
+echo "public_v2_discovery:${public_discovery_code}"
+if [ "${public_discovery_code}" != "200" ]; then
+  echo "public discovery health check failed (last code: ${public_discovery_code})" >&2
   exit 1
 fi
 

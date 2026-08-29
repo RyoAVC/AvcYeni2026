@@ -1,0 +1,26 @@
+CREATE TABLE IF NOT EXISTS control_desk_app_releases (
+  id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+  version TEXT NOT NULL,
+  channel TEXT NOT NULL DEFAULT 'pilot',
+  platform TEXT NOT NULL,
+  architecture TEXT NOT NULL DEFAULT 'x64',
+  file_url TEXT NOT NULL,
+  sha256 TEXT NOT NULL,
+  size_bytes INTEGER NOT NULL DEFAULT 0,
+  signature_status TEXT NOT NULL DEFAULT 'pending',
+  signer_subject TEXT NOT NULL DEFAULT '',
+  manifest_url TEXT NOT NULL,
+  manifest_signature TEXT NOT NULL,
+  release_notes TEXT NOT NULL DEFAULT '',
+  status TEXT NOT NULL DEFAULT 'draft',
+  published_at TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(version, channel, platform, architecture),
+  CHECK(channel IN ('pilot', 'stable')),
+  CHECK(platform IN ('windows', 'macos', 'linux')),
+  CHECK(signature_status IN ('pending', 'verified', 'rejected')),
+  CHECK(status IN ('draft', 'published', 'withdrawn')),
+  CHECK(status != 'published' OR (signature_status = 'verified' AND length(sha256) = 64 AND manifest_signature != ''))
+);
+CREATE INDEX IF NOT EXISTS idx_control_desk_app_release_latest ON control_desk_app_releases(status, channel, platform, published_at);

@@ -22,6 +22,8 @@ export type AdminSection =
   | "entegrasyonlar"
   | "paketler"
   | "moduller"
+  | "cozumler"
+  | "uygulama-surumleri"
   | "destek"
   | "vitrin"
   | "editor"
@@ -53,6 +55,8 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { id: "paketler", label: "Altyapı Paketleri", href: "/yonetim/paketler", icon: "layers" },
       { id: "moduller", label: "Commerce Modülleri", href: "/yonetim/moduller?category=commerce", icon: "grid", badge: "YENİ" },
+      { id: "cozumler", label: "Çözüm & Sektör Kataloğu", href: "/yonetim/cozumler", icon: "sparkles", badge: "PRO" },
+      { id: "uygulama-surumleri", label: "Control Desk Sürümleri", href: "/yonetim/control-desk-surumleri", icon: "download", badge: "İMZALI" },
       { id: "entegrasyonlar", label: "Entegrasyon Kataloğu", href: "/yonetim/entegrasyonlar", icon: "zap" },
     ],
   },
