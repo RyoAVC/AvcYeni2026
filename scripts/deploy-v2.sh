@@ -50,7 +50,8 @@ else
   echo "CUSTOMER_PORTAL_PREVIEW=1" > "${APP_DIR}/.dev.vars"
 fi
 
-npm ci --include=dev
+npm ci --include=dev --include=optional
+node --input-type=module -e "await import('rolldown'); console.log('rolldown_dependency:ready')"
 export NODE_ENV="production"
 
 echo "Building v2 with NEXT_PUBLIC_BASE_PATH=${NEXT_PUBLIC_BASE_PATH}"
