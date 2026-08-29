@@ -668,3 +668,98 @@ export const commercePortalLoginCodes = sqliteTable(
     index("idx_commerce_portal_login_code_expiry").on(table.expiresAt, table.usedAt),
   ],
 );
+
+export const commerceInstallJobs = sqliteTable(
+  "commerce_install_jobs",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    jobId: text("job_id").notNull(),
+    licenseId: integer("license_id").notNull(),
+    customerId: integer("customer_id").notNull(),
+    storeKey: text("store_key").notNull(),
+    installationId: text("installation_id").notNull(),
+    targetDomain: text("target_domain").notNull(),
+    environment: text("environment").notNull().default("production"),
+    status: text("status").notNull().default("queued"),
+    currentStep: text("current_step").notNull().default("enrollment"),
+    enrollmentTokenHash: text("enrollment_token_hash").notNull(),
+    enrollmentExpiresAt: text("enrollment_expires_at").notNull(),
+    agentId: text("agent_id").notNull().default(""),
+    agentVersion: text("agent_version").notNull().default(""),
+    agentTokenHash: text("agent_token_hash").notNull().default(""),
+    agentTokenExpiresAt: text("agent_token_expires_at").notNull().default(""),
+    safeSummary: text("safe_summary").notNull().default(""),
+    artifactJson: text("artifact_json").notNull().default("{}"),
+    claimedAt: text("claimed_at").notNull().default(""),
+    completedAt: text("completed_at").notNull().default(""),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    uniqueIndex("idx_commerce_install_jobs_job_id").on(table.jobId),
+    uniqueIndex("idx_commerce_install_jobs_enrollment_hash").on(table.enrollmentTokenHash),
+    index("idx_commerce_install_jobs_license_status").on(table.licenseId, table.status),
+  ],
+);
+
+export const commerceInstallJobEvents = sqliteTable(
+  "commerce_install_job_events",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    jobId: text("job_id").notNull(),
+    status: text("status").notNull(),
+    step: text("step").notNull(),
+    safeCode: text("safe_code").notNull().default(""),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [index("idx_commerce_install_job_events_job").on(table.jobId, table.createdAt)],
+);
+
+export const controlDeskOAuthCodes = sqliteTable(
+  "control_desk_oauth_codes",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    codeHash: text("code_hash").notNull(),
+    codeChallenge: text("code_challenge").notNull(),
+    redirectUri: text("redirect_uri").notNull(),
+    actorType: text("actor_type").notNull(),
+    actorEmail: text("actor_email").notNull(),
+    displayName: text("display_name").notNull(),
+    customerId: integer("customer_id").notNull().default(0),
+    rolesJson: text("roles_json").notNull().default("[]"),
+    scopesJson: text("scopes_json").notNull().default("[]"),
+    expiresAt: text("expires_at").notNull(),
+    usedAt: text("used_at").notNull().default(""),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [uniqueIndex("idx_control_desk_oauth_code_hash").on(table.codeHash), index("idx_control_desk_oauth_code_expiry").on(table.expiresAt, table.usedAt)],
+);
+
+export const controlDeskSessions = sqliteTable(
+  "control_desk_sessions",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    sessionId: text("session_id").notNull(),
+    accessTokenHash: text("access_token_hash").notNull(),
+    refreshTokenHash: text("refresh_token_hash").notNull(),
+    actorType: text("actor_type").notNull(),
+    actorEmail: text("actor_email").notNull(),
+    displayName: text("display_name").notNull(),
+    customerId: integer("customer_id").notNull().default(0),
+    rolesJson: text("roles_json").notNull().default("[]"),
+    scopesJson: text("scopes_json").notNull().default("[]"),
+    deviceName: text("device_name").notNull().default(""),
+    accessExpiresAt: text("access_expires_at").notNull(),
+    refreshExpiresAt: text("refresh_expires_at").notNull(),
+    revokedAt: text("revoked_at").notNull().default(""),
+    lastUsedAt: text("last_used_at").notNull().default(""),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    uniqueIndex("idx_control_desk_session_id").on(table.sessionId),
+    uniqueIndex("idx_control_desk_access_hash").on(table.accessTokenHash),
+    uniqueIndex("idx_control_desk_refresh_hash").on(table.refreshTokenHash),
+    index("idx_control_desk_session_actor").on(table.actorEmail, table.revokedAt),
+  ],
+);

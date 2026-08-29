@@ -25,6 +25,7 @@ export function getCustomerPortalConfig(env) {
 
 export function safeCustomerNextPath(value) {
   const path = safeRelativeReturnPath(value);
+  if (path === "/oauth/authorize" || path.startsWith("/oauth/authorize?")) return path;
   if (!path.startsWith("/musteri-panel")) return "/musteri-panel";
   if (path === "/musteri-panel/giris" || path.startsWith("/musteri-panel/giris?")) return "/musteri-panel";
   return path;

@@ -884,6 +884,20 @@ async function ensureCustomerPortalProductTables(db) {
     `CREATE UNIQUE INDEX IF NOT EXISTS idx_commerce_license_installation_token ON commerce_license_installations (activation_token_hash)`,
     `CREATE INDEX IF NOT EXISTS idx_commerce_license_installation_customer ON commerce_license_installations (customer_id, status)`,
     `CREATE TABLE IF NOT EXISTS commerce_portal_login_codes (id integer PRIMARY KEY AUTOINCREMENT NOT NULL, installation_id integer NOT NULL, customer_id integer NOT NULL, code_hash text NOT NULL, expires_at text NOT NULL, used_at text DEFAULT '' NOT NULL, created_at text DEFAULT CURRENT_TIMESTAMP NOT NULL)`,
+    `CREATE TABLE IF NOT EXISTS commerce_install_jobs (id integer PRIMARY KEY AUTOINCREMENT NOT NULL, job_id text NOT NULL, license_id integer NOT NULL, customer_id integer NOT NULL, store_key text NOT NULL, installation_id text NOT NULL, target_domain text NOT NULL, environment text DEFAULT 'production' NOT NULL, status text DEFAULT 'queued' NOT NULL, current_step text DEFAULT 'enrollment' NOT NULL, enrollment_token_hash text NOT NULL, enrollment_expires_at text NOT NULL, agent_id text DEFAULT '' NOT NULL, agent_version text DEFAULT '' NOT NULL, safe_summary text DEFAULT '' NOT NULL, artifact_json text DEFAULT '{}' NOT NULL, claimed_at text DEFAULT '' NOT NULL, completed_at text DEFAULT '' NOT NULL, created_at text DEFAULT CURRENT_TIMESTAMP NOT NULL, updated_at text DEFAULT CURRENT_TIMESTAMP NOT NULL)`,
+    `CREATE UNIQUE INDEX IF NOT EXISTS idx_commerce_install_jobs_job_id ON commerce_install_jobs (job_id)`,
+    `CREATE UNIQUE INDEX IF NOT EXISTS idx_commerce_install_jobs_enrollment_hash ON commerce_install_jobs (enrollment_token_hash)`,
+    `CREATE INDEX IF NOT EXISTS idx_commerce_install_jobs_license_status ON commerce_install_jobs (license_id, status)`,
+    `CREATE TABLE IF NOT EXISTS commerce_install_job_events (id integer PRIMARY KEY AUTOINCREMENT NOT NULL, job_id text NOT NULL, status text NOT NULL, step text NOT NULL, safe_code text DEFAULT '' NOT NULL, created_at text DEFAULT CURRENT_TIMESTAMP NOT NULL)`,
+    `CREATE TABLE IF NOT EXISTS control_desk_oauth_codes (id integer PRIMARY KEY AUTOINCREMENT NOT NULL, code_hash text NOT NULL, code_challenge text NOT NULL, redirect_uri text NOT NULL, actor_type text NOT NULL, actor_email text NOT NULL, display_name text NOT NULL, customer_id integer DEFAULT 0 NOT NULL, roles_json text DEFAULT '[]' NOT NULL, scopes_json text DEFAULT '[]' NOT NULL, expires_at text NOT NULL, used_at text DEFAULT '' NOT NULL, created_at text DEFAULT CURRENT_TIMESTAMP NOT NULL)`,
+    `CREATE UNIQUE INDEX IF NOT EXISTS idx_control_desk_oauth_code_hash ON control_desk_oauth_codes (code_hash)`,
+    `CREATE INDEX IF NOT EXISTS idx_control_desk_oauth_code_expiry ON control_desk_oauth_codes (expires_at, used_at)`,
+    `CREATE TABLE IF NOT EXISTS control_desk_sessions (id integer PRIMARY KEY AUTOINCREMENT NOT NULL, session_id text NOT NULL, access_token_hash text NOT NULL, refresh_token_hash text NOT NULL, actor_type text NOT NULL, actor_email text NOT NULL, display_name text NOT NULL, customer_id integer DEFAULT 0 NOT NULL, roles_json text DEFAULT '[]' NOT NULL, scopes_json text DEFAULT '[]' NOT NULL, device_name text DEFAULT '' NOT NULL, access_expires_at text NOT NULL, refresh_expires_at text NOT NULL, revoked_at text DEFAULT '' NOT NULL, last_used_at text DEFAULT '' NOT NULL, created_at text DEFAULT CURRENT_TIMESTAMP NOT NULL, updated_at text DEFAULT CURRENT_TIMESTAMP NOT NULL)`,
+    `CREATE UNIQUE INDEX IF NOT EXISTS idx_control_desk_session_id ON control_desk_sessions (session_id)`,
+    `CREATE UNIQUE INDEX IF NOT EXISTS idx_control_desk_access_hash ON control_desk_sessions (access_token_hash)`,
+    `CREATE UNIQUE INDEX IF NOT EXISTS idx_control_desk_refresh_hash ON control_desk_sessions (refresh_token_hash)`,
+    `CREATE INDEX IF NOT EXISTS idx_control_desk_session_actor ON control_desk_sessions (actor_email, revoked_at)`,
+    `CREATE INDEX IF NOT EXISTS idx_commerce_install_job_events_job ON commerce_install_job_events (job_id, created_at)`,
     `CREATE UNIQUE INDEX IF NOT EXISTS idx_commerce_portal_login_code_hash ON commerce_portal_login_codes (code_hash)`,
     `CREATE INDEX IF NOT EXISTS idx_commerce_portal_login_code_expiry ON commerce_portal_login_codes (expires_at, used_at)`,
   ];
@@ -918,6 +932,20 @@ export async function ensureCommerceLicenseTables(env) {
     `CREATE TABLE IF NOT EXISTS commerce_portal_login_codes (id integer PRIMARY KEY AUTOINCREMENT NOT NULL, installation_id integer NOT NULL, customer_id integer NOT NULL, code_hash text NOT NULL, expires_at text NOT NULL, used_at text DEFAULT '' NOT NULL, created_at text DEFAULT CURRENT_TIMESTAMP NOT NULL)`,
     `CREATE UNIQUE INDEX IF NOT EXISTS idx_commerce_portal_login_code_hash ON commerce_portal_login_codes (code_hash)`,
     `CREATE INDEX IF NOT EXISTS idx_commerce_portal_login_code_expiry ON commerce_portal_login_codes (expires_at, used_at)`,
+    `CREATE TABLE IF NOT EXISTS commerce_install_jobs (id integer PRIMARY KEY AUTOINCREMENT NOT NULL, job_id text NOT NULL, license_id integer NOT NULL, customer_id integer NOT NULL, store_key text NOT NULL, installation_id text NOT NULL, target_domain text NOT NULL, environment text DEFAULT 'production' NOT NULL, status text DEFAULT 'queued' NOT NULL, current_step text DEFAULT 'enrollment' NOT NULL, enrollment_token_hash text NOT NULL, enrollment_expires_at text NOT NULL, agent_id text DEFAULT '' NOT NULL, agent_version text DEFAULT '' NOT NULL, safe_summary text DEFAULT '' NOT NULL, artifact_json text DEFAULT '{}' NOT NULL, claimed_at text DEFAULT '' NOT NULL, completed_at text DEFAULT '' NOT NULL, created_at text DEFAULT CURRENT_TIMESTAMP NOT NULL, updated_at text DEFAULT CURRENT_TIMESTAMP NOT NULL)`,
+    `CREATE UNIQUE INDEX IF NOT EXISTS idx_commerce_install_jobs_job_id ON commerce_install_jobs (job_id)`,
+    `CREATE UNIQUE INDEX IF NOT EXISTS idx_commerce_install_jobs_enrollment_hash ON commerce_install_jobs (enrollment_token_hash)`,
+    `CREATE INDEX IF NOT EXISTS idx_commerce_install_jobs_license_status ON commerce_install_jobs (license_id, status)`,
+    `CREATE TABLE IF NOT EXISTS commerce_install_job_events (id integer PRIMARY KEY AUTOINCREMENT NOT NULL, job_id text NOT NULL, status text NOT NULL, step text NOT NULL, safe_code text DEFAULT '' NOT NULL, created_at text DEFAULT CURRENT_TIMESTAMP NOT NULL)`,
+    `CREATE INDEX IF NOT EXISTS idx_commerce_install_job_events_job ON commerce_install_job_events (job_id, created_at)`,
+    `CREATE TABLE IF NOT EXISTS control_desk_oauth_codes (id integer PRIMARY KEY AUTOINCREMENT NOT NULL, code_hash text NOT NULL, code_challenge text NOT NULL, redirect_uri text NOT NULL, actor_type text NOT NULL, actor_email text NOT NULL, display_name text NOT NULL, customer_id integer DEFAULT 0 NOT NULL, roles_json text DEFAULT '[]' NOT NULL, scopes_json text DEFAULT '[]' NOT NULL, expires_at text NOT NULL, used_at text DEFAULT '' NOT NULL, created_at text DEFAULT CURRENT_TIMESTAMP NOT NULL)`,
+    `CREATE UNIQUE INDEX IF NOT EXISTS idx_control_desk_oauth_code_hash ON control_desk_oauth_codes (code_hash)`,
+    `CREATE INDEX IF NOT EXISTS idx_control_desk_oauth_code_expiry ON control_desk_oauth_codes (expires_at, used_at)`,
+    `CREATE TABLE IF NOT EXISTS control_desk_sessions (id integer PRIMARY KEY AUTOINCREMENT NOT NULL, session_id text NOT NULL, access_token_hash text NOT NULL, refresh_token_hash text NOT NULL, actor_type text NOT NULL, actor_email text NOT NULL, display_name text NOT NULL, customer_id integer DEFAULT 0 NOT NULL, roles_json text DEFAULT '[]' NOT NULL, scopes_json text DEFAULT '[]' NOT NULL, device_name text DEFAULT '' NOT NULL, access_expires_at text NOT NULL, refresh_expires_at text NOT NULL, revoked_at text DEFAULT '' NOT NULL, last_used_at text DEFAULT '' NOT NULL, created_at text DEFAULT CURRENT_TIMESTAMP NOT NULL, updated_at text DEFAULT CURRENT_TIMESTAMP NOT NULL)`,
+    `CREATE UNIQUE INDEX IF NOT EXISTS idx_control_desk_session_id ON control_desk_sessions (session_id)`,
+    `CREATE UNIQUE INDEX IF NOT EXISTS idx_control_desk_access_hash ON control_desk_sessions (access_token_hash)`,
+    `CREATE UNIQUE INDEX IF NOT EXISTS idx_control_desk_refresh_hash ON control_desk_sessions (refresh_token_hash)`,
+    `CREATE INDEX IF NOT EXISTS idx_control_desk_session_actor ON control_desk_sessions (actor_email, revoked_at)`,
   ];
   for (const statement of statements) await binding.prepare(statement).run();
   const columns = new Set(((await binding.prepare("PRAGMA table_info(commerce_license_installations)").all()).results || []).map((item) => item.name));
@@ -933,6 +961,12 @@ export async function ensureCommerceLicenseTables(env) {
     ["penalty_note", "ALTER TABLE commerce_license_installations ADD COLUMN penalty_note text DEFAULT '' NOT NULL"],
     ["suspension_reason", "ALTER TABLE commerce_license_installations ADD COLUMN suspension_reason text DEFAULT '' NOT NULL"],
   ]) if (!columns.has(name)) await binding.prepare(statement).run();
+  const installJobColumns = new Set(((await binding.prepare("PRAGMA table_info(commerce_install_jobs)").all()).results || []).map((item) => item.name));
+  for (const [name, statement] of [
+    ["agent_token_hash", "ALTER TABLE commerce_install_jobs ADD COLUMN agent_token_hash text DEFAULT '' NOT NULL"],
+    ["agent_token_expires_at", "ALTER TABLE commerce_install_jobs ADD COLUMN agent_token_expires_at text DEFAULT '' NOT NULL"],
+  ]) if (!installJobColumns.has(name)) await binding.prepare(statement).run();
+  await binding.prepare("CREATE UNIQUE INDEX IF NOT EXISTS idx_commerce_install_jobs_agent_token ON commerce_install_jobs (agent_token_hash) WHERE agent_token_hash <> ''").run();
 }
 
 async function seedDemoCustomerPortal(db) {

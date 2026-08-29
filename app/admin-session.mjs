@@ -58,6 +58,7 @@ export function readNamedCookie(cookieHeader, name) {
 
 export function safeAdminNextPath(value) {
   const path = safeRelativeReturnPath(value);
+  if (path === "/oauth/authorize" || path.startsWith("/oauth/authorize?")) return path;
   if (!path.startsWith("/yonetim")) return "/yonetim";
   if (path === "/yonetim/giris" || path.startsWith("/yonetim/giris?")) return "/yonetim";
   return path;
