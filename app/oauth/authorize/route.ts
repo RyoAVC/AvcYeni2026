@@ -7,11 +7,10 @@ import { sha256Hex } from "../../control-desk-auth.mjs";
 import { ensureCommerceLicenseTables } from "../../local-d1-schema.mjs";
 import { readRuntimeEnv } from "../../runtime-env.mjs";
 import { withBasePath } from "../../base-path";
+import { validControlDeskRedirect, validPkceChallenge } from "../../oauth-policy.mjs";
 
 export const dynamic = "force-dynamic";
 
-function validRedirect(value: string) { return value === "avcicontrol://auth/callback"; }
-function validChallenge(value: string) { return /^[A-Za-z0-9_-]{43,128}$/.test(value); }
 function token(prefix: string) {
   const bytes = new Uint8Array(32); crypto.getRandomValues(bytes);
   return prefix + btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
@@ -23,7 +22,7 @@ export async function GET(request: Request) {
   const challenge = url.searchParams.get("code_challenge") || "";
   const state = url.searchParams.get("state") || "";
   const actor = url.searchParams.get("actor") === "customer" ? "customer" : "staff";
-  if (!validRedirect(redirectUri) || !validChallenge(challenge) || !/^[A-Za-z0-9_-]{24,160}$/.test(state) || url.searchParams.get("code_challenge_method") !== "S256") {
+  if (!validControlDeskRedirect(redirectUri) || !validPkceChallenge(challenge) || !/^[A-Za-z0-9_-]{24,160}$/.test(state) || url.searchParams.get("code_challenge_method") !== "S256") {
     return Response.json({ ok: false, code: "invalid_authorization_request" }, { status: 400 });
   }
   // Keep the post-login target app-relative. The live application is mounted

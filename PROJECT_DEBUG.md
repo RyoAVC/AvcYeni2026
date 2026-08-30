@@ -1284,6 +1284,15 @@ Dürüst sınır:
 
 ## 6. Güvenlik ve veri bütünlüğü kararları
 
+### v163 — Avcı Commerce Mobile OAuth geri dönüş politikası
+
+- Hedef proje Avcı E‑Ticaret kontrol düzlemidir; Commerce veya mobil istemci kaynakları bu depoya kopyalanmadı.
+- OAuth 2.1 + PKCE izin listesine masaüstü `avcicontrol://auth/callback` adresine ek olarak mobil `avcicommerce://auth/callback` adresi tam eşleşmeyle eklendi.
+- Redirect ve PKCE kuralları `app/oauth-policy.mjs` içinde izole edildi; web adresleri, wildcard, sorgu eklenmiş veya benzer görünümlü callback değerleri kapalıdır.
+- Değişen kaynaklar: `app/oauth/authorize/route.ts`, `app/oauth-policy.mjs`, `tests/control-desk-oauth-policy.test.mjs`, `PROJECT_DEBUG.md`.
+- Doğrulama: hedefli OAuth güvenlik testleri 3/3, TypeScript, hedefli ESLint ve Vinext production build başarılı.
+- Canlı uçtan uca müşteri girişi ancak bu sürüm v2 ortamına dağıtıldıktan ve gerçek müşteri oturumuyla callback teslimi doğrulandıktan sonra tamamlanmış sayılacaktır.
+
 - Yönetim mutasyonları aynı-origin, JSON content type ve sınırlı nesne gövdesi gerektirir.
 - Yetki yalnızca kullanıcı arayüzüne bırakılmaz; API ve sunucu sayfalarında tekrar doğrulanır.
 - Durum güncellemede `updatedAt` ile çakışma kontrolü vardır.
