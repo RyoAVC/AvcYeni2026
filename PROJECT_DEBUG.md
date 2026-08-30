@@ -1291,7 +1291,9 @@ Dürüst sınır:
 - Redirect ve PKCE kuralları `app/oauth-policy.mjs` içinde izole edildi; web adresleri, wildcard, sorgu eklenmiş veya benzer görünümlü callback değerleri kapalıdır.
 - Değişen kaynaklar: `app/oauth/authorize/route.ts`, `app/oauth-policy.mjs`, `tests/control-desk-oauth-policy.test.mjs`, `PROJECT_DEBUG.md`.
 - Doğrulama: hedefli OAuth güvenlik testleri 3/3, TypeScript, hedefli ESLint ve Vinext production build başarılı.
-- Canlı uçtan uca müşteri girişi ancak bu sürüm v2 ortamına dağıtıldıktan ve gerçek müşteri oturumuyla callback teslimi doğrulandıktan sonra tamamlanmış sayılacaktır.
+- GitHub commit `b48cc19` ile `main` dalına gönderildi; `Canli v2` işi `33301314873` tüm adımlarıyla başarılı oldu (kaynak aktarımı, sır kasası, build/migration, servis sağlığı ve Hostinger read-only doğrulaması).
+- Canlı sözleşme kontrolünde geçerli mobil OAuth isteği artık HTTP 400 yerine `302` ile `/v2/musteri-panel/giris` sayfasına yönleniyor ve tam OAuth isteğini güvenli `next` parametresinde koruyor.
+- Gerçek kullanıcıyla authorization code teslimi ve token değişimi interaktif müşteri oturumu gerektirdiğinden ayrıca cihaz üzerinde doğrulanmalıdır.
 
 - Yönetim mutasyonları aynı-origin, JSON content type ve sınırlı nesne gövdesi gerektirir.
 - Yetki yalnızca kullanıcı arayüzüne bırakılmaz; API ve sunucu sayfalarında tekrar doğrulanır.
