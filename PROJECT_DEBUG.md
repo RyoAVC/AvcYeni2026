@@ -1446,6 +1446,16 @@ Dürüst sınır:
 - **Tam paket taraması (191 test) yapıldı: 179 geçti, 12 başarısız — hepsi bu oturumdaki hiçbir commit'le ilgisi olmayan, önceden var olan sorunlar** (ör. `renders the finished platform landing page` ve `avcai-realtime.test.mjs` — FAZ2'de zaten tespit edilen `cloudflare:workers` build-artifact ortam sorunu; ayrıca admin lead filtreleri, AvcAI/Tofy sayfaları, buton form davranışı, peynir demo vitrini, sitemap tutarlılığı, tablo erişilebilirliği gibi dokunulmamış alanlar). Bunlar bilerek düzeltilmedi — kapsam "commit'lere bölmek"ti, her hatayı avlamak değil; Mahir'e ayrıca bildirildi.
 - Değişen kaynak: yok (yalnız organizasyon); `PROJECT_DEBUG.md` bu commit'le birlikte son güncellendi.
 
+### v178 — AVC'nin kendi sitesi v2: Değişiklik günlüğü + sistem durumu sayfaları
+
+- **Yeni public sayfa `/degisiklik-gunlugu`** (`app/degisiklik-gunlugu/page.tsx`): iç geliştirme günlüğünün (bu dosyanın v1-v177 kayıtları) 10 aşamaya süzülmüş, müşteri adayına güven vermek için hazırlanmış kürasyonlu hâli. Güvenlik/mimari ayrıntı içeren hiçbir madde kopyalanmadı; yalnız "müşteri açısından ne kazandırdı" diliyle yeniden yazıldı. Tarih uydurulmadı — kronolojik ama tarihsiz "aşama" numaralandırması kullanıldı (11. madde: "Bugün ve sonrası", devam eden çalışmaya dürüst atıf). Footer'ın "Rehberler" sütununa ve `/kaynaklar` rehber listesine bağlandı. Yeni CSS: `.changelog-hero`, `.changelog-timeline` (globals.css).
+- **Yeni public sayfa `/sistem-durumu`** (`app/sistem-durumu/page.tsx`): tek, dürüst genel durum göstergesi (Her şey çalışıyor / Kısmi sorun / Planlı bakım) + opsiyonel not + gerçek "son güncelleme" zaman damgası. Sahte otomatik uptime yüzdesi veya per-servis izleme grafiği **yok** — sayfa açıkça "otomatik değil, ekip elle günceller" diyor. Kapsam bilerek genel tutuldu (mevcut `/api/v1/control-desk/infrastructure/checks` altyapısı AVC'nin kendi platformunu değil, lisanslı müşteri sitelerini izliyor — public sayfada o veri kullanılmadı, kapsam dışı bırakıldı).
+  - `app/site-settings.mjs`: `platformStatus` (`operational`/`degraded`/`maintenance`) ve `platformStatusNote` yeni ayar anahtarları eklendi (mevcut KV `site_settings` tablosuna migration'sız uyuyor); yeni `loadPlatformStatusMeta()` yalnız bu satırın gerçek `updated_at` damgasını okuyor.
+  - `app/yonetim/ayarlar/settings-form.tsx` + `page.tsx`: admin panelinde yeni "Sistem durumu" bölümü (select + not alanı); mevcut genel `PATCH /api/yonetim/ayarlar` uç noktası zaten anahtar-bağımsız çalıştığı için API tarafında değişiklik gerekmedi.
+  - **Uçtan uca canlı sunucuda doğrulandı**: admin panelinden durum "Kısmi sorun" yapılıp not girildi → kaydedildi → `/sistem-durumu` gerçek zaman damgası ve notla güncellendi → test verisi "Her şey çalışıyor"a geri alındı.
+- **Vaka çalışması iskeleti (kalite yol haritası madde 6) için yeni sayfa açılmadı** — `/cozum-senaryolari` (açık "örnek senaryo, müşteri referansı değil" uyarısı + "gerçek vaka çalışmaları hazır olduğunda burada yer alacak" notu) ve `/referanslar` (yayın öncesi 4 maddelik doğrulama standardı) bu ihtiyacı zaten, hiç sahte müşteri/metrik içermeden karşılıyor. Tekrar üretmek yerine mevcut olduğu doğrulandı.
+- Kalite yol haritasının "AVC'nin kendi sitesi v2" üç maddesi (değişiklik günlüğü, sistem durumu, vaka çalışması iskeleti) bu sürümle tamamlandı.
+
 ## 7. Yerel sunucu ve güvenli test bilgileri
 
 Aktif yerel önizleme:
@@ -1503,11 +1513,11 @@ Son tamamlanmış doğrulama (v61):
 
 - Canlı test şimdi `yeni.avcieticaret.com/v1/`. Geliştirme bitince kullanıcı isteğiyle `avcieticaret.com` köküne taşınır; o zamana kadar kök alana geçilmez.
 - Görsel kimlik kuralı (v70) geçerli; tam sayfa redesign yok.
-- Hero hareketi (v71) ve ikas IA blokları (v72) kullanıcı onayı bekliyor.
+- ~~Hero hareketi (v71) ve ikas IA blokları (v72) kullanıcı onayı bekliyor.~~ 2026-09-01: Canlı yerel sunucuda doğrulandı — `HeroStage`/`StoryBand` zaten `app/page.tsx`'e kablolanmış ve doğru render oluyor; bu not güncel değildi, kalıcı tasarım olarak kabul edildi.
 - Paket kimlikleri merkezileştirildi; pazarlama metinleri sayfa bağlamına göre ayrı kalıyor. Yeni paket eklenirse her iki görünümün içerik kapsamı birlikte gözden geçirilmelidir.
 - Bağlı marka katmanları teklif ve çözüm bağlamındadır; gerçek teknik entegrasyon, ortak kimlik veya veri paylaşımı ancak ayrı kabul kriteriyle ele alınabilir.
 - Katalog üst menülerinde AI yalnız kendi modül sayfasında görünür; yeni katalog rotalarında E-Ticaret ana ürün hiyerarşisi korunmalıdır.
-- Müşteri kartı bağlantıları (v84) ve ana sayfa vitrin hareketi (v86) onay bekliyor.
+- ~~Müşteri kartı bağlantıları (v84) ve ana sayfa vitrin hareketi (v86) onay bekliyor.~~ 2026-09-01: İkisi de kodda aktif doğrulandı (`customer-related.tsx`'teki `?musteri=` linkleri; `LiveStrip`/`LiveToastHost` `page.tsx`/`layout.tsx`'e kablolu) — bu not güncel değildi, kalıcı kabul edildi.
 - Mağaza back-office (katalog, sipariş, ödeme, kargo, iade) bu proje içinde henüz uygulanmış bir yönetim ürünü değildir; yapılmış gibi gösterilmemelidir.
 - Yeni işlev geliştirmeden önce ürünün gerçek veri kaynağı, kullanıcı rolü, kabul kriteri ve güvenlik sınırı belirlenmelidir.
 - AvcAI canlı konuşması öncelikle sunucudaki `OPENAI_API_KEY` ile `gpt-realtime-2.1` kullanır. Anahtar yoksa Gemini TTS + tarayıcı SpeechRecognition yedeğine düşer; Windows `speechSynthesis` kullanılmaz. Hiçbir standart API anahtarı istemciye gönderilmez.

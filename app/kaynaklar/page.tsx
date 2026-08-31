@@ -97,6 +97,8 @@ const guides = [
   { href: "/veri-gecisi", title: "Veri geçişi", text: "Mevcut katalog ve siparişin örnek veri, eşleme ve prova ile nasıl taşındığını görün.", action: "Geçişi görün" },
   { href: "/teslim-egitim", title: "Teslim ve eğitim", text: "Yayın gününde ne teslim edilir, kim eğitilir, günlük satış kimin işidir.", action: "Teslimi görün" },
   { href: "/mobil-sektorel", title: "Mobil & sektörel", text: "Mobil uygulama ve kuruma özel iş akışı kararlarını netleştirin.", action: "Seçenekleri görün" },
+  { href: "/degisiklik-gunlugu", title: "Değişiklik günlüğü", text: "Ürünün kuruluşundan bugüne hangi aşamalardan geçerek geliştiğini görün.", action: "Günlüğü görün" },
+  { href: "/sistem-durumu", title: "Sistem durumu", text: "Tanıtım sitesi, yönetim paneli ve müşteri portalının güncel durumunu görün.", action: "Durumu görün" },
 ];
 
 export default function ResourcesPage() {

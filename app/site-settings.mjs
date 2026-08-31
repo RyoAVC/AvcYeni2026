@@ -19,6 +19,8 @@ export const DEFAULT_SITE_SETTINGS = {
   showLiveStrip: "on",
   showTrustStrip: "on",
   maintenanceMode: "off",
+  platformStatus: "operational",
+  platformStatusNote: "",
   tofyPopupEnabled: DEFAULT_TOFY_POPUP.enabled,
   tofyPopupTitle: DEFAULT_TOFY_POPUP.title,
   tofyPopupText: DEFAULT_TOFY_POPUP.text,
@@ -29,6 +31,7 @@ export const DEFAULT_SITE_SETTINGS = {
 const SETTING_KEYS = Object.keys(DEFAULT_SITE_SETTINGS);
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const LOGO_SCALES = new Set(["small", "medium", "large"]);
+const PLATFORM_STATUSES = new Set(["operational", "degraded", "maintenance"]);
 
 function clean(value, maxLength) {
   return typeof value === "string" ? value.replace(/[\u0000-\u001f\u007f]/g, " ").replace(/\s+/g, " ").trim().slice(0, maxLength) : "";
@@ -67,6 +70,8 @@ export function parseSiteSettings(payload = {}, current = {}) {
   const heroCtaPrimary = clean(pick(payload, "heroCtaPrimary") ?? base.heroCtaPrimary, 40) || DEFAULT_SITE_SETTINGS.heroCtaPrimary;
   const heroCtaSecondary = clean(pick(payload, "heroCtaSecondary") ?? base.heroCtaSecondary, 40) || DEFAULT_SITE_SETTINGS.heroCtaSecondary;
   const requestedScale = pick(payload, "logoScale") ?? base.logoScale;
+  const requestedStatus = pick(payload, "platformStatus") ?? base.platformStatus;
+  const platformStatusNote = clean(pick(payload, "platformStatusNote") ?? base.platformStatusNote, 220);
 
   if (!EMAIL_PATTERN.test(contactEmail)) return { ok: false, error: "Geçerli bir genel e-posta yazın." };
   if (contactPhone.length < 7) return { ok: false, error: "Telefon numarasını yazın." };
@@ -93,6 +98,8 @@ export function parseSiteSettings(payload = {}, current = {}) {
       showLiveStrip: switchValue(pick(payload, "showLiveStrip") ?? base.showLiveStrip),
       showTrustStrip: switchValue(pick(payload, "showTrustStrip") ?? base.showTrustStrip),
       maintenanceMode: switchValue(pick(payload, "maintenanceMode") ?? base.maintenanceMode, "off"),
+      platformStatus: PLATFORM_STATUSES.has(requestedStatus) ? requestedStatus : "operational",
+      platformStatusNote,
       tofyPopupEnabled: switchValue(pick(payload, "tofyPopupEnabled") ?? base.tofyPopupEnabled),
       tofyPopupTitle: clean(pick(payload, "tofyPopupTitle") ?? base.tofyPopupTitle, 60) || DEFAULT_TOFY_POPUP.title,
       tofyPopupText: clean(pick(payload, "tofyPopupText") ?? base.tofyPopupText, 240) || DEFAULT_TOFY_POPUP.text,
@@ -134,6 +141,8 @@ export function presentSiteSettings(raw) {
     showLiveStrip: isSettingOn(settings.showLiveStrip),
     showTrustStrip: isSettingOn(settings.showTrustStrip),
     maintenanceMode: isSettingOn(settings.maintenanceMode),
+    platformStatus: PLATFORM_STATUSES.has(settings.platformStatus) ? settings.platformStatus : "operational",
+    platformStatusNote: settings.platformStatusNote || "",
     tofyPopupEnabled: isSettingOn(settings.tofyPopupEnabled),
     tofyPopupTitle: settings.tofyPopupTitle || DEFAULT_TOFY_POPUP.title,
     tofyPopupText: settings.tofyPopupText || DEFAULT_TOFY_POPUP.text,
@@ -163,6 +172,19 @@ export async function loadRawSiteSettings() {
     return mergeSiteSettings(await db.select().from(siteSettings));
   } catch {
     return { ...DEFAULT_SITE_SETTINGS };
+  }
+}
+
+export async function loadPlatformStatusMeta() {
+  try {
+    const { getDb } = await import("../db");
+    const { siteSettings } = await import("../db/schema");
+    const { eq } = await import("drizzle-orm");
+    const db = getDb();
+    const [row] = await db.select().from(siteSettings).where(eq(siteSettings.key, "platformStatus")).limit(1);
+    return { updatedAt: row?.updatedAt || null };
+  } catch {
+    return { updatedAt: null };
   }
 }
 

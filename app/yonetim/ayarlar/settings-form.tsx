@@ -19,6 +19,8 @@ type SettingsFormValues = {
   logoEnabled: boolean;
   logoScale: "small" | "medium" | "large";
   maintenanceMode: boolean;
+  platformStatus: "operational" | "degraded" | "maintenance";
+  platformStatusNote: string;
   tofyPopupEnabled: boolean;
   tofyPopupTitle: string;
   tofyPopupText: string;
@@ -56,6 +58,8 @@ export function SettingsForm({ initial }: { initial: SettingsFormValues }) {
       logoEnabled: String(form.get("logoEnabled") ?? "off"),
       logoScale: String(form.get("logoScale") ?? "medium"),
       maintenanceMode: String(form.get("maintenanceMode") ?? "off"),
+      platformStatus: String(form.get("platformStatus") ?? "operational"),
+      platformStatusNote: String(form.get("platformStatusNote") ?? ""),
       tofyPopupEnabled: String(form.get("tofyPopupEnabled") ?? "off"),
       tofyPopupTitle: String(form.get("tofyPopupTitle") ?? ""),
       tofyPopupText: String(form.get("tofyPopupText") ?? ""),
@@ -134,6 +138,20 @@ export function SettingsForm({ initial }: { initial: SettingsFormValues }) {
           <option value="off">Site açık</option>
           <option value="on">Bakımda — yalnız yönetim açık</option>
         </select>
+      </label>
+
+      <p className="admin-record-wide">Sistem durumu. /sistem-durumu sayfasında ziyaretçilere gösterilir; kaydettiğiniz an gerçek "son güncelleme" damgası alır.</p>
+      <label>
+        <span>Genel durum</span>
+        <select name="platformStatus" defaultValue={initial.platformStatus}>
+          <option value="operational">Her şey çalışıyor</option>
+          <option value="degraded">Kısmi sorun yaşanıyor</option>
+          <option value="maintenance">Planlı bakımda</option>
+        </select>
+      </label>
+      <label className="admin-record-wide">
+        <span>Durum notu (opsiyonel)</span>
+        <textarea name="platformStatusNote" maxLength={220} defaultValue={initial.platformStatusNote} placeholder="Yalnız sorun veya bakım varsa doldurun; örn. “Ödeme sağlayıcısı ile bağlantıda gecikme yaşanıyor, inceleniyor.”" />
       </label>
 
       <p className="admin-record-wide">Genel tasarım. Yazı ve logo boyutu; Avcı renkleri / fontu değişmez. Yeni renk seçilmez.</p>

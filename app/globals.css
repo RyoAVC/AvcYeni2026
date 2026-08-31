@@ -5023,6 +5023,31 @@ body:has(.cookie-notice) .avcai-mascot { bottom: clamp(8.5rem, 26vw, 12rem); }
 .resource-guides h3 { margin: 75px 0 15px; font-size: 23px; letter-spacing: -.035em; }
 .resource-guides a p { margin: 0; color: var(--muted); font-size: 9px; line-height: 1.7; }
 .resource-guides a small { margin-top: auto; padding-top: 20px; color: #2a7258; font-size: 8px; font-weight: 800; }
+.changelog-hero { background: radial-gradient(circle at 76% 26%, #3a2f4c 0, #241a35 30%, #07131c 72%); }
+.status-hero { padding: 165px 5vw 70px; color: white; background: #07131c; }
+.status-hero h1 { max-width: 900px; margin: 22px 0 26px; font-size: var(--page-title); font-weight: 610; letter-spacing: -.07em; line-height: .95; }
+.status-badge { display: inline-flex; align-items: center; gap: 10px; padding: 11px 20px; border: 1px solid var(--line); border-radius: 999px; font-size: 12px; font-weight: 800; letter-spacing: -.01em; }
+.status-badge::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: currentColor; }
+.status-badge.operational { border-color: rgba(61,220,132,.35); color: #3ddc84; background: rgba(61,220,132,.1); }
+.status-badge.degraded { border-color: rgba(230,160,40,.4); color: #e6a028; background: rgba(230,160,40,.1); }
+.status-badge.maintenance { border-color: rgba(126,168,240,.4); color: #7ea8f0; background: rgba(126,168,240,.1); }
+.status-hero .status-meta { margin: 18px 0 0; color: rgba(255,255,255,.5); font-size: 11px; }
+.status-hero .status-note { max-width: 620px; margin: 22px 0 0; padding: 18px 20px; border: 1px solid rgba(255,255,255,.14); border-radius: 12px; color: rgba(255,255,255,.75); font-size: 12px; line-height: 1.7; background: rgba(255,255,255,.04); }
+.status-explain { display: grid; grid-template-columns: .68fr 1.32fr; gap: 75px; padding: 100px 5vw; background: white; }
+.status-explain h2 { margin: 23px 0; font-size: clamp(40px, 4.6vw, 62px); letter-spacing: -.055em; line-height: 1; }
+.status-explain > div:first-child > p { max-width: 480px; margin: 0; color: var(--muted); font-size: 11px; line-height: 1.8; }
+.status-explain ul { margin: 0; padding: 0; list-style: none; }
+.status-explain li { padding: 22px 0; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 11px; line-height: 1.75; }
+.status-explain li strong { display: block; margin-bottom: 6px; color: var(--ink); font-size: 13px; }
+.changelog-timeline { display: grid; grid-template-columns: .68fr 1.32fr; gap: 75px; padding: 100px 5vw; background: white; }
+.changelog-timeline > div:first-child { position: sticky; top: 45px; align-self: start; }
+.changelog-timeline h2 { margin: 23px 0; font-size: clamp(44px, 5vw, 74px); letter-spacing: -.055em; line-height: 1; }
+.changelog-timeline > div:first-child > p { max-width: 520px; margin: 0; color: var(--muted); font-size: 11px; line-height: 1.8; }
+.changelog-timeline ol { margin: 0; padding: 0; border-top: 1px solid var(--line); list-style: none; }
+.changelog-timeline li { display: grid; grid-template-columns: 42px 1fr; gap: 22px; padding: 27px 0; border-bottom: 1px solid var(--line); }
+.changelog-timeline li > span { color: #2a8060; font-size: 8px; }
+.changelog-timeline strong { font-size: 13px; }
+.changelog-timeline li p { margin: 9px 0 0; color: var(--muted); font-size: 10px; line-height: 1.7; }
 .faq-section { display: grid; grid-template-columns: .68fr 1.32fr; gap: 75px; padding: 100px 5vw; color: white; background: #07131c; }
 .faq-section > div:first-child { position: sticky; top: 45px; align-self: start; }
 .faq-section h2 { margin: 24px 0; font-size: clamp(44px, 5vw, 72px); letter-spacing: -.055em; line-height: 1; }
