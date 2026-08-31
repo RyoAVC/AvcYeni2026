@@ -55,13 +55,24 @@ export async function GET(request: Request) {
       version: license.lastSeenVersion || license.commerceVersion,
       lastSeenAt: license.lastSeenAt,
     }));
+    const stores=licenses.filter((license)=>Boolean(license.lastSeenAt)).map((license)=>({...license,health:healthOf(license.lastSeenAt,license.status)}));
+    const summary={
+      activeLicenses:licenses.filter((item)=>["active","trial"].includes(item.status)).length,
+      stores:stores.length,
+      healthyStores:stores.filter((item)=>item.health==="healthy").length,
+      warningStores:stores.filter((item)=>item.health==="warning").length,
+      offlineStores:stores.filter((item)=>item.health==="offline").length,
+      failedInstalls:jobRows.filter((item)=>item.status==="failed").length,
+      openTickets:ticketRows.filter((item)=>!["closed","resolved"].includes(item.status)).length,
+    };
     return controlDeskJson({
       ok: true,
-      format: "avci-control-desk.snapshot.v1",
+      format: "avci-control-desk.snapshot.v2",
       generatedAt: new Date().toISOString(),
+      summary,
       customers: customerRows,
       licenses,
-      stores: licenses.filter((license) => Boolean(license.lastSeenAt)).map((license) => ({ ...license, health: healthOf(license.lastSeenAt, license.status) })),
+      stores,
       installJobs: jobRows.map((job) => ({ id: job.id, jobId: job.jobId, customerId: job.customerId, domain: job.targetDomain, storeKey: job.storeKey, environment: job.environment, status: job.status, step: job.currentStep, safeSummary: job.safeSummary, createdAt: job.createdAt, completedAt: job.completedAt, lastSeenAt: job.updatedAt, events: eventsByJob.get(job.jobId) || [] })),
       supportTickets: ticketRows,
       viewer: { email: auth.email, displayName: auth.displayName, roles: auth.roles, customerId: auth.customerId || null },

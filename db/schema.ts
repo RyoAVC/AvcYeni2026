@@ -870,3 +870,53 @@ export const controlDeskSessions = sqliteTable(
     index("idx_control_desk_session_actor").on(table.actorEmail, table.revokedAt),
   ],
 );
+
+export const mobilePushDevices = sqliteTable(
+  "mobile_push_devices",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    customerId: integer("customer_id").notNull(),
+    sessionId: text("session_id").notNull(),
+    storeKey: text("store_key").notNull(),
+    deviceInstallationId: text("device_installation_id").notNull(),
+    platform: text("platform").notNull(),
+    provider: text("provider").notNull().default("expo"),
+    tokenHash: text("token_hash").notNull(),
+    tokenCiphertext: text("token_ciphertext").notNull(),
+    tokenNonce: text("token_nonce").notNull(),
+    appVersion: text("app_version").notNull().default(""),
+    permissionStatus: text("permission_status").notNull().default("granted"),
+    lastSeenAt: text("last_seen_at").notNull().default(""),
+    revokedAt: text("revoked_at").notNull().default(""),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    uniqueIndex("idx_mobile_push_device_installation").on(table.customerId, table.deviceInstallationId),
+    uniqueIndex("idx_mobile_push_token_hash").on(table.tokenHash),
+    index("idx_mobile_push_customer_store").on(table.customerId, table.storeKey, table.revokedAt),
+    index("idx_mobile_push_session").on(table.sessionId, table.revokedAt),
+  ],
+);
+
+export const mobilePushDeliveries = sqliteTable(
+  "mobile_push_deliveries",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    customerId: integer("customer_id").notNull(),
+    storeKey: text("store_key").notNull().default(""),
+    deviceId: integer("device_id").notNull(),
+    requestedBy: text("requested_by").notNull().default(""),
+    title: text("title").notNull(),
+    status: text("status").notNull().default("queued"),
+    providerTicketId: text("provider_ticket_id").notNull().default(""),
+    errorCode: text("error_code").notNull().default(""),
+    errorMessage: text("error_message").notNull().default(""),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    index("idx_mobile_push_delivery_customer").on(table.customerId, table.createdAt),
+    index("idx_mobile_push_delivery_device").on(table.deviceId, table.createdAt),
+  ],
+);

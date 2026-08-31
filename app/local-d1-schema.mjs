@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { isLocalAdminBypassEnabled } from "./local-admin-identity.mjs";
 import { isCustomerPortalPreviewEnabled } from "./customer-portal-preview.mjs";
 
-const SCHEMA_GEN = 38;
+const SCHEMA_GEN = 39;
 let appliedGen = 0;
 let pending = null;
 
@@ -959,6 +959,12 @@ export async function ensureCommerceLicenseTables(env) {
     `CREATE UNIQUE INDEX IF NOT EXISTS idx_control_desk_access_hash ON control_desk_sessions (access_token_hash)`,
     `CREATE UNIQUE INDEX IF NOT EXISTS idx_control_desk_refresh_hash ON control_desk_sessions (refresh_token_hash)`,
     `CREATE INDEX IF NOT EXISTS idx_control_desk_session_actor ON control_desk_sessions (actor_email, revoked_at)`,
+    `CREATE TABLE IF NOT EXISTS mobile_push_devices (id integer PRIMARY KEY AUTOINCREMENT NOT NULL, customer_id integer NOT NULL, session_id text NOT NULL, store_key text NOT NULL, device_installation_id text NOT NULL, platform text NOT NULL, provider text DEFAULT 'expo' NOT NULL, token_hash text NOT NULL, token_ciphertext text NOT NULL, token_nonce text NOT NULL, app_version text DEFAULT '' NOT NULL, permission_status text DEFAULT 'granted' NOT NULL, last_seen_at text DEFAULT '' NOT NULL, revoked_at text DEFAULT '' NOT NULL, created_at text DEFAULT CURRENT_TIMESTAMP NOT NULL, updated_at text DEFAULT CURRENT_TIMESTAMP NOT NULL, UNIQUE(customer_id,device_installation_id), UNIQUE(token_hash))`,
+    `CREATE INDEX IF NOT EXISTS idx_mobile_push_customer_store ON mobile_push_devices (customer_id,store_key,revoked_at)`,
+    `CREATE INDEX IF NOT EXISTS idx_mobile_push_session ON mobile_push_devices (session_id,revoked_at)`,
+    `CREATE TABLE IF NOT EXISTS mobile_push_deliveries (id integer PRIMARY KEY AUTOINCREMENT NOT NULL, customer_id integer NOT NULL, store_key text DEFAULT '' NOT NULL, device_id integer NOT NULL, requested_by text DEFAULT '' NOT NULL, title text NOT NULL, status text DEFAULT 'queued' NOT NULL, provider_ticket_id text DEFAULT '' NOT NULL, error_code text DEFAULT '' NOT NULL, error_message text DEFAULT '' NOT NULL, created_at text DEFAULT CURRENT_TIMESTAMP NOT NULL, updated_at text DEFAULT CURRENT_TIMESTAMP NOT NULL)`,
+    `CREATE INDEX IF NOT EXISTS idx_mobile_push_delivery_customer ON mobile_push_deliveries (customer_id,created_at)`,
+    `CREATE INDEX IF NOT EXISTS idx_mobile_push_delivery_device ON mobile_push_deliveries (device_id,created_at)`,
   ];
   for (const statement of statements) await binding.prepare(statement).run();
   const columns = new Set(((await binding.prepare("PRAGMA table_info(commerce_license_installations)").all()).results || []).map((item) => item.name));
