@@ -1,0 +1,101 @@
+.customer-detail-page {
+  overflow: hidden;
+}
+
+.customer-detail-heading {
+  display: grid;
+  grid-template-columns: minmax(260px, .72fr) minmax(520px, 1.28fr);
+  align-items: end;
+  gap: clamp(24px, 4vw, 64px);
+}
+
+.customer-detail-identity,
+.customer-detail-actions {
+  min-width: 0;
+}
+
+.customer-detail-actions {
+  width: 100%;
+  max-width: 760px;
+  justify-self: end;
+  justify-items: stretch;
+  gap: 12px;
+}
+
+.customer-detail-actions > p {
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+
+.customer-detail-action-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.customer-detail-actions .customer-detail-action-list > a {
+  min-height: 37px;
+  padding: 9px 13px;
+  border: 1px solid var(--admin-border);
+  border-radius: 10px;
+  color: var(--admin-text-main);
+  background: var(--admin-surface);
+  box-shadow: 0 5px 16px color-mix(in srgb, var(--ink) 5%, transparent);
+  white-space: nowrap;
+}
+
+.customer-detail-actions .customer-detail-action-list > a:hover {
+  border-color: color-mix(in srgb, var(--mint) 58%, var(--admin-border));
+  color: var(--admin-text-main);
+  background: color-mix(in srgb, var(--mint) 10%, var(--admin-surface));
+}
+
+.customer-detail-actions .customer-detail-action-list > a.is-primary {
+  border-color: var(--mint);
+  color: var(--ink);
+  background: var(--mint);
+}
+
+@media (max-width: 1180px) {
+  .customer-detail-heading {
+    grid-template-columns: minmax(220px, .65fr) minmax(0, 1.35fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .customer-detail-heading {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .customer-detail-actions {
+    max-width: none;
+    justify-self: stretch;
+  }
+
+  .customer-detail-actions > p {
+    text-align: left;
+  }
+
+  .customer-detail-action-list {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 520px) {
+  .customer-detail-action-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .customer-detail-actions .customer-detail-action-list > a {
+    justify-content: center;
+    white-space: normal;
+    text-align: center;
+  }
+
+  .customer-detail-actions .customer-detail-action-list > a.is-primary {
+    grid-column: 1 / -1;
+  }
+}

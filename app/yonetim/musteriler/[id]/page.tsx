@@ -9,6 +9,7 @@ import { leadStatusLabel } from "../../../lead-statuses";
 import { AdminShell } from "../../admin-shell";
 import { CustomerForm } from "../customer-form";
 import { CustomerRelated } from "../customer-related";
+import "./customer-detail.css";
 
 export const dynamic = "force-dynamic";
 
@@ -76,24 +77,26 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
 
   return (
     <AdminShell current="musteriler" displayName={admin.user.displayName}>
-      <section className="admin-main">
-        <header className="admin-heading">
-          <div>
+      <section className="admin-main customer-detail-page">
+        <header className="admin-heading customer-detail-heading">
+          <div className="customer-detail-identity">
             <span className="kicker">MÜŞTERİ #{customer.id}</span>
             <h1>{customer.name}</h1>
             <Link className="admin-back-link" href="/yonetim/musteriler">Listeye dön</Link>
           </div>
-          <div className="admin-heading-actions">
+          <div className="admin-heading-actions customer-detail-actions">
             <p>{customer.company || "Firma belirtilmedi"} · {customer.email}</p>
-            <a href={`tel:${customer.phone.replace(/\s/g, "")}`}>Telefonla ara</a>
-            {matchedLead ? <Link href={`/yonetim/basvurular/${matchedLead.id}`}>Teklif · {leadStatusLabel(matchedLead.status)}</Link> : null}
-            <Link href={`/yonetim/siparisler?musteri=${customer.id}`}>Siparişler</Link>
-            <Link href={`/yonetim/siparisler/yeni?musteri=${customer.id}`}>Sipariş ekle</Link>
-            <Link href={`/yonetim/faturalar?musteri=${customer.id}`}>Faturalar</Link>
-            <Link href={`/yonetim/faturalar/yeni?musteri=${customer.id}`}>Fatura ekle</Link>
-            <Link href={`/yonetim/destek?musteri=${customer.id}`}>Destek</Link>
-            <Link href={`/yonetim/destek/yeni?musteri=${customer.id}`}>Destek ekle</Link>
-            <Link href={`/yonetim/musteriler/${customer.id}/portal`}>Portal ürünleşme</Link>
+            <nav className="customer-detail-action-list" aria-label="Müşteri işlemleri">
+              <a href={`tel:${customer.phone.replace(/\s/g, "")}`}>Telefonla ara</a>
+              {matchedLead ? <Link href={`/yonetim/basvurular/${matchedLead.id}`}>Teklif · {leadStatusLabel(matchedLead.status)}</Link> : null}
+              <Link href={`/yonetim/siparisler?musteri=${customer.id}`}>Siparişler</Link>
+              <Link href={`/yonetim/siparisler/yeni?musteri=${customer.id}`}>Sipariş ekle</Link>
+              <Link href={`/yonetim/faturalar?musteri=${customer.id}`}>Faturalar</Link>
+              <Link href={`/yonetim/faturalar/yeni?musteri=${customer.id}`}>Fatura ekle</Link>
+              <Link href={`/yonetim/destek?musteri=${customer.id}`}>Destek</Link>
+              <Link href={`/yonetim/destek/yeni?musteri=${customer.id}`}>Destek ekle</Link>
+              <Link className="is-primary" href={`/yonetim/musteriler/${customer.id}/portal`}>Portal ürünleşme</Link>
+            </nav>
           </div>
         </header>
         <CustomerForm
