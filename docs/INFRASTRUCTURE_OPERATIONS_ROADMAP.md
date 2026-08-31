@@ -21,6 +21,18 @@ Hostinger envanteri, lisanslı Commerce mağazaları ve Control Desk'i tek bir m
 - Eşleşmeyen veya birden fazla müşteriye ait görünen domain otomatik atanmaz; güvenli inceleme listesine alınır.
 - VPS kaynakları domain üzerinden tahmin edilmez; yalnız açıkça verilen müşteri kapsamıyla içeri alınır.
 
+## Mobil bildirim cihaz kaydı
+
+- `/api/v1/control-desk/devices` yalnız OAuth müşteri oturumuyla çalışır.
+- `/api/v1/control-desk/push-notifications` yalnız `platform_owner` rolüyle müşteri/mağaza kapsamlı gönderim yapar; destek rolü yalnız teslim kayıtlarını okuyabilir.
+- Tokenlar AES-GCM kasasından yalnız gönderim anında sunucu belleğine alınır. Control Desk, müşteri paneli ve denetim yanıtları token değerini hiçbir zaman içermez.
+- Expo teslim bileti cihaz bazında `mobile_push_deliveries` tablosuna yazılır; sağlayıcı reddi başarılı gönderim gibi raporlanmaz.
+- Cihaz kaydı aktif/deneme lisansındaki `store_key` ile sınırlandırılır.
+- Expo push tokenı düz metin saklanmaz; AES-GCM ile şifrelenir ve SHA-256 özetiyle tekilleştirilir.
+- `MOBILE_PUSH_ENCRYPTION_KEY` en az 32 karakter olmalı ve yalnız runtime secret olarak tutulmalıdır.
+- Müşteri API yanıtı cihaz ve izin durumunu gösterir; token, şifreli değer ve nonce hiçbir yanıta çıkmaz.
+- Oturum bazlı iptal, başka bir oturumun cihaz kaydını kapatamaz.
+
 ## Değişmez kurallar
 
 - Her monitör ve olay `customer_id` kapsamındadır.
