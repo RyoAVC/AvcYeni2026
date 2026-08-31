@@ -1,0 +1,35 @@
+name: Migration durumu (salt okunur, geçici)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.V1_DEPLOY_KEY }}
+
+      - name: Sunucuyu tanı
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          for attempt in 1 2 3 4 5; do
+            if ssh-keyscan -T 10 -H 186.240.158.199 >> ~/.ssh/known_hosts; then break; fi
+            sleep $((attempt * 2))
+          done
+          test -s ~/.ssh/known_hosts
+
+      - name: Uygulanmış migration listesi (yalnız SELECT, hiçbir yazma yok)
+        run: |
+          ssh root@186.240.158.199 'set -euo pipefail
+            for label_db in "v1:/home/avccom/yeni/data/avci-v1.sqlite" "v2:/home/avccom/yeni/data/avci-v2.sqlite"; do
+              label="${label_db%%:*}"; db="${label_db#*:}"
+              echo "=== ${label} (${db}) ==="
+              if [ ! -f "$db" ]; then echo "dosya yok"; continue; fi
+              sqlite3 "$db" "SELECT name FROM __avci_migrations ORDER BY name;" 2>&1 || echo "sorgu basarisiz (tablo yok olabilir)"
+            done'
