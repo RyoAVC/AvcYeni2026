@@ -686,6 +686,42 @@ test("renders the finished platform landing page", async () => {
   assert.equal(previewPortalResponse.status, 404);
   assert.equal(previewPortalResponse.headers.get("x-robots-tag"), "noindex, nofollow, noarchive");
 
+  const previewAdminOffResponse = await worker.fetch(
+    new Request("https://localhost/onizleme/yonetim-k7m2x9"),
+    runtimeEnv,
+    runtimeContext,
+  );
+  assert.equal(previewAdminOffResponse.status, 404);
+  assert.equal(previewAdminOffResponse.headers.get("x-robots-tag"), "noindex, nofollow, noarchive");
+
+  const previewAdminOnResponse = await worker.fetch(
+    new Request("https://localhost/onizleme/yonetim-k7m2x9"),
+    {
+      ...runtimeEnv,
+      ADMIN_PANEL_LOCAL_PREVIEW: "1",
+      ADMIN_LOGIN_EMAIL: "gercek-admin@example.com",
+      ADMIN_LOGIN_PASSWORD: "x".repeat(12),
+      ADMIN_SESSION_SECRET: "x".repeat(32),
+    },
+    runtimeContext,
+  );
+  assert.equal(previewAdminOnResponse.status, 303);
+  assert.equal(previewAdminOnResponse.headers.get("location"), "https://localhost/yonetim");
+  assert.match(previewAdminOnResponse.headers.get("set-cookie") ?? "", /avci_admin=.+HttpOnly/);
+
+  const previewAdminOnPublicHostResponse = await worker.fetch(
+    new Request("https://avcieticaret.com/onizleme/yonetim-k7m2x9"),
+    {
+      ...runtimeEnv,
+      ADMIN_PANEL_LOCAL_PREVIEW: "1",
+      ADMIN_LOGIN_EMAIL: "gercek-admin@example.com",
+      ADMIN_LOGIN_PASSWORD: "x".repeat(12),
+      ADMIN_SESSION_SECRET: "x".repeat(32),
+    },
+    runtimeContext,
+  );
+  assert.equal(previewAdminOnPublicHostResponse.status, 404);
+
   const portalPostResponse = await worker.fetch(
     new Request("https://localhost/musteri-portali", { method: "POST" }),
     runtimeEnv,
@@ -850,6 +886,7 @@ test("renders the finished platform landing page", async () => {
   assert.match(robotsText, /Disallow: \/musteri-portali/);
   assert.match(robotsText, /Disallow: \/musteri-panel/);
   assert.match(robotsText, /Disallow: \/onizleme\/musteri-portali-k7m2x9/);
+  assert.match(robotsText, /Disallow: \/onizleme\/yonetim-k7m2x9/);
   assert.match(robotsText, /Disallow: \/signin-with-chatgpt/);
   assert.match(robotsText, /Disallow: \/signout-with-chatgpt/);
   assert.match(robotsText, /Disallow: \/callback/);

@@ -15,6 +15,7 @@ export default function robots(): MetadataRoute.Robots {
         "/musteri-panel",
         "/musteri-panel/",
         "/onizleme/musteri-portali-k7m2x9",
+        "/onizleme/yonetim-k7m2x9",
         "/demo-portal",
         "/signin-with-chatgpt",
         "/signout-with-chatgpt",

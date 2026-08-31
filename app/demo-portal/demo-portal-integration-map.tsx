@@ -4,7 +4,7 @@ import styles from "./demo-portal-integration-map.module.css";
 export type PortalIntegration = {
   id: string;
   name: string;
-  category: "Pazaryeri" | "Ödeme" | "Kargo" | "Yapay zekâ";
+  category: string;
   status: "active" | "setup" | "attention";
   statusLabel: string;
   detail: string;
@@ -69,7 +69,13 @@ const demoIntegrations: PortalIntegration[] = [
 
 const statusWeight = { active: 100, setup: 64, attention: 28 } as const;
 
-export function DemoPortalIntegrationMap({ integrations = demoIntegrations }: { integrations?: PortalIntegration[] }) {
+export function DemoPortalIntegrationMap({
+  integrations = demoIntegrations,
+  mode = "demo",
+}: {
+  integrations?: PortalIntegration[];
+  mode?: "demo" | "customer";
+}) {
   const connected = integrations.filter((item) => item.status === "active").length;
   const setup = integrations.filter((item) => item.status === "setup").length;
   const attention = integrations.filter((item) => item.status === "attention").length;
@@ -83,7 +89,11 @@ export function DemoPortalIntegrationMap({ integrations = demoIntegrations }: { 
         <div>
           <span className={styles.eyebrow}>ENTEGRASYON KONTROL MERKEZİ</span>
           <h3 id="integration-map-title">Ticaret ağınız tek görünümde</h3>
-          <p>Pazaryeri, ödeme, kargo ve Tofy bağlantılarının salt okunur demo durum haritası.</p>
+          <p>
+            {mode === "demo"
+              ? "Pazaryeri, ödeme, kargo ve Tofy bağlantılarının salt okunur demo durum haritası."
+              : "Pazaryeri, ödeme, kargo ve Tofy bağlantılarınızın salt okunur durum haritası."}
+          </p>
         </div>
         <div className={styles.health} aria-label={`Entegrasyon sağlığı yüzde ${health}`}>
           <span>{health}</span>
@@ -133,7 +143,17 @@ export function DemoPortalIntegrationMap({ integrations = demoIntegrations }: { 
       </div>
 
       <footer className={styles.footer}>
-        <div><span aria-hidden="true">◎</span><p><strong>Sıradaki odak</strong>Pazaryeri kurulum adımlarını tamamlayarak stok akışını canlıya hazırlayın.</p></div>
+        <div>
+          <span aria-hidden="true">◎</span>
+          <p>
+            <strong>Sıradaki odak</strong>
+            {mode === "demo"
+              ? "Pazaryeri kurulum adımlarını tamamlayarak stok akışını canlıya hazırlayın."
+              : integrations.find((item) => item.status !== "active")
+                ? `${integrations.find((item) => item.status !== "active")?.name} bağlantısını tamamlayın.`
+                : "Tüm bağlantılarınız güncel."}
+          </p>
+        </div>
         <a href="#sonraki">Aksiyon planına git <span aria-hidden="true">→</span></a>
       </footer>
     </section>

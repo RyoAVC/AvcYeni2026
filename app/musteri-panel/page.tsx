@@ -15,6 +15,23 @@ import {
 import { PortalTofyPerformanceCenter } from "../demo-portal/portal-tofy-performance-center";
 import { DemoPortalCustomerBrand } from "../demo-portal/demo-portal-customer-brand";
 import type { DemoPortalBrand } from "../demo-portal/demo-portal-brand";
+import { DemoPortalIntegrationMap, type PortalIntegration } from "../demo-portal/demo-portal-integration-map";
+import { PortalServiceHealthCenter } from "../demo-portal/portal-service-health";
+
+const INTEGRATION_STATUS_TONE: Record<string, PortalIntegration["status"]> = {
+  active: "active",
+  setup: "setup",
+  planned: "attention",
+  paused: "attention",
+  expired: "attention",
+};
+const INTEGRATION_STATUS_LABEL: Record<string, string> = {
+  active: "Bağlı",
+  setup: "Kurulumda",
+  planned: "Planlandı",
+  paused: "Duraklatıldı",
+  expired: "Süresi doldu",
+};
 
 export const dynamic = "force-dynamic";
 
@@ -209,7 +226,7 @@ export default async function CustomerPortalPage() {
               <DemoPortalPanel as="article" className="cp-card cp-panel-card" id="operasyon">
                 <div className="cp-card-head"><span className="kicker">SERVİS SAĞLIĞI</span><b className={`cp-pill ${snapshot.serviceHealth.tone === "healthy" ? "is-live" : ""}`}>{snapshot.serviceHealth.label}</b></div>
                 <h2>Operasyon ve SLA görünümü</h2>
-                <div className="cp-stats"><article><small>Sağlık puanı</small><strong>{snapshot.serviceHealth.score ?? "—"}</strong><span>{snapshot.serviceHealth.score === null ? "ölçüm verisi yok" : "100 üzerinden"}</span></article><article><small>Açık destek</small><strong>{snapshot.serviceHealth.openTickets}</strong><span>{snapshot.serviceHealth.criticalTickets} kritik</span></article><article><small>İlk yanıt</small><strong>{snapshot.serviceHealth.firstResponseMinutes === null ? "—" : `${snapshot.serviceHealth.firstResponseMinutes} dk`}</strong><span>{snapshot.serviceHealth.firstResponseMinutes === null ? "ölçüm verisi yok" : "son snapshot"}</span></article></div>
+                <PortalServiceHealthCenter health={snapshot.serviceHealth} />
               </DemoPortalPanel>
 
               <DemoPortalPanel as="article" className="cp-card cp-ops-checklist cp-panel-card" id="altyapi">
@@ -273,7 +290,27 @@ export default async function CustomerPortalPage() {
                   Müşteriye atanmış modül ve entegrasyon kapsamı burada listelenir; gizli anahtarlar hiçbir zaman panele gönderilmez.
                 </p>
                 {snapshot.moduleInstances.length ? <ul className="cp-module-list">{snapshot.moduleInstances.map((item) => <li key={item.id}><div><strong>{item.name}</strong><span>{item.coverage || "Kapsam notu yok"}</span></div><b className="cp-pill">{item.status}</b></li>)}</ul> : <p className="cp-card-lead cp-empty-note">Müşteriye atanmış modül bulunmuyor.</p>}
-                {snapshot.integrationInstances.length ? <ul className="cp-module-list">{snapshot.integrationInstances.map((item) => <li key={item.id}><div><strong>{item.name}</strong><span>{item.lastSyncAt ? `Son senkron: ${item.lastSyncAt}` : "Henüz başarılı senkron yok"}</span></div><b className="cp-pill">{item.status} · %{item.setupProgress}</b></li>)}</ul> : <p className="cp-card-lead cp-empty-note">Müşteriye atanmış entegrasyon bulunmuyor.</p>}
+                {snapshot.integrationInstances.length ? (
+                  <DemoPortalIntegrationMap
+                    mode="customer"
+                    integrations={snapshot.integrationInstances.map((item): PortalIntegration => ({
+                      id: String(item.id),
+                      name: item.name,
+                      category: item.category,
+                      status: INTEGRATION_STATUS_TONE[item.status] ?? "attention",
+                      statusLabel: INTEGRATION_STATUS_LABEL[item.status] ?? item.status,
+                      detail: item.publicMetadata?.scope || item.category,
+                      signal: item.lastErrorSummary
+                        ? item.lastErrorSummary
+                        : item.lastSyncAt
+                          ? `Son senkron: ${item.lastSyncAt}`
+                          : `%${item.setupProgress} tamamlandı`,
+                      progress: item.status === "setup" ? item.setupProgress : undefined,
+                    }))}
+                  />
+                ) : (
+                  <p className="cp-card-lead cp-empty-note">Müşteriye atanmış entegrasyon bulunmuyor.</p>
+                )}
                 {snapshot.upgradeOpportunities.length ? <div className="cp-upgrade-scope"><span className="kicker">KAPSAM GÖRÜNÜMÜ</span><p>{snapshot.upgradeOpportunities.slice(0, 3).map((item) => item.name).join(" · ")} mevcut lisans kapsamına atanmadı.</p></div> : null}
               </DemoPortalPanel>
 
