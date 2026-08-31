@@ -13,6 +13,10 @@ type PackageFormValues = {
   summary: string;
   features: string;
   priceNote: string;
+  salesType?: string;
+  priceAmountKurus?: number;
+  priceIncludesVat?: boolean;
+  licenseDurationDays?: number;
   sortOrder: number;
   status: string;
   expectedUpdatedAt?: string;
@@ -45,6 +49,10 @@ export function PackageForm({
       summary: String(form.get("summary") ?? ""),
       features: String(form.get("features") ?? ""),
       priceNote: String(form.get("priceNote") ?? ""),
+      salesType: String(form.get("salesType") ?? "teklif"),
+      priceAmountKurus: String(form.get("priceAmountKurus") ?? "0"),
+      priceIncludesVat: form.get("priceIncludesVat") === "true",
+      licenseDurationDays: String(form.get("licenseDurationDays") ?? "0"),
       sortOrder: String(form.get("sortOrder") ?? "0"),
       status: String(form.get("status") ?? "draft"),
       expectedUpdatedAt: initial?.expectedUpdatedAt,
@@ -105,6 +113,31 @@ export function PackageForm({
         <span>Fiyat notu</span>
         <input name="priceNote" type="text" maxLength={160} defaultValue={initial?.priceNote ?? ""} placeholder="Kesin tutar teklifle belirlenir" />
       </label>
+      <label>
+        <span>Satış tipi</span>
+        <select name="salesType" defaultValue={initial?.salesType ?? "teklif"}>
+          <option value="teklif">Teklif / manuel işlem</option>
+          <option value="otomatik">Otomatik satın alma (yalnız test)</option>
+        </select>
+      </label>
+      <label>
+        <span>Sayısal fiyat (kuruş)</span>
+        <input name="priceAmountKurus" type="number" required min={0} max={1000000000} step={1} defaultValue={initial?.priceAmountKurus ?? 0} />
+        <small>100 kuruş = 1 TL. Fiyat notu tahsilat için kullanılmaz.</small>
+      </label>
+      <label>
+        <span>Fiyatın KDV durumu</span>
+        <select name="priceIncludesVat" defaultValue={String(initial?.priceIncludesVat ?? true)}>
+          <option value="true">KDV dahil nihai tutar</option>
+          <option value="false">KDV hariç (otomatik ödeme kapalı)</option>
+        </select>
+      </label>
+      <label>
+        <span>Lisans süresi (gün)</span>
+        <input name="licenseDurationDays" type="number" required min={0} max={36500} step={1} defaultValue={initial?.licenseDurationDays ?? 0} />
+        <small>0: henüz belirlenmedi. Otomatik ödeme için pozitif süre ve KDV dahil tutar gerekir.</small>
+      </label>
+      <p className="admin-record-wide">Start / Scale başlangıç tutarları geçici örnek fiyatlardır. Gerçek tutarı ve süreyi burada güncelleyin. Bu form canlı ödemeyi açmaz.</p>
       <label className="admin-record-wide">
         <span>Kısa özet</span>
         <input name="summary" type="text" maxLength={280} defaultValue={initial?.summary ?? ""} />

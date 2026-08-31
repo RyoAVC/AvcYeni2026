@@ -177,6 +177,13 @@ async function ensurePackagesTable(db) {
   await addColumnIfMissing(db, "ALTER TABLE packages ADD COLUMN entrypoint text DEFAULT '' NOT NULL");
   await addColumnIfMissing(db, "ALTER TABLE packages ADD COLUMN manifest_json text DEFAULT '{}' NOT NULL");
   await addColumnIfMissing(db, "ALTER TABLE packages ADD COLUMN install_status text DEFAULT 'not_installed' NOT NULL");
+  const commercialColumns = await db.prepare("PRAGMA table_info(packages)").all();
+  const needsCommercialDefaults = !commercialColumns.results.some((column) => column.name === "sales_type");
+  await addColumnIfMissing(db, "ALTER TABLE packages ADD COLUMN sales_type text DEFAULT 'teklif' NOT NULL");
+  await addColumnIfMissing(db, "ALTER TABLE packages ADD COLUMN price_amount_kurus integer DEFAULT 0 NOT NULL");
+  await addColumnIfMissing(db, "ALTER TABLE packages ADD COLUMN price_includes_vat integer DEFAULT 1 NOT NULL");
+  await addColumnIfMissing(db, "ALTER TABLE packages ADD COLUMN license_duration_days integer DEFAULT 0 NOT NULL");
+  if (needsCommercialDefaults) await db.prepare("UPDATE packages SET sales_type = 'otomatik', price_amount_kurus = CASE slug WHEN 'start' THEN 4999900 WHEN 'scale' THEN 7499900 END WHERE slug IN ('start','scale')").run();
 
   const countRow = await db.prepare("SELECT COUNT(*) AS total FROM packages").first();
   if (Number(countRow?.total ?? 0) > 0) return;
@@ -214,8 +221,8 @@ async function ensurePackagesTable(db) {
 
   for (const seed of seeds) {
     await db.prepare(`
-      INSERT INTO packages (name, slug, family, summary, features, price_note, sort_order, status, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, 'live', ?, ?)
+      INSERT INTO packages (name, slug, family, summary, features, price_note, sort_order, status, created_at, updated_at, sales_type, price_amount_kurus)
+      VALUES (?, ?, ?, ?, ?, ?, ?, 'live', ?, ?, ?, ?)
     `).bind(
       seed.name,
       seed.slug,
@@ -226,6 +233,8 @@ async function ensurePackagesTable(db) {
       seed.sortOrder,
       now,
       now,
+      ["start", "scale"].includes(seed.slug) ? "otomatik" : "teklif",
+      seed.slug === "start" ? 4999900 : seed.slug === "scale" ? 7499900 : 0,
     ).run();
   }
 }

@@ -65,6 +65,24 @@ export function parsePackageRecord(payload = {}) {
   if (name.length < 2) return { ok: false, error: "Paket adını yazın." };
   if (!slug) return { ok: false, error: "Paket için kısa kod (slug) yazın." };
 
+  // Omitted commercial fields stay omitted for older API clients (PATCH must not reset them).
+  const terms = {};
+  if (payload.salesType !== undefined) {
+    if (!["otomatik", "teklif"].includes(payload.salesType)) return { ok: false, error: "Geçersiz satış tipi." };
+    terms.salesType = payload.salesType;
+  }
+  for (const [key, max, label] of [["priceAmountKurus", 1000000000, "Kuruş tutarı"], ["licenseDurationDays", 36500, "Lisans süresi"]]) {
+    if (payload[key] === undefined) continue;
+    if (!/^(0|[1-9]\d*)$/.test(String(payload[key])) || !Number.isSafeInteger(Number(payload[key])) || Number(payload[key]) > max) {
+      return { ok: false, error: `${label} sıfır veya izin verilen aralıkta bir tam sayı olmalı.` };
+    }
+    terms[key] = Number(payload[key]);
+  }
+  if (payload.priceIncludesVat !== undefined) {
+    if (typeof payload.priceIncludesVat !== "boolean") return { ok: false, error: "KDV tercihi geçersiz." };
+    terms.priceIncludesVat = payload.priceIncludesVat;
+  }
+
   return {
     ok: true,
     value: {
@@ -74,6 +92,7 @@ export function parsePackageRecord(payload = {}) {
       summary,
       features,
       priceNote,
+      ...terms,
       sortOrder: Number.isSafeInteger(sortOrder) ? Math.max(0, Math.min(sortOrder, 999)) : 0,
       status,
     },
