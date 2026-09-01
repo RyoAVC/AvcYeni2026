@@ -10,3 +10,9 @@ test("kurulum ajan adresi geçerli route base path önekini korur", () => {
   assert.match(source, /agentEndpoint: `\$\{center\}\/api\/v1\/commerce\/install-agent\/jobs`/);
   assert.doesNotMatch(source, /const center = new URL\(request\.url\)\.origin/);
 });
+test("süresi dolmuş enrollment işi yeni kurulumu kalıcı olarak engellemez", () => {
+  assert.match(source, /currentStep === "enrollment"/);
+  assert.match(source, /Date\.parse\(job\.enrollmentExpiresAt\) <= now\.getTime\(\)/);
+  assert.match(source, /currentStep:"enrollment_expired"/);
+  assert.match(source, /safeCode:"enrollment_expired"/);
+});

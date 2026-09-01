@@ -31,11 +31,18 @@ export async function POST(request: Request) {
     const [license] = await db.select().from(commerceLicenseInstallations).where(and(eq(commerceLicenseInstallations.id, licenseId), inArray(commerceLicenseInstallations.status, ["active", "trial"]))).limit(1);
     if (!license || normalizeCommerceDomain(license.primaryDomain) !== domain) return controlDeskJson({ ok: false, error: "Lisans hedef domain ile eşleşmiyor." }, 403);
     if (Number(auth.customerId||0) > 0 && license.customerId !== Number(auth.customerId)) return controlDeskJson({ ok:false,error:"Bu lisans başka bir müşteriye aittir." },403,request);
-    const active = await db.select({ id: commerceInstallJobs.id }).from(commerceInstallJobs).where(and(eq(commerceInstallJobs.licenseId, licenseId), inArray(commerceInstallJobs.status, ["queued", "running", "ready"]))).limit(1);
-    if (active[0]) return controlDeskJson({ ok: false, error: "Bu kurulum için zaten açık bir iş var." }, 409);
+    const now = new Date();
+    const activeRows = await db.select({ id: commerceInstallJobs.id, jobId: commerceInstallJobs.jobId, status: commerceInstallJobs.status, currentStep: commerceInstallJobs.currentStep, enrollmentExpiresAt: commerceInstallJobs.enrollmentExpiresAt }).from(commerceInstallJobs).where(and(eq(commerceInstallJobs.licenseId, licenseId), inArray(commerceInstallJobs.status, ["queued", "running", "ready"]))).limit(20);
+    for (const job of activeRows) {
+      const expiredEnrollment = job.status === "queued" && job.currentStep === "enrollment" && Date.parse(job.enrollmentExpiresAt) <= now.getTime();
+      if (!expiredEnrollment) continue;
+      await db.update(commerceInstallJobs).set({ status:"failed", currentStep:"enrollment_expired", updatedAt:now.toISOString() }).where(eq(commerceInstallJobs.id, job.id));
+      await db.insert(commerceInstallJobEvents).values({ jobId:job.jobId, status:"failed", step:"enrollment_expired", safeCode:"enrollment_expired", createdAt:now.toISOString() });
+    }
+    const blocking = activeRows.some((job) => !(job.status === "queued" && job.currentStep === "enrollment" && Date.parse(job.enrollmentExpiresAt) <= now.getTime()));
+    if (blocking) return controlDeskJson({ ok: false, error: "Bu kurulum için zaten açık bir iş var." }, 409);
     const enrollmentToken = randomToken("aci_enroll_");
     const jobId = `install-${crypto.randomUUID()}`;
-    const now = new Date();
     const expiresAt = new Date(now.getTime() + 30 * 60 * 1000).toISOString();
     await db.insert(commerceInstallJobs).values({
       jobId, licenseId, customerId: license.customerId, storeKey: license.storeKey,
