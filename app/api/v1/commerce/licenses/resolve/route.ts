@@ -9,6 +9,7 @@ const PRODUCT = "avci-commerce";
 const RATE_WINDOW_MS = 15 * 60 * 1000;
 const RATE_LIMIT = 20;
 const noStore = { "Cache-Control": "no-store", "Content-Type": "application/json; charset=utf-8" };
+const commerceDateAtom = (value: Date) => value.toISOString().replace(/\.\d{3}Z$/, "+00:00");
 const respond = (value: Record<string, unknown>, status = 200, extra: Record<string, string> = {}) => new Response(JSON.stringify(value), { status, headers: { ...noStore, ...extra } });
 const ipOf = (request: Request) => String(request.headers.get("cf-connecting-ip") || request.headers.get("x-forwarded-for") || "").split(",", 1)[0].trim().slice(0, 80);
 
@@ -77,7 +78,7 @@ export async function POST(request: Request) {
       return respond({ ok: false, code: "license_denied" }, 403);
     }
     const now = new Date();
-    const issuedAt = now.toISOString();
+    const issuedAt = commerceDateAtom(now);
     const validUntil = new Date(installation.validUntil);
     if (!Number.isFinite(validUntil.getTime()) || validUntil <= now) {
       await db.insert(commerceLicenseVerificationEvents).values({ licenseId: installation.id, customerId: installation.customerId, requestHash, ipAddress: ipOf(request), outcome: "expired" });
@@ -85,12 +86,13 @@ export async function POST(request: Request) {
     }
     const modules = JSON.parse(installation.scopesJson || "[]");
     const limits = JSON.parse(installation.limitsJson || "{}");
-    const entitlement = { product, customer_id: installation.customerId, store_key: installation.storeKey, installation_id: installation.installationId, domain, status: installation.status, plan: installation.plan, commerce_version: installation.commerceVersion, modules, limits, issued_at: issuedAt, expires_at: validUntil.toISOString(), key_id: keyId };
+    const expiresAt = commerceDateAtom(validUntil);
+    const entitlement = { product, customer_id: installation.customerId, store_key: installation.storeKey, installation_id: installation.installationId, domain, status: installation.status, plan: installation.plan, commerce_version: installation.commerceVersion, modules, limits, issued_at: issuedAt, expires_at: expiresAt, key_id: keyId };
     const license = await issueCommerceLicense(entitlement, privateKey);
     const signature = license.split(".", 2)[1];
     await db.update(commerceLicenseInstallations).set({ activationCount: (installation.activationCount || 0) + 1, firstActivatedAt: installation.firstActivatedAt || issuedAt, lastSeenAt: issuedAt, lastSeenVersion: commerceVersion || installation.lastSeenVersion, updatedAt: issuedAt }).where(eq(commerceLicenseInstallations.id, installation.id));
     await db.insert(commerceLicenseVerificationEvents).values({ licenseId: installation.id, customerId: installation.customerId, requestHash, ipAddress: ipOf(request), outcome: "granted", createdAt: issuedAt });
-    const responseValue = { ok: true, format: "avci-commerce-entitlement.v2", entitlement, license, signature, key_id: keyId, issued_at: issuedAt, expires_at: validUntil.toISOString(), public_key: publicKey };
+    const responseValue = { ok: true, format: "avci-commerce-entitlement.v2", entitlement, license, signature, key_id: keyId, issued_at: issuedAt, expires_at: expiresAt, public_key: publicKey };
     const responseBody = JSON.stringify(responseValue);
     return new Response(responseBody, { status: 200, headers: { ...noStore, "X-Avci-Activation-Signature": await signActivationResponse(responseBody, licenseKey) } });
   } catch (cause) {
