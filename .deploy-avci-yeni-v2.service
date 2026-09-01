@@ -17,6 +17,7 @@ Environment=AVCI_CANONICAL_ORIGIN=https://avcieticaret.com
 Environment=CUSTOMER_PORTAL_PREVIEW=1
 EnvironmentFile=-/home/avccom/yeni/hub-bridge.env
 EnvironmentFile=-/home/avccom/yeni/admin-runtime.env
+EnvironmentFile=-/home/avccom/yeni/control-desk-runtime.env
 EnvironmentFile=-/home/avccom/yeni/v2/app/.dev.vars
 Environment=WRANGLER_LOG_PATH=/home/avccom/yeni/v2/app/.wrangler/wrangler.log
 Environment=AVCI_SQLITE_PATH=/home/avccom/yeni/data/avci-v2.sqlite
