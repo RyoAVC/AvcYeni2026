@@ -49,7 +49,7 @@ export async function POST(request: Request) {
       if (job.agentId !== agentId) return respond({ok:false,code:"job_not_owned"},409,token);
       if (job.status === "ready" && job.currentStep === "release_assigned") {
         let artifact:Record<string,unknown>={};try{artifact=JSON.parse(job.artifactJson||"{}");}catch{}
-        return respond({ok:true,format:"avci-commerce.install-task.v1",job_id:job.jobId,task:{action:"execute_deployment",deployment_id:String(artifact.deployment_id||""),expected_status:String(artifact.expected_status||"staged")}},200,token);
+        return respond({ok:true,format:"avci-commerce.install-task.v1",job_id:job.jobId,task:{action:"execute_deployment",deployment_id:String(artifact.deployment_id||""),expected_status:String(artifact.expected_status||"staged"),artifact_url:String(artifact.artifact_url||""),artifact_sha256:String(artifact.artifact_sha256||""),signed_release_manifest:String(artifact.signed_release_manifest||"")}},200,token);
       }
       return respond({ok:true,format:"avci-commerce.install-task.v1",job_id:job.jobId,task:{action:"wait",retry_after:15},status:job.status,step:job.currentStep},200,token);
     }

@@ -34,6 +34,11 @@ function signManifest(manifestObj) {
   const key = { key: b64urlToBuffer(RELEASE_PRIVATE_KEY_PKCS8), format: "der", type: "pkcs8" };
   return edSign(null, Buffer.from(JSON.stringify(manifestObj)), key).toString("base64url");
 }
+function signReleaseToken(release) {
+  const key = { key: b64urlToBuffer(RELEASE_PRIVATE_KEY_PKCS8), format: "der", type: "pkcs8" };
+  const payload = Buffer.from(JSON.stringify(release)).toString("base64url");
+  return `${payload}.${edSign(null, Buffer.from(payload), key).toString("base64url")}`;
+}
 
 let passCount = 0, failCount = 0;
 function assert(condition, message, extra) {
@@ -87,32 +92,35 @@ async function main() {
     assert(typeof jobId === "string" && jobId.startsWith("install-"), "jobId looks right", jobId);
     assert(typeof enrollmentToken === "string" && enrollmentToken.startsWith("aci_enroll_"), "enrollment token issued", enrollmentToken);
 
-    const claim = await post("/api/v1/commerce/install-agent/jobs", enrollmentToken, { action: "claim", agent_id: "e2e-agent-001", agent_version: "0.2.0" });
+    const claim = await post("/api/v1/commerce/install-agent/jobs", enrollmentToken, { action: "claim", agent_id: "e2e-agent-001", agent_version: "0.3.0" });
     assert(claim.status === 200 && claim.json.task?.action === "preflight", "agent claim -> preflight task", claim.json);
     const agentToken = claim.json.agent_token;
 
-    const preflightReport = await post("/api/v1/commerce/install-agent/jobs", agentToken, { action: "report", step: "preflight", agent_id: "e2e-agent-001", agent_version: "0.2.0", job_id: jobId, result: { passed: true, code: "preflight_ok" } });
+    const preflightReport = await post("/api/v1/commerce/install-agent/jobs", agentToken, { action: "report", step: "preflight", agent_id: "e2e-agent-001", agent_version: "0.3.0", job_id: jobId, result: { passed: true, code: "preflight_ok" } });
     assert(preflightReport.status === 200 && preflightReport.json.status === "ready", "preflight report -> job ready (awaiting_release)", preflightReport.json);
 
     const deploymentId = "deploy-e2e-0001", version = "1.0.1", treeSha256 = "a".repeat(64);
     const manifest = { format: "avci-commerce.release-assignment.v1", deployment_id: deploymentId, expected_status: "staged", version, tree_sha256: treeSha256 };
-    const assign = await post("/api/v1/control-desk/releases/assign", ADMIN_TOKEN, { jobId, deploymentId, version, treeSha256, signature: signManifest(manifest) });
+    const release = { version, minimum_version: "1.0.0", channel: "pilot", rollout_percent: 100, artifact_url: "https://updates.avcieticaret.com/commerce/e2e-1.0.1.zip", artifact_sha256: "b".repeat(64) };
+    const signedReleaseManifest = signReleaseToken(release);
+    const assign = await post("/api/v1/control-desk/releases/assign", ADMIN_TOKEN, { jobId, deploymentId, version, treeSha256, signature: signManifest(manifest), signedReleaseManifest });
     assert(assign.status === 200 && assign.json.step === "release_assigned", "signed release assigned", assign.json);
 
-    const poll1 = await post("/api/v1/commerce/install-agent/jobs", agentToken, { action: "poll", agent_id: "e2e-agent-001", agent_version: "0.2.0", job_id: jobId });
+    const poll1 = await post("/api/v1/commerce/install-agent/jobs", agentToken, { action: "poll", agent_id: "e2e-agent-001", agent_version: "0.3.0", job_id: jobId });
     assert(poll1.status === 200 && poll1.json.task?.action === "execute_deployment" && poll1.json.task?.deployment_id === deploymentId, "poll -> execute_deployment task with correct deployment id", poll1.json);
+    assert(poll1.json.task?.artifact_url === release.artifact_url && poll1.json.task?.artifact_sha256 === release.artifact_sha256 && poll1.json.task?.signed_release_manifest === signedReleaseManifest, "poll carries the verified artifact contract", poll1.json);
 
-    const deployReport = await post("/api/v1/commerce/install-agent/jobs", agentToken, { action: "report", step: "deployment", agent_id: "e2e-agent-001", agent_version: "0.2.0", job_id: jobId, result: { passed: true, code: "deployment_complete" } });
+    const deployReport = await post("/api/v1/commerce/install-agent/jobs", agentToken, { action: "report", step: "deployment", agent_id: "e2e-agent-001", agent_version: "0.3.0", job_id: jobId, result: { passed: true, code: "deployment_complete" } });
     assert(deployReport.status === 200 && deployReport.json.status === "complete", "deployment report -> job complete", deployReport.json);
 
     const rollback = await post(`/api/v1/control-desk/install-jobs/${jobId}/rollback`, ADMIN_TOKEN, { expectedStatus: "healthcheck_failed" });
     assert(rollback.status === 202 && rollback.json.status === "ready" && rollback.json.step === "rollback", "rollback accepted, job reset to ready/release_assigned", rollback.json);
 
-    const poll2 = await post("/api/v1/commerce/install-agent/jobs", agentToken, { action: "poll", agent_id: "e2e-agent-001", agent_version: "0.2.0", job_id: jobId });
+    const poll2 = await post("/api/v1/commerce/install-agent/jobs", agentToken, { action: "poll", agent_id: "e2e-agent-001", agent_version: "0.3.0", job_id: jobId });
     assert(poll2.status === 200 && poll2.json.task?.action === "execute_deployment" && poll2.json.task?.deployment_id === deploymentId, "post-rollback poll -> execute_deployment re-triggered for same deployment", poll2.json);
     assert(poll2.json.task?.expected_status === "healthcheck_failed", "post-rollback task carries the rollback's expected_status", poll2.json);
 
-    const rollbackReport = await post("/api/v1/commerce/install-agent/jobs", agentToken, { action: "report", step: "deployment", agent_id: "e2e-agent-001", agent_version: "0.2.0", job_id: jobId, result: { passed: false, code: "deployment_rolled_back" } });
+    const rollbackReport = await post("/api/v1/commerce/install-agent/jobs", agentToken, { action: "report", step: "deployment", agent_id: "e2e-agent-001", agent_version: "0.3.0", job_id: jobId, result: { passed: false, code: "deployment_rolled_back" } });
     assert(rollbackReport.status === 200 && rollbackReport.json.status === "failed", "rollback outcome reported (job ends failed = rolled back, not silently 'complete')", rollbackReport.json);
 
     const staleClaim = await post("/api/v1/commerce/install-agent/jobs", enrollmentToken, { action: "claim", agent_id: "intruder-agent", agent_version: "0.2.0" });
