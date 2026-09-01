@@ -45,7 +45,11 @@ export async function POST(request: Request) {
     });
     await db.insert(commerceInstallJobEvents).values({ jobId, status: "queued", step: "enrollment", safeCode: "job_created", createdAt: now.toISOString() });
     await logAdminAction(db,{ userEmail:auth.email,action:"control_desk_install_created",entity:"commerce_install_job",entityId:jobId,details:JSON.stringify({ licenseId,customerId:license.customerId,domain,environment }) });
-    const center = new URL(request.url).origin;
+    const requestUrl = new URL(request.url);
+    const apiMarker = "/api/v1/";
+    const markerIndex = requestUrl.pathname.indexOf(apiMarker);
+    const basePath = markerIndex >= 0 ? requestUrl.pathname.slice(0, markerIndex).replace(/\/$/, "") : "";
+    const center = `${requestUrl.origin}${basePath}`;
     return controlDeskJson({
       ok: true, format: "avci-commerce.install-enrollment.v1", jobId, enrollmentToken, expiresAt,
       agentEndpoint: `${center}/api/v1/commerce/install-agent/jobs`,
