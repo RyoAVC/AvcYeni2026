@@ -1,15 +1,11 @@
 import { commerceLicenseInstallations } from "../../../../db/schema";
+import { sha256 } from "../../../commerce-license-control-plane.mjs";
 import { getAdminUser } from "../../../admin-auth";
 import { ensureCommerceLicenseTables } from "../../../local-d1-schema.mjs";
 import { readRuntimeEnv } from "../../../runtime-env.mjs";
 
 function json(body: Record<string, unknown>, status: number) {
   return Response.json(body, { status, headers: { "Cache-Control": "no-store" } });
-}
-
-async function sha256Hex(text: string): Promise<string> {
-  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
-  return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
 // TEMPORARY, one-off admin tool: inserts a single test commerce license
@@ -26,7 +22,7 @@ export async function POST(request: Request) {
   const db = getDb();
 
   const licenseKey = "avc_live_test_" + crypto.randomUUID().replace(/-/g, "");
-  const tokenHash = await sha256Hex(licenseKey);
+  const tokenHash = await sha256(licenseKey);
   const now = new Date();
   const validUntil = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString();
 
