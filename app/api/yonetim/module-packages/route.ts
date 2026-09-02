@@ -29,7 +29,7 @@ export async function POST(request: Request) {
   const moduleKey = String(url.searchParams.get("key") || "").trim();
   const licenseScope = String(url.searchParams.get("license_scope") || "").trim();
   const version = String(url.searchParams.get("version") || "").trim();
-  if (!/^[a-z][a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(moduleKey)) return json({ ok: false, error: "Geçersiz modül anahtarı." }, 400);
+  if (!/^[A-Za-z][A-Za-z0-9-]*$/.test(moduleKey)) return json({ ok: false, error: "Geçersiz modül anahtarı." }, 400);
   if (!/^[a-z][a-z0-9.]*(?:[._-][a-z0-9]+)*$/.test(licenseScope)) return json({ ok: false, error: "Geçersiz lisans kapsamı." }, 400);
   if (!/^\d+\.\d+\.\d+$/.test(version)) return json({ ok: false, error: "Sürüm semver biçiminde olmalıdır." }, 400);
   if ((request.headers.get("content-type") ?? "") !== "application/zip") return json({ ok: false, error: "İstek application/zip biçiminde olmalıdır." }, 415);

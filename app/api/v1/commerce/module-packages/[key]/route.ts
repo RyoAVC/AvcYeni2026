@@ -12,7 +12,7 @@ const respond = (value: Record<string, unknown>, status = 200) => new Response(J
 export async function POST(request: Request, { params }: { params: Promise<{ key: string }> }) {
   const { key } = await params;
   const moduleKey = String(key || "").trim();
-  if (!/^[a-z][a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(moduleKey)) return respond({ ok: false, code: "invalid_module_key" }, 400);
+  if (!/^[A-Za-z][A-Za-z0-9-]*$/.test(moduleKey)) return respond({ ok: false, code: "invalid_module_key" }, 400);
   if (!(request.headers.get("content-type") ?? "").includes("application/json")) return respond({ ok: false, code: "content_type_required" }, 415);
   const length = Number(request.headers.get("content-length") ?? "0");
   if (length > 8192) return respond({ ok: false, code: "payload_too_large" }, 413);
