@@ -253,7 +253,7 @@ export function AdminShell({
   return (
     <main className="admin-page admin-page-modern">
       <input aria-hidden="true" className="admin-sidebar-toggle-input" id="admin-sidebar-toggle" type="checkbox" />
-      <aside className="admin-sidebar admin-sidebar-modern">
+      <aside className="admin-sidebar-modern">
         <div className="admin-sidebar-header">
           <SiteBrand href="/yonetim" label="Avcı E-Ticaret Yönetim Paneli" />
           <div className="admin-health-badge">
