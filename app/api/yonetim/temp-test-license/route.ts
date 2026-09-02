@@ -30,8 +30,10 @@ export async function POST(request: Request) {
   const now = new Date();
   const validUntil = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString();
 
-  const [existingCustomer] = await db.select({ id: (await import("../../../../db/schema")).customers.id }).from((await import("../../../../db/schema")).customers).limit(1);
-  if (!existingCustomer) return json({ ok: false, error: "no_customer_available" }, 500);
+  const { customers } = await import("../../../../db/schema");
+  const { eq: eqOp } = await import("drizzle-orm");
+  const [existingCustomer] = await db.select({ id: customers.id }).from(customers).where(eqOp(customers.status, "active")).limit(1);
+  if (!existingCustomer) return json({ ok: false, error: "no_active_customer_available" }, 500);
 
   const inserted = await db.insert(commerceLicenseInstallations).values({
     customerId: existingCustomer.id,
