@@ -27,11 +27,11 @@
 
 
 * { box-sizing: border-box; }
-html { scroll-behavior: auto; overflow-x: hidden; }
+html { scroll-behavior: auto; overflow-x: clip; }
 body {
   margin: 0;
   max-width: 100%;
-  overflow-x: hidden;
+  overflow-x: clip;
   background: var(--paper);
   color: var(--ink);
   font-family: var(--display);

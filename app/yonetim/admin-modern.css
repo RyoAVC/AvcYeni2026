@@ -22,7 +22,7 @@
 @media(max-width:1180px){.admin-breadcrumb{display:none}.admin-topbar-search{max-width:360px}}@media(max-width:900px){.admin-sidebar-toggle{display:none}.admin-live-pill{display:none}}@media(max-width:620px){.admin-topbar-search{flex:1;width:auto}.admin-topbar-actions{flex:0 0 auto}}
 
 /* Hard overflow guard for tablet and narrow desktop widths. */
-.admin-page-modern{max-width:100vw;overflow-x:hidden}.admin-content-wrap,.admin-main{min-width:0}.admin-content-wrap{overflow-x:clip}
+.admin-page-modern{max-width:100vw;overflow-x:clip}.admin-content-wrap,.admin-main{min-width:0}.admin-content-wrap{overflow-x:clip}
 @media(max-width:1180px) and (min-width:901px){.admin-page-modern{grid-template-columns:78px minmax(0,1fr)}.admin-sidebar-modern{padding-inline:10px}.admin-sidebar-modern .admin-sidebar-header .brand-copy,.admin-sidebar-modern .admin-health-badge span:not(.status-dot),.admin-sidebar-modern .admin-nav-group-title,.admin-sidebar-modern .admin-nav-text,.admin-sidebar-modern .admin-nav-badge,.admin-sidebar-modern .admin-user-info,.admin-sidebar-modern .admin-nav-group--bottom{display:none}.admin-sidebar-modern .admin-sidebar-header,.admin-sidebar-modern .admin-user-card{justify-content:center}.admin-sidebar-modern .admin-nav-link{justify-content:center;padding-inline:0}.admin-sidebar-modern .admin-nav-icon{width:34px;height:34px}.admin-sidebar-modern .admin-user-card{padding:8px}.admin-sidebar-modern .admin-logout-btn{display:none}}
 
 /* Shared content system for every /yonetim screen. */
