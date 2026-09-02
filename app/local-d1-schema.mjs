@@ -974,6 +974,8 @@ export async function ensureCommerceLicenseTables(env) {
     `CREATE TABLE IF NOT EXISTS mobile_push_deliveries (id integer PRIMARY KEY AUTOINCREMENT NOT NULL, customer_id integer NOT NULL, store_key text DEFAULT '' NOT NULL, device_id integer NOT NULL, requested_by text DEFAULT '' NOT NULL, title text NOT NULL, status text DEFAULT 'queued' NOT NULL, provider_ticket_id text DEFAULT '' NOT NULL, error_code text DEFAULT '' NOT NULL, error_message text DEFAULT '' NOT NULL, created_at text DEFAULT CURRENT_TIMESTAMP NOT NULL, updated_at text DEFAULT CURRENT_TIMESTAMP NOT NULL)`,
     `CREATE INDEX IF NOT EXISTS idx_mobile_push_delivery_customer ON mobile_push_deliveries (customer_id,created_at)`,
     `CREATE INDEX IF NOT EXISTS idx_mobile_push_delivery_device ON mobile_push_deliveries (device_id,created_at)`,
+    `CREATE TABLE IF NOT EXISTS commerce_module_packages (id integer PRIMARY KEY AUTOINCREMENT NOT NULL, module_key text NOT NULL, license_scope text NOT NULL, version text NOT NULL, sha256 text NOT NULL, size_bytes integer NOT NULL, content_base64 text NOT NULL, created_at text DEFAULT CURRENT_TIMESTAMP NOT NULL, UNIQUE(module_key, version))`,
+    `CREATE INDEX IF NOT EXISTS idx_commerce_module_packages_scope ON commerce_module_packages (license_scope)`,
   ];
   for (const statement of statements) await binding.prepare(statement).run();
   const columns = new Set(((await binding.prepare("PRAGMA table_info(commerce_license_installations)").all()).results || []).map((item) => item.name));

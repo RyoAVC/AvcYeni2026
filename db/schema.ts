@@ -639,6 +639,24 @@ export const commerceLicenseInstallations = sqliteTable(
   ],
 );
 
+export const commerceModulePackages = sqliteTable(
+  "commerce_module_packages",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    moduleKey: text("module_key").notNull(),
+    licenseScope: text("license_scope").notNull(),
+    version: text("version").notNull(),
+    sha256: text("sha256").notNull(),
+    sizeBytes: integer("size_bytes").notNull(),
+    contentBase64: text("content_base64").notNull(),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    uniqueIndex("idx_commerce_module_packages_key_version").on(table.moduleKey, table.version),
+    index("idx_commerce_module_packages_scope").on(table.licenseScope),
+  ],
+);
+
 export const commerceLicenseVerificationEvents = sqliteTable(
   "commerce_license_verification_events",
   {
