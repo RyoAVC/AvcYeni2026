@@ -10,6 +10,16 @@
 .admin-btn-primary{border-color:var(--admin-brand)!important;background:var(--admin-brand)!important;color:#fff!important}.admin-btn-primary:hover{background:#d90c18!important}.admin-card-action,.admin-badge--info{color:var(--admin-brand)!important}.admin-table th{background:#f5f6f8}.admin-table tbody tr:hover{background:rgba(239,16,29,.022)}.admin-record-form input:focus,.admin-record-form select:focus,.admin-record-form textarea:focus,.portal-admin-editor input:focus,.portal-admin-editor select:focus,.portal-admin-editor textarea:focus{border-color:rgba(239,16,29,.55)!important;box-shadow:0 0 0 4px var(--admin-brand-soft)!important}
 @media(max-width:1180px) and (min-width:1025px){.admin-page-modern{grid-template-columns:78px minmax(0,1fr)}}@media(max-width:1024px){.admin-page-modern,.admin-page-modern:has(.admin-sidebar-toggle-input:checked){grid-template-columns:minmax(0,1fr)}.admin-sidebar-modern,.admin-sidebar-toggle{display:none}.admin-mobile-menu{display:block}}@media(prefers-reduced-motion:reduce){.admin-content-wrap>.admin-main{animation:none}.admin-quick-add-btn:hover{transform:none}}
 
-/* Sidebar owns one viewport and scrolls independently from long admin pages. */
-.admin-sidebar-modern{position:sticky;top:0;align-self:start;height:100dvh;min-height:0;overflow:hidden}.admin-nav-modern{min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.18) transparent}.admin-nav-modern::-webkit-scrollbar{width:5px}.admin-nav-modern::-webkit-scrollbar-thumb{border-radius:99px;background:rgba(255,255,255,.18)}.admin-user-card{flex:0 0 auto}
+/* Sidebar owns one viewport and scrolls independently from long admin pages.
+   The nav list (19 links across 5 groups + the site link) is reliably taller
+   than most laptop viewports, so it scrolls internally — the scrollbar and
+   bottom fade below exist so that's obvious instead of reading as clipped. */
+.admin-sidebar-modern{position:sticky;top:0;align-self:start;height:100dvh;min-height:0;overflow:hidden}
+.admin-nav-modern{position:relative;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.32) rgba(255,255,255,.06)}
+.admin-nav-modern::-webkit-scrollbar{width:7px}
+.admin-nav-modern::-webkit-scrollbar-track{background:rgba(255,255,255,.05)}
+.admin-nav-modern::-webkit-scrollbar-thumb{border-radius:99px;background:rgba(255,255,255,.32)}
+.admin-nav-modern::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.48)}
+.admin-sidebar-modern::after{content:"";position:absolute;left:0;right:0;bottom:88px;height:26px;background:linear-gradient(180deg,transparent,#0b101b);pointer-events:none}
+.admin-user-card{position:relative;z-index:1;flex:0 0 auto}
 .module-package-panel{margin:4px 0 0;padding:20px;border:1px solid var(--admin-line);border-radius:14px;background:#f7f8fa}.module-package-panel legend{padding:0 8px;color:#151a27;font-size:12px;font-weight:800}.module-package-panel>p{max-width:850px;margin:0 0 18px;color:#687184;font-size:10px;line-height:1.65}.module-package-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:12px}.module-code-field{min-height:190px!important;font-family:"JetBrains Mono",Consolas,monospace!important;font-size:11px!important;line-height:1.55!important;tab-size:2}.lead-table td small{display:block;margin-top:4px;color:var(--admin-text-muted);font-size:9px}@media(max-width:1024px){.admin-sidebar-modern{position:static;height:auto;overflow:visible}.module-package-grid{grid-template-columns:1fr}}
