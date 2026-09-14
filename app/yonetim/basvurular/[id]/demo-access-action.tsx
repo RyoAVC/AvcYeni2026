@@ -39,7 +39,7 @@ export function DemoAccessAction({ leadId, existingCustomerStatus }: { leadId: n
 
   return (
     <div className="demo-access-action">
-      <button type="button" className="button button-ghost" disabled={sending} onClick={sendInvite}>
+      <button type="button" disabled={sending} onClick={sendInvite}>
         {existingCustomerStatus === "trial" ? "Demo erişimini yenile" : "Demo erişimi gönder"}
       </button>
       {message ? (
