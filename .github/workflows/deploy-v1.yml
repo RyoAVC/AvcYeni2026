@@ -26,6 +26,10 @@ jobs:
           rsync -az --delete \
             --exclude node_modules \
             --exclude .git \
+            --exclude .dev.vars \
+            --exclude ".dev.vars.*" \
+            --exclude .env \
+            --exclude ".env.*" \
             --exclude yedekler \
             --exclude .wrangler \
             --exclude .sites-runtime \
