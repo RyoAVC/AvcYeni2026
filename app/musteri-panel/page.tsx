@@ -107,8 +107,8 @@ export default async function CustomerPortalPage() {
   if (customer.status === "trial") {
     const daysLeft = trialDaysLeft(customer.trialExpiresAt);
     trialBannerText = Number.isFinite(daysLeft) && daysLeft > 0
-      ? `Demo erişimi · ${daysLeft} gün kaldı. Gerçek ödeme, kargo ve müşteri bildirimleri kapalıdır.`
-      : "Demo erişimi · süre bugün doluyor. Gerçek ödeme, kargo ve müşteri bildirimleri kapalıdır.";
+      ? `${daysLeft} gün kaldı. Gerçek ödeme, kargo ve müşteri bildirimleri bu süre boyunca kapalıdır.`
+      : "Süre bugün doluyor. Gerçek ödeme, kargo ve müşteri bildirimleri kapalıdır.";
   }
 
   return (
@@ -151,7 +151,12 @@ export default async function CustomerPortalPage() {
                   kart çekimi, e-Fatura veya kayıt değiştirme burada yoktur.
                 </p>
                 {trialBannerText ? (
-                  <p className="cp-trial-banner" role="status">{trialBannerText}</p>
+                  <div className="cp-notice is-live" role="status">
+                    <div className="cp-notice-copy">
+                      <strong>Demo erişimi</strong>
+                      <p>{trialBannerText}</p>
+                    </div>
+                  </div>
                 ) : null}
               </div>
               <div className="cp-topbar-actions">
