@@ -35,6 +35,10 @@ const INTEGRATION_STATUS_LABEL: Record<string, string> = {
 
 export const dynamic = "force-dynamic";
 
+function trialDaysLeft(trialExpiresAt: string) {
+  return Math.ceil((Date.parse(trialExpiresAt || "") - Date.now()) / 86_400_000);
+}
+
 export const metadata: Metadata = {
   title: "Müşteri Paneli | Avcı E-Ticaret",
   robots: { index: false, follow: false },
@@ -99,6 +103,13 @@ export default async function CustomerPortalPage() {
     ...snapshot.orders.map((item) => ({ ...item, label: `Lisans · ${item.label}` })),
     ...snapshot.invoices.map((item) => ({ ...item, id: item.id + 1_000_000, label: `Fatura · ${item.label}` })),
   ];
+  let trialBannerText = "";
+  if (customer.status === "trial") {
+    const daysLeft = trialDaysLeft(customer.trialExpiresAt);
+    trialBannerText = Number.isFinite(daysLeft) && daysLeft > 0
+      ? `${daysLeft} gün kaldı. Gerçek ödeme, kargo ve müşteri bildirimleri bu süre boyunca kapalıdır.`
+      : "Süre bugün doluyor. Gerçek ödeme, kargo ve müşteri bildirimleri kapalıdır.";
+  }
 
   return (
     <DemoPortalNavProvider defaultId="ozet" items={navItems}>
@@ -139,6 +150,14 @@ export default async function CustomerPortalPage() {
                   Bu ekran yönetimdeki yazılım müşteri kaydınızdan okur. Sipariş, destek ve fatura listesi görüntülenir;
                   kart çekimi, e-Fatura veya kayıt değiştirme burada yoktur.
                 </p>
+                {trialBannerText ? (
+                  <div className="cp-notice is-live" role="status">
+                    <div className="cp-notice-copy">
+                      <strong>Demo erişimi</strong>
+                      <p>{trialBannerText}</p>
+                    </div>
+                  </div>
+                ) : null}
               </div>
               <div className="cp-topbar-actions">
                 <Link className="button button-ghost" href="/musteri-merkezi">

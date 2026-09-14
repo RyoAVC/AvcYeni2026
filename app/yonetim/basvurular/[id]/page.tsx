@@ -8,6 +8,8 @@ import { requireAdminUser } from "../../../admin-auth";
 import { chatGPTSignOutPath } from "../../../chatgpt-auth";
 import { StatusControl } from "../status-control";
 import { NoteForm } from "./note-form";
+import { DemoAccessAction } from "./demo-access-action";
+import { StoreDemoAction } from "./store-demo-action";
 import { leadStatusLabel } from "../../../lead-statuses";
 import { historyCountLabel } from "../../../history-count-label.mjs";
 import { AdminShell } from "../../admin-shell";
@@ -56,7 +58,7 @@ async function ProtectedLeadDetail({ idParam }: { idParam: string }) {
   let notes: Array<typeof leadNotes.$inferSelect> = [];
   let activityTotal = 0;
   let noteTotal = 0;
-  let existingCustomer: { id: number; name: string } | undefined;
+  let existingCustomer: { id: number; name: string; status: string } | undefined;
   let databaseFailed = false;
   try {
     const { getDb } = await import("../../../../db");
@@ -76,7 +78,7 @@ async function ProtectedLeadDetail({ idParam }: { idParam: string }) {
     if (lead) {
       const email = normalizeEmailAddress(lead.email, 180);
       if (email) {
-        const [match] = await db.select({ id: customers.id, name: customers.name }).from(customers).where(eq(customers.email, email)).limit(1);
+        const [match] = await db.select({ id: customers.id, name: customers.name, status: customers.status }).from(customers).where(eq(customers.email, email)).limit(1);
         existingCustomer = match;
       }
     }
@@ -105,7 +107,7 @@ async function ProtectedLeadDetail({ idParam }: { idParam: string }) {
         </header>
 
         <div className="lead-detail-grid">
-          <article className="lead-detail-card contact-card"><span className="kicker">İLETİŞİM</span><h2>Başvuru sahibi</h2><dl><div><dt>E-posta</dt><dd><a href={`mailto:${lead.email}`}>{lead.email}</a></dd></div><div><dt>Telefon</dt><dd><a href={`tel:${phoneHref}`}>{lead.phone}</a></dd></div><div><dt>Firma</dt><dd>{lead.company || "—"}</dd></div></dl><div className="lead-contact-actions"><a href={`mailto:${lead.email}?subject=${emailSubject}`}>E-posta gönder</a><a href={`tel:${phoneHref}`}>Telefonla ara</a>{existingCustomer ? <Link href={`/yonetim/musteriler/${existingCustomer.id}`}>Müşteri kaydını aç</Link> : <Link href={`/yonetim/musteriler/yeni?basvuru=${lead.id}`}>Yazılım müşterisine çevir</Link>}{existingCustomer ? <Link href={`/yonetim/siparisler?musteri=${existingCustomer.id}`}>Siparişleri gör</Link> : null}{existingCustomer ? <Link href={`/yonetim/siparisler/yeni?musteri=${existingCustomer.id}`}>Sipariş ekle</Link> : null}</div></article>
+          <article className="lead-detail-card contact-card"><span className="kicker">İLETİŞİM</span><h2>Başvuru sahibi</h2><dl><div><dt>E-posta</dt><dd><a href={`mailto:${lead.email}`}>{lead.email}</a></dd></div><div><dt>Telefon</dt><dd><a href={`tel:${phoneHref}`}>{lead.phone}</a></dd></div><div><dt>Firma</dt><dd>{lead.company || "—"}</dd></div></dl><div className="lead-contact-actions"><a href={`mailto:${lead.email}?subject=${emailSubject}`}>E-posta gönder</a><a href={`tel:${phoneHref}`}>Telefonla ara</a>{existingCustomer ? <Link href={`/yonetim/musteriler/${existingCustomer.id}`}>Müşteri kaydını aç</Link> : <Link href={`/yonetim/musteriler/yeni?basvuru=${lead.id}`}>Yazılım müşterisine çevir</Link>}{existingCustomer ? <Link href={`/yonetim/siparisler?musteri=${existingCustomer.id}`}>Siparişleri gör</Link> : null}{existingCustomer ? <Link href={`/yonetim/siparisler/yeni?musteri=${existingCustomer.id}`}>Sipariş ekle</Link> : null}<DemoAccessAction leadId={lead.id} existingCustomerStatus={existingCustomer?.status} /></div>{existingCustomer ? <StoreDemoAction leadId={lead.id} /> : null}</article>
           <article className="lead-detail-card"><span className="kicker">PROJE</span><h2>{lead.interest}</h2><p className="lead-full-message">{lead.message || "Başvuru sahibi ek bir proje açıklaması paylaşmadı."}</p></article>
           <article className="lead-detail-card lead-timing"><span className="kicker">KAYNAK & ZAMAN</span><dl><div><dt>Kaynak</dt><dd>{sourceLabel(lead.source)}</dd></div>{lead.utmSource && <div><dt>UTM kaynağı</dt><dd>{lead.utmSource}</dd></div>}{lead.utmMedium && <div><dt>UTM ortamı</dt><dd>{lead.utmMedium}</dd></div>}{lead.utmCampaign && <div><dt>Kampanya</dt><dd>{lead.utmCampaign}</dd></div>}{lead.referrerHost && <div><dt>Yönlendiren alan</dt><dd>{lead.referrerHost}</dd></div>}{lead.landingPath && <div><dt>Açılış sayfası</dt><dd>{lead.landingPath}</dd></div>}<div><dt>Oluşturuldu</dt><dd><time dateTime={lead.createdAt}>{formatDate(lead.createdAt)}</time></dd></div><div><dt>Son güncelleme</dt><dd><time dateTime={lead.updatedAt}>{formatDate(lead.updatedAt)}</time></dd></div><div><dt>İletişim izni</dt><dd><time dateTime={lead.consentAt}>{formatDate(lead.consentAt)}</time></dd></div></dl></article>
         </div>
