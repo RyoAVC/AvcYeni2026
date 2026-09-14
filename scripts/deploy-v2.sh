@@ -9,7 +9,17 @@ NODE_BIN="/opt/node-v22.23.1-linux-x64/bin"
 export PATH="${NODE_BIN}:${PATH}"
 export NEXT_PUBLIC_BASE_PATH="/v2"
 export NEXT_PUBLIC_SITE_ORIGIN="https://yeni.avcieticaret.com"
-export AVCI_DOMAIN_STAGE="temporary"
+# Read the operator-selected stage from the persistent v1 configuration.
+export AVCI_DOMAIN_STAGE="$(node --input-type=module -e '
+  import { readFileSync, existsSync } from "node:fs";
+  import { parseEnv } from "node:util";
+  const file = process.argv[1];
+  const env = existsSync(file) ? parseEnv(readFileSync(file, "utf8")) : {};
+  const stage = env.AVCI_DOMAIN_STAGE || "temporary";
+  if (!["temporary", "canonical"].includes(stage)) throw new Error("Invalid AVCI_DOMAIN_STAGE");
+  console.log(stage);
+' "${V1_DIR}/.dev.vars")"
+case "$AVCI_DOMAIN_STAGE" in temporary|canonical) ;; *) exit 1 ;; esac
 export AVCI_TEMPORARY_CONTROL_PLANE_ORIGIN="https://yeni.avcieticaret.com/v2"
 export AVCI_CANONICAL_ORIGIN="https://avcieticaret.com"
 export WRANGLER_LOG_PATH="${APP_DIR}/.wrangler/wrangler.log"
@@ -129,11 +139,12 @@ discovery_body="$(curl -fsS --max-time 20 http://127.0.0.1:4121/v2/api/v1/contro
 node --input-type=module -e '
   const body = JSON.parse(process.argv[1]);
   if (body.format !== "avci-control-plane.discovery.v1") throw new Error("discovery format hatali");
-  if (body.stage !== "temporary") throw new Error("ana domaine erken gecis engellendi");
-  if (body.activeControlPlane !== "https://yeni.avcieticaret.com/v2") throw new Error("aktif merkez hatali");
-  if (body.canonicalOrigin !== "https://avcieticaret.com" || body.canonicalStatus !== "maintenance") throw new Error("ana domain bakim sozlesmesi hatali");
+  const canonical = process.env.AVCI_DOMAIN_STAGE === "canonical";
+  if (body.stage !== process.env.AVCI_DOMAIN_STAGE) throw new Error("domain stage differs from server configuration");
+  if (body.activeControlPlane !== (canonical ? "https://avcieticaret.com" : "https://yeni.avcieticaret.com/v2")) throw new Error("aktif merkez hatali");
+  if (body.canonicalOrigin !== "https://avcieticaret.com" || body.canonicalStatus !== (canonical ? "active" : "maintenance")) throw new Error("canonical status differs from server configuration");
 ' "${discovery_body}"
-echo "local_v2_discovery:verified_temporary"
+echo "local_v2_discovery:verified_${AVCI_DOMAIN_STAGE}"
 
 public_discovery_code="$(curl -s -o /tmp/avci-discovery-probe.json -w "%{http_code}" --max-time 20 https://yeni.avcieticaret.com/v2/api/v1/control-desk/discovery || echo 000)"
 echo "public_v2_discovery:${public_discovery_code}"
