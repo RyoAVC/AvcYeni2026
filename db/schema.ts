@@ -107,6 +107,7 @@ export const customers = sqliteTable(
     domainExpiresAt: text("domain_expires_at").notNull().default(""),
     hostingExpiresAt: text("hosting_expires_at").notNull().default(""),
     status: text("status").notNull().default("active"),
+    trialExpiresAt: text("trial_expires_at").notNull().default(""),
     createdByEmail: text("created_by_email").notNull().default(""),
     createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
     updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
@@ -455,6 +456,19 @@ export const customerPortalCredentials = sqliteTable(
     createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
     updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
   },
+);
+
+export const customerSetupTokens = sqliteTable(
+  "customer_setup_tokens",
+  {
+    tokenHash: text("token_hash").primaryKey(),
+    customerId: integer("customer_id").notNull().references(() => customers.id, { onDelete: "cascade" }),
+    purpose: text("purpose").notNull().default("demo_invite"),
+    expiresAt: text("expires_at").notNull(),
+    usedAt: text("used_at"),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [index("idx_customer_setup_tokens_customer").on(table.customerId)],
 );
 
 export const customerPortalLoginAttempts = sqliteTable(

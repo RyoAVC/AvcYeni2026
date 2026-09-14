@@ -47,6 +47,9 @@ export async function getCustomerUser() {
     if (!customer || !["active", "trial"].includes(customer.status)) {
       return { customer: null, authorized: false as const };
     }
+    if (customer.status === "trial" && customer.trialExpiresAt && Date.parse(customer.trialExpiresAt) <= Date.now()) {
+      return { customer: null, authorized: false as const };
+    }
     if (normalizeEmailAddress(customer.email) !== session.email) {
       return { customer: null, authorized: false as const };
     }
