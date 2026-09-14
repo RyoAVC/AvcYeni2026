@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Copy yeni.avcieticaret.com PHP proxy files to every likely document root.
+# Copy only to explicitly allowed yeni document roots. Never guess production roots.
 set -euo pipefail
 
 APP_DIR="${1:-/home/avccom/yeni/v1/app}"
@@ -15,6 +15,12 @@ fi
 sync_proxy() {
   local target_root="$1"
   [ -d "${target_root}" ] || return 0
+  local resolved
+  resolved="$(readlink -f -- "${target_root}")"
+  case "$resolved" in
+    /home/avccom/yeni|/home/avccom/domains/yeni.avcieticaret.com/public_html|/home/avccom/yeni.avcieticaret.com/public_html|/var/www/yeni.avcieticaret.com) ;;
+    *) echo "Refusing non-yeni document root: $resolved" >&2; return 1 ;;
+  esac
   cp "${INDEX_SRC}" "${target_root}/index.php"
   cp "${HTACCESS_SRC}" "${target_root}/.htaccess"
   echo "synced_proxy_to:${target_root}"
@@ -23,19 +29,13 @@ sync_proxy() {
 sync_proxy "${CANONICAL_ROOT}"
 
 for candidate in \
-  /home/avccom/public_html \
   /home/avccom/domains/yeni.avcieticaret.com/public_html \
   /home/avccom/yeni.avcieticaret.com/public_html \
-  /var/www/yeni.avcieticaret.com \
-  /var/www/html; do
+  /var/www/yeni.avcieticaret.com; do
   sync_proxy "${candidate}"
 done
 
-while IFS= read -r conf; do
-  [ -n "${conf}" ] || continue
-  docroot="$(awk '/^[[:space:]]*docRoot[[:space:]]/ { print $2; exit }' "${conf}" | tr -d '"')"
-  sync_proxy "${docroot}"
-done < <(grep -rl "yeni.avcieticaret.com" /usr/local/lsws/conf 2>/dev/null || true)
+# No config discovery: a shared vhost can mention yeni and still own the main domain.
 
 php -r "if (function_exists('opcache_reset')) { opcache_reset(); }" 2>/dev/null || true
 if command -v /usr/local/lsws/bin/lswsctrl >/dev/null 2>&1; then
