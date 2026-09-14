@@ -3556,16 +3556,22 @@ body:has(.english-page) > .global-site-footer { display: none; }
 .lead-contact-actions a { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 42px; padding: 0 12px; border: 1px solid rgba(7,19,28,.1); border-radius: 9px; color: #225f4b; background: #f6faf7; font-size: 9px; font-weight: 800; }
 .lead-contact-actions a:nth-child(3) { grid-column: 1 / -1; }
 .lead-contact-actions a:hover { border-color: #8bc5ad; background: #e7f7ed; }
-.lead-contact-actions .demo-access-action { grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-.lead-contact-actions .demo-access-action button {
+.lead-contact-actions .demo-access-action { grid-column: 1 / -1; margin-top: 0; }
+.demo-access-action { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+.demo-access-action button {
   display: flex; align-items: center; justify-content: center; flex: 1 1 auto; min-height: 42px; padding: 0 12px;
   border: 1px solid rgba(7,19,28,.1); border-radius: 9px; color: #225f4b; background: #f6faf7;
   font-size: 9px; font-weight: 800; cursor: pointer;
 }
-.lead-contact-actions .demo-access-action button:hover:not(:disabled) { border-color: #8bc5ad; background: #e7f7ed; }
-.lead-contact-actions .demo-access-action button:disabled { opacity: .6; cursor: default; }
-.lead-contact-actions .demo-access-action small { color: #52636c; font-size: 10px; font-weight: 700; }
-.lead-contact-actions .demo-access-action small.error { color: #a3372f; }
+.demo-access-action button:hover:not(:disabled) { border-color: #8bc5ad; background: #e7f7ed; }
+.demo-access-action button:disabled { opacity: .6; cursor: default; }
+.demo-access-action small { color: #52636c; font-size: 10px; font-weight: 700; }
+.demo-access-action small.error { color: #a3372f; }
+.store-demo-result { margin-top: 12px; padding: 14px 16px; border: 1px solid #e7cecc; border-radius: 12px; background: linear-gradient(180deg, #fff, #fef2f2); }
+.store-demo-result strong { display: block; font-size: 12px; margin-bottom: 6px; }
+.store-demo-result p { margin: 0 0 10px; color: #52636c; font-size: 11px; line-height: 1.6; }
+.store-demo-result small { display: block; margin: 10px 0 4px; color: #52636c; font-size: 10px; font-weight: 700; }
+.store-demo-result pre { margin: 0; padding: 10px 12px; border-radius: 8px; background: #14151a; color: #e7ece9; font-size: 10px; overflow-x: auto; white-space: pre-wrap; word-break: break-all; }
 .lead-full-message { margin: 0; color: #52636c; font-size: 13px; line-height: 1.85; white-space: pre-wrap; }
 .lead-timing { background: #f9fbf9; }
 .lead-timing dd { overflow-wrap: anywhere; }
